@@ -1,0 +1,56 @@
+/*
+ * SampleSystem.cpp
+ *
+ *  Created on: 7 janv. 2014
+ *      Author: bmathieu
+ */
+
+#include "SampleSystem.h"
+#include "SampleEvent.h"
+#include <typeinfo>
+#include <functional>
+
+using namespace std;
+using namespace std::placeholders;
+using namespace brain;
+
+void hell(isystem_sptr& sys, IEvent_sptr e)
+{
+	Logger<SampleSystem>::info("Yoooo ");
+}
+
+void hell2(isystem_sptr& sys, IEvent_sptr e)
+{
+	Logger<SampleSystem>::info("Yoooo 2");
+}
+
+SampleSystem::SampleSystem() noexcept :
+isystem()
+{
+	Logger<SampleSystem>::info("Construction SampleSystem");
+	this->bind(typeid(SampleEvent), hell);
+	this->bind(typeid(SampleEvent), hell2);
+}
+
+string SampleSystem::className()
+{
+	return string("SampleSystem");
+}
+
+void SampleSystem::help()
+{
+	Logger<SampleSystem>::info("#################### SAMPLE SYSTEM HELP ####################");
+	Logger<SampleSystem>::info("############################################################");
+}
+
+isystem_sptr SampleSystem::clone()
+{
+	return isystem_sptr(new SampleSystem(*this));
+}
+
+void SampleSystem::run(const vector<string>& args)
+{
+	this->isystem::run(args);
+	shared_ptr<SampleEvent> event(new SampleEvent(shared_conv<isystem>(this->shared_from_this())));
+	send(event);
+}

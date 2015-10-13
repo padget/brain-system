@@ -1,0 +1,809 @@
+#########################################################
+#	                            						#
+#    Brain Data - Langage d'exploration des ensembles   #
+#                                                       #
+#########################################################
+
+
+# Sommaire
+
+   # Introduction
+   # Méta-définition de l'ensemble des ensembles
+     # Méta-définition de l'ensemble 'column'
+     # Méta-définition de l'ensemble 'type'
+     # Méta-définition de l'ensemble 'constraint'
+     # Méta-définition de l'ensemble 'card'
+     # Méta-définition de l'ensemble 'set'
+   # Lambda
+   # Notion d'ensemble
+   # Définition d'un ensemble
+   # Filtre sur un ensemble
+
+
+
+##################
+#                #
+#  Introduction  #
+#                #
+##################
+
+
+Dans de nombreuses applications, la problématique de stockage des données est
+une question qui se pose dès le départ. Par exemple, le questionnement suivant
+est typique de l'étape fonctionnel :
+    - Quel type de données vais-je stocker ? (images, textes, géographique,
+    média, ...)
+    - Quels forme aura le modèle de données que je vais stocker ? (arbres,
+    graphes, annuaires, ...)
+    - Quelle sera la/les volumétries dont je vais devoir assurer le stockage ?
+    (1000, 1 000 000, 1 000 000 000 de lignes)
+    - ... ?
+
+
+Quelques soient les réponses à ces questions, la plupart des principaux SGBD
+peuvent répondre aux besoins de l'application. Cependant, la plupart d'entre eux
+sont compliant avec la Norme SQL qui fourni un langage assez complexes et donc
+qui ne permet pas d'appréhender efficacement et dans un minimum de temps.
+
+Nous voyons donc là l'utilité de mettre en place un langage simple et rapide à
+apprendre. Ce langage se basera sur une notion central dans notre monde :
+l'ensemble au sens mathématique. En effet, quoi de mieux que l'objet qui
+représente tous les objets de notre langage de modélisation, les mathématiques ?
+
+La théorie des ensembles en mathématique est une théorie suffisament générique
+et admise pour que celle-ci serve de base de construction à un système de
+stockage de données et de requêtage sur celui-ci. De plus, le fait que l'on
+doivent manipuler des collections d'objets, les opérations ensembliste définit
+par la théorie des ensembles s'y prêtent tout à fait. Les deux opérations de
+base ensemblistes de la théorie sont :
+     - L'égalité de deux ensembles.
+     - L'appartenance d'un ensemble à un autre ensemble.
+
+A partir de ces deux opérateur ensemblistes, la théorie est capable de
+construire les autres notions fondamentales des mathématiques. Donc si notre
+langage implémente les notions de la théorie des ensembles, alors nous aurons un
+pouvoir de modélisation qui n'aura de limite que la feignantise de celui qui
+produit le modèle :).
+
+
+
+
+
+#################################################
+#                                               #
+#  Méta-définition de l'ensemble des ensembles  #
+#                                               #
+#################################################
+
+
+Nous allons commencer par définir les différents constituant de la définition
+d'un ensemble. La beauté de la chose est que nous allons définir ces
+constituants comme des ensembles eux-mêmes. C'est donc une définition
+axiomatique récursive qui permet de dire que l'axiomatique se suffit à
+elle-même, qu'elle est autogénérée.
+
+
+
+	   ############################################
+	   #                                          #
+	   #  Méta-définition de l'ensemble 'column'  #
+	   #                                          #
+	   ############################################
+
+(set
+	(name 'column')
+	(column
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+		(constraint (name 'notnull'))
+		(constraint (name 'unique'))
+	)
+	(column
+		(name 'type')
+		(type (name 'type') (card (min 1) (max 1)))
+		(constraint (name 'notnull'))
+	)
+	(column
+		(name 'default')
+		(type (name 'bti_expression'))
+	)
+	(column
+		(name 'constraint')
+		(type (name 'lambda') (card (max INF)))
+	)
+)
+
+
+Une column représente une propriété interne d'un élément d'un ensemble. Cette
+propriété a un type qui sert a déterminer de quel ensemble sa valeur fera
+partie, un nom, qui sert à nommer la propriété pour que celle ci ne demeure pas
+anonyme et puisse intéragir avec les autres propriétés de l'élément, des
+contraintes permettant définir des restrictions sur cette propriété et enfin une
+valeur par défaut servant à définir une valeur qui est là si la propriété n'est
+pas valorisé explicitement.
+
+
+	   ##########################################
+	   #                                        #
+	   #  Méta-définition de l'ensemble 'type'  #
+	   #                                        #
+	   ##########################################
+
+(set
+	(name 'type')
+	(column
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+		(constraint (name 'notnull'))
+		(constraint (name 'unique'))
+	)
+	(column
+		(name 'card')
+		(type (name 'card'))
+		(default (card (max 1)))
+	)
+)
+
+Un type permet d'identifier l'ensemble auquel appartient la valeur d'une
+propriété d'un élément d'un ensemble. Pour cela on doit donc nommé l'ensemble en
+question. De plus, une propriété pouvant être multiple, alors le type doit le
+dire au travers de sa cardinalité.
+
+
+	   #########################################
+	   #                                       #
+	   #  Méta-définition de l'ensemble 'card  #
+	   #                                       #
+	   #########################################
+
+(set
+	(name 'card')
+	(column
+		(name 'min')
+		(type (name 'bti_number'))
+		(default 0)
+	)
+	(column
+		(name 'max')
+		(type (name 'bti_number'))
+		(default 0)
+	)
+)
+
+La cardinalité symbolise un nombre d'élements minimal et maximal.
+
+
+	   #########################################
+	   #                                       #
+	   #  Méta-définition de l'ensemble 'set'  #
+	   #                                       #
+	   #########################################
+
+(set
+	(name 'set')
+	(column
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+		(constraint (name 'unique'))
+		(constraint (name 'notnull'))
+	)
+
+	(column
+		(name 'column')
+		(type (name 'column') (card (max INF)))
+	)
+)
+
+Un ensemble est la notion centrale de notre langage.
+
+	   #########################################
+	   #                                       #
+	   #  Méta-définition de l'ensemble 'arg'  #
+	   #                                       #
+	   #########################################
+
+
+(set
+	(name 'arg')
+	(column
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+	)
+	(column
+		(name 'type')
+		(type (name 'type') (card (min 1) (max 1)))
+	)
+)
+
+Un arguement est la combinaison de deux choses : un nom et un type. Un argument
+est utilisé dans les opération des lambda pour pouvoir représenter des éléments
+du monde extérieur par rapport au contexte de l'opération.
+
+
+
+	   ###############################################
+	   #                                             #
+	   #  Méta-définition de l'ensemble 'operation'  #
+	   #                                             #
+	   ###############################################
+
+(set
+	(name 'operation')
+	(column
+		(name 'assert')
+		(type (name 'bti_boolean') (card (max INF)))
+	)
+	(column
+		(name 'bti_value')
+		(type (name 'bti_expression'))
+	)
+)
+
+
+Une opération possède une valeur unique qui est porté par la bti_expression de
+la propriété bti_value. Cela en fait un objet qui peut directement être utilisé
+en tant que ca valeur.
+Les opérations servent à modéliser les opérations nécessaire pour arriver à un
+résultat donnée dans une lambda.
+
+
+	   ############################################
+	   #                                          #
+	   #  Méta-définition de l'ensemble 'lambda'  #
+	   #                                          #
+	   ############################################
+
+(set
+	(name 'lambda')
+	(column
+		(name 'name')
+		(type (name 'bti_string'))
+	)
+	(column
+		(name 'arg')
+		(type (name 'arg') (card (max INF))
+	)
+	(column
+		(name 'type')
+		(type (name 'type') (card (min 1) (max 1)))
+	)
+	(column
+		(name 'operation')
+		(type (name 'operation') (card (min 1) (max 1)))
+	)
+)
+
+La lambda est l'objet qui permet l'exécution d'une opération sur un élément d'un
+ensemble (précisons que cette élément peut lui même être un ensemble :)).
+Du fait de son nom et de son opération, la lambda possède également le mécanisme
+permettant de l'invoquer en tant que sa valeur (celle de l'opération en l'occurence).
+
+
+
+	   ##############################################
+	   #                                            #
+	   #  Méta-définition de l'ensemble 'variable'  #
+	   #                                            #
+	   ##############################################
+
+
+(set
+	(name 'var')
+	(column
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+	)
+	(column
+		(name 'bti_value')
+		(type (name 'bti_expression') (card (max 1)))
+		(default null)
+	)
+)
+
+
+
+###############################
+#                             #
+# Notion d'élément invocable  #
+#                             #
+###############################
+
+
+Un élément invocable ou 'callable' est un élément qui dont on sait qu'il peut
+être évalué. Pour être considéré comme callable un élément doit répondre à une
+certaine combinaison de conditions.
+
+La liste des conditions combinables est là suivante :
+ - Condition de nommage:
+   			 L'élément à un nom de la forme suivante
+
+			 (column
+				(name 'name')
+				(type (name 'bti_string) (card (min 1) (max 1)))
+			 )
+
+## TODO ##
+   Voir comment faire de la résolution de nom
+## TODO ##
+
+
+ - Condition de valeur:
+   			 L'élément à une valeur de la forme suivante:
+
+			 (column
+				(name 'bti_value')
+				(type (name 'nom_dun_type') (card (min 1) (max 1)))
+			 )
+
+ - Condition de valeur indirecte:
+
+   			 (column
+				(name 'bti_value')
+				(type (name 'nom_duntype_callable') (card (min 1) (max 1)))
+			 )
+
+
+Ces trois conditions servent à définir un callable. Maintenant voyons plus avant
+quand allons nous invoquer ces éléments :
+
+ - Instanciation :
+   			  Il s'agit du mode d'instanciation à partir de la définiton d'un
+   			  callable. Par exemple, l'instanciation d'une lambda se fait de cet
+   			  manière, ou même plus fondamentalement un set. De plus, ce mode
+   			  permet de requêter directement sur la définition du callable
+   			  permettant ainsi d'avoir l'ensemble des éléments correspondant à
+   			  la définition écrite.
+
+ - Invocation directe:
+   			  Il s'agit de l'invocation d'un callable au sein du contexte
+   			  d'écriture de code le plus haut (non entouré d'un autre élément)
+
+ - Invocation indirecte:
+   			  Il s'agit du mode d'invocation où le callable est invoqué PARCE
+   			  QUE un callable de niveau supérieur est invoqué.
+
+
+Maintenant que nous avons les conditions de définition d'un callable et de leur
+invocation nous pouvons les combiner pour définir quelles sont les combinaisons
+viable dans ce langage :
+
+	   Nommage + Instanciation
+	   Nommage + Valeur + Invocation directe
+	   Nommage + Valeur indirecte + Invocation directe
+	   Nomamge + Valeur indirecte + Invocation indirecte
+	   Nommage + Valeur + Invocation indirecte
+	   Valeur + Invocation indirecte
+	   Valeur indirecte + Invocation indirecte
+
+
+##############################
+#							 #
+#  L'opérateur d'extraction  #
+#                            #
+##############################
+
+L'opérateur d'extraction 'bti_.' est la lambda built-in permettant d'extraire la
+valeur d'un élément. La condition pour que l'extraction soit possible est que le
+sous élément soit identifiable par un nom (condition de nommage des callables).
+
+   (bti_. element nom_sous_element)
+
+Par exemple, définissons une personne dont on voudra modifier le prénom :
+
+	(set
+		(name 'person')
+		(column
+			(name 'name')
+			(type (name 'bti_string'))
+		)
+		(column
+			(name 'prenom')
+			(type (name 'bti_string'))
+		)
+	)
+
+Maintenant, nous avons l'ensemble person, voyons pour y incorporer un élément :
+
+	(person
+		(name 'Dupont')
+		(prenom 'Jean')
+	)
+
+Là, nous avons Jean DUPONT qui est dans notre ensemble person. Mais, la personne
+qui la entrée dans l'ensemble s'est trompé d'orthographe en entrant son
+nom. Voyons comment le modifier :
+
+	 (bti_=
+		(bti_.
+			(person
+				(name 'Dupont')
+				(prenom 'Jean')
+			)
+			(name)
+		)
+
+		'Dupond'
+	 )
+
+
+################################
+#                              #
+#  Liste des lambdas built-in  #
+#                              #
+################################
+
+La liste des lambdas prédéfinies est la suivante (le tout à préfixé par 'bti_') :
+ - arithmétique : + - / * %
+ - affectation : = ++ -- += -= &= |=
+ - booléenne : == <> != and or < <= > >=
+ - branchement conditionnel : switch
+ - boucle sur liste : for
+ - extraction : .
+ - manipulation de flux : read readline write writeline
+ - chargement de données : loadcsv, loadproperties
+ - gestion des transactions : transact commit rollback
+ - Inclusion code : import
+## TODO ##
+   	Compléter la liste des fonctionnalités built-in
+## TODO ##
+
+
+
+
+################################
+#                              #
+#  Un premier exemple complet  #
+#                              #
+################################
+
+Comme premier exemple nous allons créer les éléments nécessaire à la gestion
+d'un annuaire téléphonique de personnes.
+
+;; Commençons par faire l'ensemble 'person' :
+
+(set
+	(name 'person')
+	(column
+		(name 'numero')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+	)
+	(column
+		(name 'prenom')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+	)
+	(column
+		(name 'nom')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+	)
+)
+
+;; Injectons quelque personnes dans cet ensemble :
+
+(person
+	(numero '0930209302')
+	(prenom 'marcel')
+	(nom 'dupont')
+)
+
+(person
+	(numero '0930209301')
+	(prenom 'paul')
+	(nom 'valentin')
+)
+
+(person
+	(numero '0930209307')
+	(prenom 'jean')
+	(nom 'durand')
+)
+
+;; Créons une lambda permettant de retrouver une personne :
+
+(lambda
+	(name 'retrieve_person')
+	(arg (name 'numero') (type (name 'bti_string')))
+	(type (name 'person') (card (max INF)))
+	(operation
+		(person
+			(numero numero)
+		)
+	)
+)
+
+;; Utilisation de la lambda
+
+(retrieve_person (numero '0930209302'))
+
+;; La ligne précédente va retourner les personnes qui ont pour numéro
+;; '0930209302'.
+
+;; Maintenant modifions le nom de la personne qui a ce numéro
+
+(=
+	(.
+		(retrieve_person
+			(numero '0930209302')
+		)
+
+		nom
+
+	)
+
+	'dupond'
+)
+
+;; Cela va avoir pour effet de modifier le nom de TOUTES les personne qui
+;; correspondent à ce numéro.
+
+
+#############################
+#                           #
+#  Signature d'un callable  #
+#                           #
+#############################
+
+La signature d'un callable représente ce callable mais de manière paramétrique.
+
+Pour qu'une signature de callable soit généré il faut que le nom des
+sous-éléments du callable utilisé soit suffixé par [].
+
+Ce sous-élément doit être une propriété nommée (condition de nommage) et typée
+(avec une propriété de type 'type' dans sa définition).
+
+
+Par exemple :
+
+Dans le cadre d'une de la définition d'une lambda :
+
+(lambda
+	(name 'retrieve_person')
+	(arg[]
+		(name 'numero')
+		(type (name 'bti_string'))
+	)
+	(type (name 'person') (card (max INF)))
+	(operation
+		(person
+			(numero numero)
+		)
+	)
+)
+
+donc lors de son invocation :
+
+(retrieve_person (numero '125422'))
+
+Le fait de déclarer une propriété comme faisant partie de la signature d'un
+callable fige aussi l'ordre d'écriture de ces propriétés et donc permet
+indirectement d'éviter leur nommage lors de l'utilisation du callable si celui-ci à un typage bti_* :
+
+(retrieve_person '1313213')
+
+Dans le cas ou la cardinalité de la propriété membre de la signature du callable
+est multiple, alors dans ce cas nous devrons mettre des () autour des valeurs
+d'une même propriété signifiant par là le passage d'une liste.
+
+###########################
+#                         #
+#  Réécriture du langage  #
+#                         #
+###########################
+
+(set
+	(name 'set')
+	(column[]
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+		(constraint (name 'unique'))
+	)
+	(column[]
+		(name 'column')
+		(type (name 'column') (card (min 0) (max INF)))
+	)
+)
+
+(set
+	(name 'type')
+	(column[]
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+		(constraint (name 'unique'))
+	)
+	(column[]
+		(name 'card')
+		(type (name 'card')))
+		(default (card (min 0) (max 1)))
+	)
+)
+
+(set
+	(name 'card')
+	(column[]
+		(name 'min')
+		(type (name 'bti_number'))
+		(default 0)
+	)
+	(column[]
+		(name 'max)
+		(type (name 'bti_number'))
+		(default 1)
+	)
+)
+
+(set
+	(name 'column')
+	(column[]
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+		(constraint (name 'notnull'))
+	)
+	(column[]
+		(name 'type')
+		(type (name 'type') (card (min 1) (max 1)))
+	)
+	(column[]
+		(name 'constraint')
+		(type (name 'lambda') (card (max INF)))
+	)
+	(column[]
+		(name 'default')
+		(type (name 'bti_expression'))
+	)
+)
+
+(set
+	(name 'lambda')
+	(column[]
+		(name 'name')
+		(type (name 'bti_string'))
+	)
+	(column[]
+		(name 'arg')
+		(type (name 'arg') (card (max INF)))
+	)
+	(column[]
+		(name 'type')
+		(type (name 'type'))
+	)
+	(column[]
+		(name 'operation')
+		(type (name 'operation') (card (min 1) (max 1)))
+	)
+)
+
+(set
+	(name 'arg')
+	(column[]
+		(name 'name')
+		(type (name 'bti_string') (card (min 1) (max 1)))
+	)
+	(column[]
+		(name 'type')
+		(type (name 'type') (card (min 1) (max 1)))
+	)
+)
+
+(set
+	(name 'operation')
+	(column[]
+		(name 'assert')
+		(type (name 'bti_boolean') (card (max INF)))
+	)
+	(column[]
+		(name 'bti_value')
+		(type (name 'bti_expression'))
+	)
+)
+
+
+########################################
+#                                      #
+#  Réécriture du langage 2eme version  #
+#                                      #
+########################################
+
+(set
+	'set'
+	(column[]
+		'name'
+		(type 'bti_string' (card 1 1))
+		(constraint 'unique')
+	)
+	(column[]
+		'column'
+		('column' (card 0 INF))
+	)
+)
+
+(set
+	'type'
+	(column[]
+		'name'
+		(type 'bti_string' (card 1 1))
+		(constraint 'unique')
+	)
+	(column[]
+		'card'
+		(type 'card')
+		(default (card 0 1))
+	)
+)
+
+(set
+	'card'
+	(column[]
+		'min'
+		(type 'bti_number')
+		(default 0)
+	)
+	(column[]
+		'max'
+		(type 'bti_number')
+		(default 1)
+	)
+)
+
+(set
+	'column'
+	(column[]
+		'name'
+		(type 'bti_string' (card 1 1))
+		(constraint 'notnull')
+	)
+	(column[]
+		'type'
+		(type 'type' (card 1 1))
+	)
+	(column[]
+		'constraint'
+		(type 'lambda' (card 0 INF))
+	)
+	(column[]
+		'default'
+		(type 'bti_expression')
+	)
+)
+
+(set
+	'lambda'
+	(column[]
+		'name'
+		(type 'bti_string')
+	)
+	(column[]
+		'arg'
+		(type 'arg' (card 0 INF))
+	)
+	(column[]
+		'type'
+		(type 'type')
+	)
+	(column[]
+		'operation'
+		(type 'operation' (card 1 1))
+	)
+)
+
+(set
+	'arg'
+	(column[]
+		'name'
+		(type 'bti_string' (card 1 1))
+	)
+	(column[]
+		'type'
+		(type 'type' (card 1 1))
+	)
+)
+
+(set
+	'operation'
+	(column[]
+		'assert'
+		(type 'bti_boolean' (card 0 INF))
+	)
+	(column[]
+		'bti_value'
+		(type 'bti_expression')
+	)
+)
