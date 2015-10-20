@@ -1,3 +1,0 @@
-/bin/sh: makedir: command not found
-brain.mk:90: recipe for target 'Debug/.d' failed
-make: *** [Debug/.d] Error 127
