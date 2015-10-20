@@ -14,11 +14,12 @@ using namespace std;
 
 int main()
 {
-    test::test_suite < test::system_test,
-         test::smart_ptr_test,
+    test::test_suite < test::meta_test,
+         test::system_test,
+         test::smart_ptr_test/*,
          test::scanner_test,
-         test::parser_test, 
-         test::tree_maker_test> ()();
+         test::parser_test,
+         test::tree_maker_test*/ > ()();
 
     return (int) exitcode::WELL;
 }
