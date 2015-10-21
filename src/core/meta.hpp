@@ -15,46 +15,78 @@ namespace brain
             /// Access to type member
             /// of type_t
             template<typename type_t>
-            using t_ = typename type_t::type;
+            using t_ =
+                typename type_t::type;
 
 
             /// Access to value member
             /// of type_t
             template<typename type_t>
-            constexpr auto v_ = t_<type_t>::value;
+            constexpr auto v_ =
+                t_<type_t>::value;
 
 
             /// Access to value_type member
             /// of type_t
             template<typename type_t>
-            using vt_ = typename t_<type_t>::value_type;
+            using vt_ =
+                typename t_<type_t>::value_type;
 
 
             /// Access to size member
             /// of type_t
             template<typename type_t>
-            constexpr auto size_ = t_<type_t>::size;
+            constexpr auto size_ =
+                t_<type_t>::size;
+
+
+            /// Access to return_ member
+            /// of type_t
+            template < typename type_t,
+                     typename ... args_t >
+            using return_ =
+                typename type_t::
+                template return_<args_t...>;
         }
 
 
         /// Shortcut for member::t_
         template<typename type_t>
-        using t_ = member::t_<type_t>;
+        using t_ =
+            member::t_<type_t>;
 
 
         /// Shortcut for member::v_
         template<typename type_t>
-        constexpr auto v_ = member::v_<type_t>;
+        constexpr auto v_ =
+            member::v_<type_t>;
 
 
         /// Shortcut for member::vt_
         template<typename type_t>
-        using vt_ = member::vt_<type_t>;
+        using vt_ =
+            member::vt_<type_t>;
 
 
         /// Shortcut for member::size_
         template<typename type_t>
-        constexpr auto size_ = member::size_<type_t>;
+        constexpr auto size_ =
+            member::size_<type_t>;
+
+
+        /// Shortcut for member::return_
+        template < typename type_t,
+                 typename ... args_t >
+        using return_ =
+            member::return_ <
+            type_t, args_t... >;
+
+
+        /// Shortcut for return_
+        template < typename type_t,
+                 typename ... args_t >
+        using r_ =
+            return_<type_t, args_t...>;
 
 
         /// ///////////////////////// ///
@@ -344,7 +376,8 @@ namespace brain
         /// Mathematical wrapper features ///
         /// ///////////////////////////// ///
         namespace math
-        {// TODO Faire les docs des features math::
+        {
+            /// Wrapper for incrementing
             template<typename type_t>
             using inc =
                 literal::igral <
@@ -352,13 +385,15 @@ namespace brain
                 v_<type_t> + 1 >;
 
 
+            /// Wrapper for decrementing
             template<typename type_t>
-            using inc =
+            using dec =
                 literal::igral <
                 decltype(v_<type_t> - 1),
                 v_<type_t> - 1 >;
 
 
+            /// Wrapper for additing
             template < typename type_t,
                      typename other_t >
             using plus =
@@ -367,6 +402,7 @@ namespace brain
                 v_<type_t> + v_<other_t >>;
 
 
+            /// Wrapper for substracting
             template < typename type_t,
                      typename other_t >
             using minus =
@@ -375,6 +411,7 @@ namespace brain
                 v_<type_t> - v_<other_t >>;
 
 
+            /// Wrapper for multiplying
             template < typename type_t,
                      typename other_t >
             using multiplies =
@@ -383,6 +420,7 @@ namespace brain
                 v_<type_t> * v_<other_t >>;
 
 
+            /// Wrapper for dividing
             template < typename type_t,
                      typename other_t >
             using divides =
@@ -391,14 +429,15 @@ namespace brain
                 v_<type_t> / v_<other_t >>;
 
 
-            template < typename type_t,
-                     typename other_t >
+            /// Wrapper for negating
+            template <typename type_t>
             using negate =
                 literal::igral <
                 decltype(-v_<type_t>),
                 -v_<type_t >>;
 
 
+            /// Wrapper for moduling
             template < typename type_t,
                      typename other_t >
             using modulus =
@@ -408,16 +447,19 @@ namespace brain
         }
 
 
+        /// Shortcut for math::inc
         template<typename type_t>
         using inc =
             math::inc<type_t>;
 
 
+        /// Shortcut for math::dec
         template<typename type_t>
         using dec =
             math::dec<type_t>;
 
 
+        /// Shortcut for math::plus
         template < typename type_t,
                  typename other_t >
         using plus =
@@ -426,6 +468,7 @@ namespace brain
             other_t >;
 
 
+        /// Shortcut for math::minus
         template < typename type_t,
                  typename other_t >
         using minus =
@@ -434,6 +477,7 @@ namespace brain
             other_t >;
 
 
+        /// Shortcut for math::multiplies
         template < typename type_t,
                  typename other_t >
         using multiplies =
@@ -442,6 +486,7 @@ namespace brain
             other_t >;
 
 
+        /// Shortcut for math::divides
         template < typename type_t,
                  typename other_t >
         using divides =
@@ -450,11 +495,13 @@ namespace brain
             other_t >;
 
 
-        template < typename type_t>
+        /// Shortcut for math::negate
+        template <typename type_t>
         using negate =
             math::negate<type_t>;
 
 
+        /// Shortcut for math::modulus
         template < typename type_t,
                  typename other_t >
         using modulus =
@@ -462,13 +509,459 @@ namespace brain
             type_t,
             other_t >;
 
+
         /// /////////////////////// ///
         /// Logical wrapper feature ///
         /// /////////////////////// ///
         namespace logic
         {
+            /// Wrapper for equal
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using equal_to =
+                bool_ < v_<type_t>
+                == v_<other_t >>;
+
+
+            /// Wrapper for not equal
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using not_equal_to =
+                bool_ < v_<type_t>
+                != v_<other_t >>;
+
+
+            /// Wrapper for greater
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using greater =
+                bool_ < (v_<type_t>
+                         > v_<other_t>) >;
+
+
+            /// Wrapper for less
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using less =
+                bool_ < (v_<type_t>
+                         < v_<other_t>) >;
+
+
+            /// Wrapper for greater equal
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using greater_equal =
+                bool_ < (v_<type_t>
+                         >= v_<other_t>) >;
+
+
+            /// Wrapper for less equal
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using less_equal =
+                bool_ < (v_<type_t>
+                         <= v_<other_t>) >;
+
+
+            /// Wrapper for bit and
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using bit_and =
+                bool_ < v_<type_t>
+                & v_<other_t >>;
+
+
+            /// Wrapper for bit or
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using bit_or =
+                bool_ < v_<type_t>
+                | v_<other_t >>;
+
+
+            /// Wrapper for bit xor
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using bit_xor =
+                bool_ < v_<type_t>
+                ^ v_<other_t >>;
+
+
+            /// Wrapper for bit not
+            /// operator
+            template < typename type_t,
+                     typename other_t >
+            using bit_not =
+                bool_ < ~v_<type_t >>;
         }
+
+
+        /// Shortcut for
+        /// logic::equal_to
+        template < typename type_t,
+                 typename other_t >
+        using equal_to =
+            logic::equal_to <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::not_equal_to
+        template < typename type_t,
+                 typename other_t >
+        using not_equal_to =
+            logic::not_equal_to <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::greater
+        template < typename type_t,
+                 typename other_t >
+        using greater =
+            logic::greater <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::equal_to
+        template < typename type_t,
+                 typename other_t >
+        using less =
+            logic::less <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::greater_equal
+        template < typename type_t,
+                 typename other_t >
+        using greater_equal =
+            logic::greater_equal <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::less_equal
+        template < typename type_t,
+                 typename other_t >
+        using less_equal =
+            logic::less_equal <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::bit_and
+        template < typename type_t,
+                 typename other_t >
+        using bit_and =
+            logic::bit_and <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::bit_or
+        template < typename type_t,
+                 typename other_t >
+        using bit_or =
+            logic::bit_or <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::bit_xor
+        template < typename type_t,
+                 typename other_t >
+        using bit_xor =
+            logic::bit_xor <
+            type_t, other_t >;
+
+
+        /// Shortcut for
+        /// logic::bit_not
+        template < typename type_t,
+                 typename other_t >
+        using bit_not =
+            logic::bit_not <
+            type_t, other_t >;
+
+
+
+        /// ////////////////////////// ///
+        /// Meta function manipulation ///
+        /// ////////////////////////// ///
+        namespace function
+        {
+            /// A meta function is
+            /// a template that
+            /// contains the return_
+            /// member. This member
+            /// is an alias type
+            /// that represents the
+            /// transformation that
+            /// the input types
+            /// delt with
+
+
+            /// A meta function that
+            /// returns the composition
+            /// of other several meta
+            /// functions funcs_t
+            template<typename ... funcs_t>
+            struct compose;
+
+
+            /// Specialisation for
+            /// compose that takes
+            /// a single meta function
+            template<typename func_t>
+            struct compose<func_t>
+            {
+                template<typename ... args_t>
+                using return_ =
+                    r_<func_t, args_t...>;
+            };
+
+
+            /// Specialisation for
+            /// compose that take
+            /// more one meta functions
+            template < typename func_t,
+                     typename ... funcs_t >
+            struct compose<func_t, funcs_t...>
+            {
+                template<typename ... args_t>
+                using return_ =
+                    r_ < func_t,
+                    r_ < compose<funcs_t...>,
+                    args_t... > >;
+            };
+
+
+            /// A meta function
+            /// that always returns
+            /// the type_t itself
+            template<typename type_t>
+            struct always
+            {
+                template<typename ... args_t>
+                using return_ = type_t;
+            };
+
+
+            /// Evaluates the args_t
+            /// and returns always
+            /// the type void
+            template<typename ... args_t>
+            using void_ = r_ <
+                          always<void>,
+                          args_t... >;
+        }
+
+
+        /// Shortcut for
+        /// function::always
+        template<typename type_t>
+        using always =
+            function::always<type_t>;
+
+
+        /// Shortcut for
+        /// function::void_
+        template<typename ... args_t>
+        using void_ =
+            function::void_<args_t...>;
+
+
+        /// Shortcut for
+        /// function::compose
+        template<typename ... funcs_t>
+        using compose =
+            function::compose<funcs_t...>;
+
+
+        /// ////////////////////////////////// ///
+        /// Features for detect template member ///
+        /// ////////////////////////////////// ///
+        namespace member
+        {
+            /// Determines if a
+            /// type_t has the
+            /// 'type' member
+            template < typename ,
+                     typename = void >
+            struct has_type_
+            {
+                using type = std::false_type;
+            };
+
+
+            /// Specialisation for
+            /// has_type_ if type_t
+            /// has 'type' member
+            template<typename type_t>
+            struct has_type_ < type_t,
+                    void_<typename type_t::type> >
+            {
+                using type = std::true_type;
+            };
+
+
+            /// Evaluates the result
+            /// of t_<has_type_<type_t>>
+            template<typename type_t>
+            using has_type =
+                t_<has_type_<type_t>>;
+
+
+            /// Evaluates the result
+            /// of v_<has_type<type_t>>;
+            template<typename type_t>
+            constexpr auto has_type_v =
+                v_<has_type<type_t>>;
+
+
+            /// Determines if a
+            /// type has a return_
+            /// member
+            template < typename,
+                     typename = void >
+            struct has_return_
+            {
+                using type = std::false_type;
+            };
+
+
+            /// Specialisation for
+            /// has_return_ if
+            /// type_t has return_
+            template <typename type_t>
+            struct has_return_ <type_t, void_<typename type_t::template return_<>>>
+                    {
+                        using type = std::true_type;
+                    };
+
+
+            /// Evaluates the result
+            /// of t_<has_return_<type_t>>
+            template<typename type_t>
+            using has_return =
+                t_<has_return_<type_t>>;
+
+
+            /// Evaluates the result
+            /// of v_<has_return<type_t>>
+            template<typename type_t>
+            constexpr auto has_return_v =
+                v_<has_return<type_t>>;
+
+
+            /// Determines if type_t
+            /// is a meta function
+            /// or not.
+            template<typename type_t>
+            using is_meta_function =
+                has_return<type_t>;
+
+
+            /// Evaluates the result
+            /// of v_<is_meta_function<type_t>>
+            template<typename type_t>
+            constexpr auto is_meta_function_v =
+                v_<is_meta_function<type_t>>;
+        }
+
+
+        /// Shortcut for
+        /// member::has_type
+        template<typename type_t>
+        using has_type =
+            member::has_type<type_t>;
+
+
+        /// Shortcut for
+        /// member::has_type_v
+        template<typename type_t>
+        constexpr auto has_type_v =
+            member::has_type_v<type_t>;
+
+
+        /// Shortcut for
+        /// member::has_return
+        template<typename type_t>
+        using has_return =
+            member::has_return<type_t>;
+
+
+        /// Shortcut for
+        /// member::has_return_v
+        template<typename type_t>
+        constexpr auto has_return_v =
+            member::has_return_v<type_t>;
+
+
+        /// Shortcut for
+        /// member::is_meta_function
+        template<typename type_t>
+        using is_meta_function =
+            member::is_meta_function<type_t>;
+
+
+        /// Shortcut for
+        /// member::is_meta_function_v
+        template<typename type_t>
+        constexpr auto is_meta_function_v =
+            member::is_meta_function_v<type_t>;
+
+        /// //////////////////////////// ///
+        /// Type instanciation deferring ///
+        /// //////////////////////////// ///
+        namespace deferring
+        {
+            template < template<typename...> typename,
+                     typename,
+                     typename = void >
+            struct defer_;
+
+            template < template <typename...> class func_t,
+                     typename... args_t >
+            struct defer_ < func_t,
+                    list<args_t...>,
+                    void_<func_t<args_t...> >>
+            {
+                using type = func_t<args_t...>;
+            };
+
+        }
+
+
+        /// //////////////////////// ///
+        /// Meta function conversion ///
+        /// //////////////////////// ///
+        namespace function
+        {
+            /// Transforms type_t into
+            /// a meta function
+            template <template<typename...> typename type_t>
+            struct quote
+            {
+                using return_ = void;
+            };
+        }
+
+
+
     }
 }
+
 
 #endif
