@@ -32,6 +32,26 @@
 #include "functionnal.hpp"
 #include "meta.hpp"
 
+#define WIN32
+
+#if defined (WIN32)
+#include <winsock2.h>
+typedef int socklen_t;
+#elif defined (linux)
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define closesocket(s) close(s)
+typedef int SOCKET;
+typedef struct sockaddr_in SOCKADDR_IN;
+typedef struct sockaddr SOCKADDR;
+#endif
+
+
 namespace brain
 {
     namespace fct
@@ -328,7 +348,7 @@ namespace brain
 
     namespace tpl
     {
-        
+
     }
 
 
@@ -2523,6 +2543,38 @@ namespace brain
                         after_t()();
                     }
                 };
+        };
+    }
+
+    namespace net
+    {
+        template<unsigned _port>
+        class socket
+        {
+                SOCKET server_sock = 0;
+                SOCKET client_sock = 0;
+                bool isServer = true;
+                int domain = ;
+#if defined (WIN32)
+                static WSADATA wsadata;
+#endif
+            public:
+                socket();
+                socket(int domain, int type, bool isServer, int protocol = 0);
+                socket(const Socket& other);
+                virtual ~socket();
+                socket& operator=(const socket& other);
+                void srvBind(unsigned short port, unsigned long type = INADDR_ANY) throw(BindException);
+                void srvListening(int backlog = 1) throw(ListenException);
+                void srvAccept() throw(AcceptException);
+                void cltConnect(std::string& addr, unsigned short port) throw(ConnectException);
+                void bthSend(const char* buffer, unsigned bufferSize);
+                void bthRecv(char* buffer, unsigned bufferSize);
+                void bthShutdown(int how);
+                int bthClose();
+                static int initSystem();
+                static int cleanSystem();
+                SOCKET  getSocket();
         };
     }
 }

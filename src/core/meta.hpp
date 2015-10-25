@@ -765,6 +765,82 @@ namespace brain
             using void_ = r_ <
                           always<void>,
                           args_t... >;
+
+
+            /// Meta function that
+            /// binds the front_args_t...
+            /// at the beginning of
+            /// the parameters of the
+            /// meta function func_t
+            template < typename func_t,
+                     typename... front_args_t >
+            struct bind_front
+            {
+                template<typename ... args_t>
+                using return_ = return_ <
+                                func_t,
+                                front_args_t...,
+                                args_t... >;
+            };
+
+
+            /// Metafunction that
+            /// binds the back_args_t...
+            /// at the ending of
+            /// the parameters of the
+            /// meta function func_t
+            template < typename func_t,
+                     typename ... back_args_t >
+            struct bind_back
+            {
+                template<typename ... args_t>
+                using return_ = return_ <
+                                func_t,
+                                args_t...,
+                                back_args_t... >;
+            };
+
+
+            /// Meta function that
+            /// expands the list
+            /// into func_t meta
+            /// function parameters packs
+            template < typename,
+                     typename >
+            struct expand_;
+
+
+            /// Specialisation for
+            /// expand that unpacks
+            /// list_t
+            template < typename func_t,
+                     template<typename ...> typename list_t,
+                     typename ... args_t >
+            struct expand_ <func_t, list_t<args_t...> >:
+                    return_<func_t, args_t...>
+            {
+            };
+
+
+            /// Evaluates the result
+            /// of t_<expand_<func_t, list_t>>
+            template < typename func_t,
+                     typename list_t >
+            using expand =
+                t_<expand_<func_t, list_t>>;
+
+
+            /// TODO Documentation curry
+            // template < typename func_t,
+            //         typename args_t = quote<list >>
+            // using curry =
+            //    compose<func_t, args_t>;
+
+
+            /// TODO Documentation uncurry
+            // template <typename F>
+            // using uncurry =
+            //    bind_front<quote<apply_list>, F>;
         }
 
 
@@ -787,6 +863,14 @@ namespace brain
         template<typename ... funcs_t>
         using compose =
             function::compose<funcs_t...>;
+
+
+        /// Shortcut for
+        /// function::expand
+        template < typename func_t,
+                 typename list_t >
+        using expand =
+            function::expand<func_t, list_t>;
 
 
         /// ////////////////////////////////// ///
@@ -845,10 +929,12 @@ namespace brain
             /// has_return_ if
             /// type_t has return_
             template <typename type_t>
-            struct has_return_ <type_t, void_<typename type_t::template return_<>>>
-                    {
-                        using type = std::true_type;
-                    };
+            struct has_return_ < type_t,
+                    void_ < typename
+                    type_t::template return_<> > >
+            {
+                using type = std::true_type;
+            };
 
 
             /// Evaluates the result
@@ -941,7 +1027,21 @@ namespace brain
                 using type = func_t<args_t...>;
             };
 
+            template < template <typename...> class func_t,
+                     typename... args_t >
+            struct defer :
+                    defer_<func_t, list<args_t...>>
+            {
+            };
         }
+
+
+        /// Shortcut for
+        /// deferring::defer
+        template < template<typename...> typename func_t,
+                 typename... args_t >
+        using defer =
+            deferring::defer<func_t, args_t...>;
 
 
         /// //////////////////////// ///
@@ -954,12 +1054,259 @@ namespace brain
             template <template<typename...> typename type_t>
             struct quote
             {
-                using return_ = void;
+                template<typename...args_t>
+                using return_ =
+                    type_t<args_t...>;
+                ///using return_ = t_<defer<type_t, args_t...>>; /// WHY DEFFERING ?
             };
         }
 
 
+        /// Shortcut for
+        /// function::quote
+        template < template<typename ...>
+        typename type_t >
+        using quote =
+            function::quote<type_t>;
 
+        /// ////////////// ///
+        /// Type selection ///
+        /// ////////////// ///
+        namespace conditional
+        {
+            /// Type selector
+            template<typename ...>
+            struct _if_;
+
+
+            /// Type selector
+            /// specialisation that
+            /// returns void
+            /// if_t is true
+            template<typename if_t>
+            struct _if_<if_t> :
+                    std::enable_if<v_<if_t> >
+            {
+            };
+
+
+            /// Type selector
+            /// specialisation that
+            /// returns then_t
+            /// if_t is true
+            template < typename if_t,
+                     typename then_t >
+            struct _if_<if_t, then_t>:
+                    std::enable_if<v_<if_t>, then_t>
+            {
+            };
+
+
+            /// Type selector
+            /// specialisation that
+            /// returns then_t
+            /// if_t is true
+            /// else else_t
+            template < typename if_t,
+                     typename then_t,
+                     typename else_t >
+            struct _if_<if_t, then_t, else_t>:
+                    std::conditional<v_<if_t>, then_t, else_t>
+            {
+            };
+
+
+            /// Evaluates the result
+            /// of t_<_if_<args_t...>>
+            template<typename ... args_t>
+            using if_ = t_<_if_<args_t...>>;
+
+
+            /// Evaluates the result
+            /// of if_<bool_<_b>, args_t... >
+            template < bool _b,
+                     typename... args_t >
+            using if_c =  if_<bool_<_b>, args_t... >;
+
+
+            /// Evaluates the result
+            /// of if_<if_t, then_t, else_t>
+            template < typename if_t,
+                     typename then_t,
+                     typename else_t >
+            using select = if_<if_t, then_t, else_t> ;
+
+
+            /// Evaluates the result
+            /// of if_c<_b, then_t, else_t>
+            template < bool _b,
+                     typename then_t,
+                     typename else_t >
+            using select_c = if_c<_b, then_t, else_t> ;
+
+
+            /// Returns std::true_type
+            /// if all bools_t are true
+            template <typename... bools_t>
+            struct _and_;
+
+
+            /// Specialisation for
+            /// _and_ that returns
+            /// std::true_type for
+            /// default case.
+            template <>
+            struct _and_<> :
+                    std::true_type
+            {
+            };
+
+
+            /// Specialisation for
+            /// _and_ that returns
+            /// std::false_type if
+            /// one of bools_t is
+            /// false
+            template < typename bool_t,
+                     typename... bools_t >
+            struct _and_<bool_t, bools_t...>:
+                    if_c < !v_<bool_t>, std::false_type, _and_<bools_t... >>
+            {
+            };
+
+
+            /// Evaluates the result
+            /// of t_<_and_<bools_t...>>
+            template<typename ... bools_t>
+            using and_ =
+                t_<_and_<bools_t...>>;
+
+
+            /// Returns std::true_type
+            /// if one or more bools_t
+            /// is true
+            template <typename... bools_t>
+            struct _or_;
+
+
+            /// Specialisation for
+            /// _or_ that returns
+            /// std::false_type
+            /// for default case
+            template <>
+            struct _or_<> :
+                    std::false_type
+            {
+            };
+
+
+            /// Specialisation for
+            /// _and_ that returns
+            /// std::false_type if
+            /// all of bools_t is
+            /// false
+            template < typename bool_t,
+                     typename... bools_t >
+            struct _or_<bool_t, bools_t...> :
+                    if_c < v_<bool_t>,
+                    std::true_type,
+                    _or_<bools_t... >>
+            {
+            };
+
+
+            /// Evaluates the result
+            /// of t_<_or_<bools_t...>>
+            template<typename ... bools_t>
+            using or_ =
+                t_<_or_<bools_t...>>;
+
+
+            /// Negates the bool_t
+            template<typename bool_t>
+            using not_ =
+                bool_ < !v_<bool_t >>>;
+        }
+
+
+        namespace pack /// TODO THAT
+        {
+            ///////////////////////////////////////////////////////////////////////////////////////////
+            // concat
+            /// \cond
+            namespace detail
+            {
+                template <typename... Lists>
+                struct concat_
+                {
+                };
+
+                template <>
+                struct concat_<>
+                {
+                    using type = list<>;
+                };
+
+                template <typename... List1>
+                struct concat_<list<List1...>>
+                {
+                    using type = list<List1...>;
+                };
+
+                template <typename... List1, typename... List2>
+                struct concat_<list<List1...>, list<List2...>>
+                {
+                    using type = list<List1..., List2...>;
+                };
+
+                template <typename... List1, typename... List2, typename... List3>
+                struct concat_<list<List1...>, list<List2...>, list<List3...>>
+                {
+                    using type = list<List1..., List2..., List3...>;
+                };
+
+                template <typename... List1, typename... List2, typename... List3, typename... Rest>
+                struct concat_<list<List1...>, list<List2...>, list<List3...>, Rest...>
+                        : concat_<list<List1..., List2..., List3...>, Rest...>
+                {
+                };
+            } // namespace detail
+            /// \endcond
+
+            /// Concatenates several lists into a single list.
+            /// \pre The parameters must all be instantiations of \c meta::list.
+            /// \par Complexity
+            /// \f$ O(L) \f$ where \f$ L \f$ is the number of lists in the list of lists.
+            /// \ingroup transformation
+            template <typename... Lists>
+            using concat = _t<detail::concat_<Lists...>>;
+
+            namespace lazy
+            {
+                /// \sa 'meta::concat'
+                /// \ingroup lazy_transformation
+                template <typename... Lists>
+                using concat = defer<concat, Lists...>;
+            }
+
+            /// Joins a list of lists into a single list.
+            /// \pre The parameter must be an instantiation of \c meta::list\<T...\>
+            /// where each \c T is itself an instantiation of \c meta::list.
+            /// \par Complexity
+            /// \f$ O(L) \f$ where \f$ L \f$ is the number of lists in the list of
+            /// lists.
+            /// \ingroup transformation
+            template <typename ListOfLists>
+            using join = apply_list<quote<concat>, ListOfLists>;
+
+            namespace lazy
+            {
+                /// \sa 'meta::join'
+                /// \ingroup lazy_transformation
+                template <typename ListOfLists>
+                using join = defer<join, ListOfLists>;
+            }
+        }
     }
 }
 
