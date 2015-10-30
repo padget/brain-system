@@ -1,6 +1,7 @@
 #ifndef __META_BRAIN_HPP
 #define __META_BRAIN_HPP
 
+#include <type_traits>
 namespace brain
 {
     /// TODO Documenter le namespace meta
@@ -816,8 +817,8 @@ namespace brain
             template < typename func_t,
                      template<typename ...> typename list_t,
                      typename ... args_t >
-            struct expand_ <func_t, list_t<args_t...> >:
-                    return_<func_t, args_t...>
+            struct expand_ <func_t, list_t<args_t...>>:
+                                                            return_<func_t, args_t...>
             {
             };
 
@@ -1085,7 +1086,7 @@ namespace brain
             /// if_t is true
             template<typename if_t>
             struct _if_<if_t> :
-                    std::enable_if<v_<if_t> >
+                    std::enable_if<v_<if_t>>
             {
             };
 
@@ -1126,7 +1127,7 @@ namespace brain
             /// of if_<bool_<_b>, args_t... >
             template < bool _b,
                      typename... args_t >
-            using if_c =  if_<bool_<_b>, args_t... >;
+            using if_c =  if_<bool_<_b>, args_t...>;
 
 
             /// Evaluates the result
@@ -1225,87 +1226,187 @@ namespace brain
             /// Negates the bool_t
             template<typename bool_t>
             using not_ =
-                bool_ < !v_<bool_t >>>;
-        }
+                bool_ < !v_<bool_t >>;
+        }/// TODO Make shortcuts for conditional
 
-
-        namespace pack /// TODO THAT
+        /// TODO Shortcut for pack namespace
+        namespace pack
         {
-            ///////////////////////////////////////////////////////////////////////////////////////////
-            // concat
-            /// \cond
-            namespace detail
+
+            /// Concatenates all lists_t
+            /// into a single list
+            template <typename... lists_t>
+            struct concat_
             {
-                template <typename... Lists>
-                struct concat_
-                {
-                };
+            };
 
-                template <>
-                struct concat_<>
-                {
-                    using type = list<>;
-                };
 
-                template <typename... List1>
-                struct concat_<list<List1...>>
-                {
-                    using type = list<List1...>;
-                };
-
-                template <typename... List1, typename... List2>
-                struct concat_<list<List1...>, list<List2...>>
-                {
-                    using type = list<List1..., List2...>;
-                };
-
-                template <typename... List1, typename... List2, typename... List3>
-                struct concat_<list<List1...>, list<List2...>, list<List3...>>
-                {
-                    using type = list<List1..., List2..., List3...>;
-                };
-
-                template <typename... List1, typename... List2, typename... List3, typename... Rest>
-                struct concat_<list<List1...>, list<List2...>, list<List3...>, Rest...>
-                        : concat_<list<List1..., List2..., List3...>, Rest...>
-                {
-                };
-            } // namespace detail
-            /// \endcond
-
-            /// Concatenates several lists into a single list.
-            /// \pre The parameters must all be instantiations of \c meta::list.
-            /// \par Complexity
-            /// \f$ O(L) \f$ where \f$ L \f$ is the number of lists in the list of lists.
-            /// \ingroup transformation
-            template <typename... Lists>
-            using concat = _t<detail::concat_<Lists...>>;
-
-            namespace lazy
+            /// Specialisation for
+            /// concat_ that takes no
+            /// list and return an
+            /// empty list.
+            template <>
+            struct concat_<>
             {
-                /// \sa 'meta::concat'
-                /// \ingroup lazy_transformation
-                template <typename... Lists>
-                using concat = defer<concat, Lists...>;
-            }
+                using type = list<>;
+            };
 
-            /// Joins a list of lists into a single list.
-            /// \pre The parameter must be an instantiation of \c meta::list\<T...\>
-            /// where each \c T is itself an instantiation of \c meta::list.
-            /// \par Complexity
-            /// \f$ O(L) \f$ where \f$ L \f$ is the number of lists in the list of
-            /// lists.
-            /// \ingroup transformation
-            template <typename ListOfLists>
-            using join = apply_list<quote<concat>, ListOfLists>;
 
-            namespace lazy
+            /// Specialisation for
+            /// concat_ that takes
+            /// only one list and
+            /// returns the same list
+            template <typename... types_t>
+            struct concat_<list<types_t...>>
             {
-                /// \sa 'meta::join'
-                /// \ingroup lazy_transformation
-                template <typename ListOfLists>
-                using join = defer<join, ListOfLists>;
-            }
+                using type = list<types_t...>;
+            };
+
+
+            /// Specialisation for
+            /// concat_ that takes
+            /// two lists and returns
+            /// the concatenated list
+            template < typename... types1_t,
+                     typename... types2_t >
+            struct concat_ <
+                    list<types1_t...>,
+                    list<types2_t...> >
+            {
+                using type =
+                    list<types1_t..., types2_t...>;
+            };
+
+
+            /// Specialisation for
+            /// concat_ that represents
+            /// the general case.
+            template < typename... types1_t,
+                     typename... types2_t,
+                     typename... others_t >
+            struct concat_ <
+                    list<types1_t...>,
+                    list<types2_t...>,
+                    others_t... > :
+                    concat_ <list<types1_t..., types2_t...>, others_t...>
+            {
+            };
+
+
+            /// Evaluates the result
+            /// of t_<concat_<lists_t...>>
+            template <typename... lists_t>
+            using concat =
+                t_<concat_<lists_t...>>;
+
+
+            /// Joins a list of lists
+            /// into a single list.
+            template <typename list_of_lists_t>
+            using join =
+                expand<quote<concat>, list_of_lists_t>;
+
+
+            /// Push a type_t at
+            /// back of list_t
+            template < typename type_t,
+                     typename list_t >
+            struct push_back_;
+
+
+            /// Specialisation for
+            /// push_back_ to expand
+            /// types_t pack parameters
+            template < typename type_t,
+                     typename ... types_t >
+            struct push_back_<type_t, list<types_t...>>
+            {
+                using type = list<types_t..., type_t>;
+            };
+
+
+            /// Evaluates the result
+            /// of t_<push_back_<type_t, list_t>>
+            template < typename type_t,
+                     typename list_t >
+            using push_back =
+                t_<push_back_<type_t, list_t>>;
+
+
+            /// Pushs a type_t at
+            /// front of list_t
+            template < typename type_t,
+                     typename list_t >
+            struct push_front_;
+
+
+            /// Specialisation for
+            /// push_front_ to expand
+            /// types_t pack parameters
+            template < typename type_t,
+                     typename ... types_t >
+            struct push_front_<type_t, list<types_t...>>
+            {
+                using type = list<type_t, types_t...>;
+            };
+
+
+            /// Evaluates the result
+            /// of t_<push_front_<type_t, list_t>>
+            template < typename type_t,
+                     typename list_t >
+            using push_front =
+                t_<push_front_<type_t, list_t>>;
+
+
+            /// Removes the last
+            /// type of list_t
+            template<typename list_t>
+            struct pop_back_;
+
+
+            /// Specialisation for
+            /// pop_back_ that identifies
+            /// the last type and
+            /// remove it
+            template < typename back_t,
+                     typename ... types_t >
+            struct pop_back_<list<types_t..., back_t>>
+            {
+                using type = list<types_t...>;
+            };
+
+
+            /// Evaluates the result
+            /// of t_<pop_back_<list_t>>
+            template<typename list_t>
+            using pop_back =
+                t_<pop_back_<list_t>>;
+
+
+            /// Removes the first
+            /// type of list_t
+            template<typename list_t>
+            struct pop_front_;
+
+
+            /// Specialisation for
+            /// pop_front_ that identifies
+            /// and removes the first
+            /// type
+            template < typename first_t,
+                     typename ... types_t >
+            struct pop_front_<list<first_t, types_t...>>
+            {
+                using type = list<types_t...>;
+            };
+
+
+            /// Evaluates the result
+            /// of t_<pop_front_<list_t>>
+            template<typename list_t>
+            using pop_front =
+                t_<pop_front_<list_t>>;
         }
     }
 }

@@ -29,7 +29,6 @@
 #include <list>
 #include <chrono>
 #include "macro.hpp"
-#include "functionnal.hpp"
 #include "meta.hpp"
 
 #define WIN32
@@ -114,7 +113,7 @@ namespace brain
                                          right_t && r)
         { return l - r; }
 
-        template < typename left_t>
+        template <typename left_t>
         inline constexpr auto minus(left_t && l)
         { return -l; }
 
@@ -148,7 +147,7 @@ namespace brain
                                          right_t && r)
         { return not equals(l, r); }
 
-        template< typename left_t>
+        template<typename left_t>
         inline constexpr auto not_null(left_t && l)
         { return not_equals(l, nullptr); }
 
@@ -176,19 +175,19 @@ namespace brain
                                             right_t && r)
         { return l >= r; }
 
-        template < typename left_t >
+        template <typename left_t>
         inline auto p_inc(left_t& l)
         { return ++l; }
 
-        template < typename left_t >
+        template <typename left_t>
         inline auto s_inc(left_t && l)
         { return l++; }
 
-        template < typename left_t >
+        template <typename left_t>
         inline auto p_decr(left_t& l)
         { return --l; }
 
-        template < typename left_t >
+        template <typename left_t>
         inline auto s_decr(left_t && l)
         { return l--; }
 
@@ -204,7 +203,7 @@ namespace brain
                                        right_t && r)
         { return l or r; }
 
-        template< typename type_t>
+        template<typename type_t>
         inline constexpr auto logic_not(type_t && r)
         { return not r; }
 
@@ -277,7 +276,7 @@ namespace brain
                           contained_t* value)
         { return (c.push_back(value), c); }
 
-        template < typename container_t>
+        template <typename container_t>
         inline auto& push_all(container_t& c,
                               typename container_t::const_iterator && first,
                               typename container_t::const_iterator && after_last)
@@ -299,11 +298,11 @@ namespace brain
         inline constexpr auto not_empty(container_t && c)
         { return logic_not(empty(c)); }
 
-        template< typename type_t>
+        template<typename type_t>
         inline auto& inner(type_t && o)
         { return *o; }
 
-        template< typename type_t>
+        template<typename type_t>
         inline auto& inner(type_t & o)
         { return *o; }
 
@@ -754,7 +753,7 @@ namespace brain
          * @file core.hpp
          * @brief
          */
-        template < typename type_t>
+        template <typename type_t>
         class property
         {
             public:
@@ -1498,7 +1497,7 @@ namespace brain
                 inline static void skip_policy(Skip skip) noexcept
                 { fct::assign(loggerconf::skip, skip); }
 
-                template < typename formatter_t = formatter<lvl, t>>
+                template <typename formatter_t = formatter<lvl, t>>
                 inline static void format_policy(formatter_t && f)
                 { format(formatter_t(f)); }
         };
@@ -1875,7 +1874,7 @@ namespace brain
                 }
             };
 
-            template < typename receiptor_t>
+            template <typename receiptor_t>
             struct receiptors_builder<receiptor_t>
             {
                 void operator()(std::vector<event_receiptor_u>& receiptors)
@@ -2429,7 +2428,7 @@ namespace brain
         {
             using func_type = func_t;
 
-            template< typename ... args_t>
+            template<typename ... args_t>
             auto operator()(args_t && ... args) const
             { return func_type()(std::forward<args_t>(args)...); }
         };
@@ -2459,7 +2458,7 @@ namespace brain
                     }
                 };
 
-                template < typename ... args_t >
+                template <typename ... args_t>
                 struct exec<void, args_t...>
                 {
                     void operator()(args_t && ...args)
@@ -2495,7 +2494,7 @@ namespace brain
                     }
                 };
 
-                template < typename ... args_t >
+                template <typename ... args_t>
                 struct exec<void, args_t...>
                 {
                     void operator()(args_t && ...args)
@@ -2533,7 +2532,7 @@ namespace brain
                     }
                 };
 
-                template < typename ... args_t >
+                template <typename ... args_t>
                 struct exec<void, args_t...>
                 {
                     void operator()(args_t && ...args)
@@ -2548,33 +2547,149 @@ namespace brain
 
     namespace net
     {
-        template<unsigned _port>
+        template < unsigned _port,
+                 int _domain,
+                 bool _is_server,
+                 int _protocol >
         class socket
         {
                 SOCKET server_sock = 0;
                 SOCKET client_sock = 0;
-                bool isServer = true;
-                int domain = ;
+                unsigned port = _port;
+                bool is_server = _is_server;
+                int domain = _domain;
+                int protocol = _protocol;
 #if defined (WIN32)
                 static WSADATA wsadata;
 #endif
+
             public:
-                socket();
-                socket(int domain, int type, bool isServer, int protocol = 0);
-                socket(const Socket& other);
-                virtual ~socket();
-                socket& operator=(const socket& other);
-                void srvBind(unsigned short port, unsigned long type = INADDR_ANY) throw(BindException);
-                void srvListening(int backlog = 1) throw(ListenException);
-                void srvAccept() throw(AcceptException);
-                void cltConnect(std::string& addr, unsigned short port) throw(ConnectException);
-                void bthSend(const char* buffer, unsigned bufferSize);
-                void bthRecv(char* buffer, unsigned bufferSize);
-                void bthShutdown(int how);
-                int bthClose();
-                static int initSystem();
+                socket() = default;
+                socket(const socket& other) = default;
+                socket(socket && other) = default;
+                virtual ~socket() = default;
+
+            public:
+                socket& operator=(const socket& other) = default;
+                socket& operator=(socket && other) = default;
+
+            public:
+
+                void srvBind(unsigned short port,
+                             unsigned long type = INADDR_ANY) throw(BindException)
+                {
+                    if(is_server)
+                    {
+                        SOCKADDR_IN sin;
+
+                        sin.sin_addr.s_addr = htonl(type);
+                        sin.sin_family = domain;
+                        sin.sin_port = htons(port);
+                        auto bind_res = bind(this->sock, (SOCKADDR*)&sin, sizeof(sin));
+
+                        /// if(bind_res)
+                        ///    throw BindException();
+                    }
+                }
+
+                void srvListening(int backlog = 1) throw(ListenException)
+                {
+                    if(this->is_server)
+                    {
+                        auto listen_res = listen(this->sock, backlog);
+
+                        /// if(listen_res != 0)
+                        ///    throw ListenException();
+                    }
+                }
+
+                void srvAccept() throw(AcceptException)
+                {
+                    if(this->is_server)
+                    {
+                        SOCKADDR_IN csin;
+                        socklen_t taille = sizeof(csin);
+                        this->csock = accept(this->sock, (SOCKADDR*)&csin, &taille);
+                    }
+                }
+
+                void cltConnect(std::string& addr, unsigned short port) throw(ConnectException)
+                {
+                    if(!this->is_server)
+                    {
+                        SOCKADDR_IN sin;
+
+                        sin.sin_addr.s_addr = inet_addr(addr.c_str());
+                        sin.sin_family = this->domain;
+                        sin.sin_port = htons(port);
+
+                        if(connect(this->sock, (SOCKADDR*)&sin, sizeof(sin)) != 0)
+                        {
+                            throw ConnectException();
+                        }
+                    }
+                }
+
+                void bthSend(const char* buffer, unsigned bufferSize)
+                {
+                    if(this->is_server)
+                    {
+                        send(this->csock, buffer, bufferSize, 0);
+                    }
+
+                    else
+                    {
+                        send(this->sock, buffer, bufferSize, 0);
+                    }
+                }
+
+                void bthRecv(char* buffer, unsigned bufferSize)
+                {
+                    if(this->is_server)
+                    {
+                        recv(this->csock, buffer, bufferSize, 0);
+                    }
+
+                    else
+                    {
+                        recv(this->sock, buffer, bufferSize, 0);
+                    }
+                }
+                
+                void bthShutdown(int how)
+                {
+                    shutdown(this->sock, how);
+                }
+
+                int bthClose()
+                {
+                    return closesocket(sock);
+                }
+                
+                static int initSystem()
+                {
+#if defined (WIN32)
+                    WSADATA WSAData;
+                    return WSAStartup(MAKEWORD(2, 2), &WSAData);
+#else
+                    return 0;
+#endif
+                }
+                
                 static int cleanSystem();
-                SOCKET  getSocket();
+                {
+#if defined (WIN32)
+                    return WSACleanup();
+#else
+                    return 0;
+#endif
+                }
+                
+                SOCKET getSocket()
+                {
+                    return this->sock;
+                }
+
         };
     }
 }

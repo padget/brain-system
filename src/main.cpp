@@ -6,7 +6,8 @@
  */
 
 //#include "test/utest/utest.hpp"
-#include "test/Socket.hpp"
+#include "core/meta.hpp"
+#include "core/core.hpp"
 #include <iostream>
 
 #define TEST_PORT 80
@@ -16,6 +17,10 @@
 using namespace std;
 
 int testOpenServerSocket() {
+    using test_socket = brain::net::socket<TEST_PORT
+                 AF_INET,
+                 true,
+                 0 >;
     int nbError = 0;
     int domain = AF_INET;
     int type = SOCK_STREAM;

@@ -82,7 +82,6 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/core.h"/>
       <VirtualDirectory Name="core">
         <File Name="src/core/core.hpp"/>
-        <File Name="src/core/functionnal.hpp"/>
         <File Name="src/core/macro.hpp"/>
         <File Name="src/core/meta.hpp"/>
       </VirtualDirectory>
