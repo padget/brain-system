@@ -31,7 +31,7 @@
 #include "macro.hpp"
 #include "meta.hpp"
 
-#define WIN32
+/*#define WIN32
 
 #if defined (WIN32)
 #include <winsock2.h>
@@ -49,7 +49,7 @@ typedef int SOCKET;
 typedef struct sockaddr_in SOCKADDR_IN;
 typedef struct sockaddr SOCKADDR;
 #endif
-
+*/
 
 namespace brain
 {
@@ -1013,422 +1013,6 @@ namespace brain
         const double default_value<double>::value = 0.;
         template<>
         const long double default_value<long double>::value = 0.;
-        /*
-                template<typename inner_t>
-                struct encapsulator_delegated
-                {
-                    virtual const inner_t& inner() const = 0;
-                    virtual inner_t& inner() = 0;
-                };
-
-                struct nothing_delegated {};
-
-                template < typename inner_t,
-                         typename delegated_t = nothing_delegated >
-                class encapsulator:
-                    public nat::object,
-                    public delegated_t
-                {
-                        friend delegated_t;
-
-                    public:
-                        using type = inner_t;
-
-                    private:
-                        type m_inner;
-
-                    public:
-                        const type& inner() const
-                        { return m_inner; }
-
-                        type& inner()
-                        { return m_inner; }
-
-                        void inner(const type& in)
-                        { fct::assign(m_inner, in); }
-
-                        void inner(type && in)
-                        { fct::assign(m_inner, in); }
-
-                    public:
-                        encapsulator() : nat::object() {}
-
-                        encapsulator(const encapsulator<type>& other):
-                            nat::object(other),
-                            m_inner(other.m_inner) {}
-
-                        encapsulator(encapsulator<type> && other):
-                            nat::object(other),
-                            m_inner(fct::mv(other.m_inner)) {}
-
-                        encapsulator(const type& in):
-                            nat::object(),
-                            m_inner(in) {}
-
-                        encapsulator(type && in):
-                            nat::object(),
-                            m_inner(in) {}
-
-                        template<typename other_t>
-                        encapsulator(other_t && in):
-                            nat::object(),
-                            m_inner(static_cast<type>(in)) {}
-
-
-                        virtual ~encapsulator() {}
-
-                    public:
-                        encapsulator<type>& operator=(const type& in)
-                        {
-                            fct::assign(m_inner, in);
-                            return fct::inner(this);
-                        }
-
-                        encapsulator<type>& operator=(type && in)
-                        {
-                            fct::assign(m_inner, in);
-                            return fct::inner(this);
-                        }
-
-                        template<typename other_t>
-                        encapsulator<type> operator=(other_t && in)
-                        {
-                            fct::assign(m_inner, in);
-                            return fct::inner(this);
-                        }
-
-                    public:
-                        inline operator type() const
-                        { return m_inner; }
-
-                        operator type&()
-                        { return m_inner; }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<bool> operator==(encapsulator<other_t> && other) const
-                        { return fct::equals(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<bool> operator==(const encapsulator<other_t>& other) const
-                        { return fct::equals(m_inner, other.m_inner); }
-
-                        encapsulator<bool> operator==(const type& other) const
-                        { return fct::equals(m_inner, other); }
-
-                        encapsulator<bool> operator==(type && other) const
-                        { return fct::equals(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<bool> operator!=(encapsulator<other_t> && other) const
-                        { return fct::not_equals(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<bool> operator!=(const encapsulator<other_t>& other) const
-                        { return fct::not_equals(m_inner, other.m_inner); }
-
-                        encapsulator<bool> operator!=(const type& other) const
-                        { return fct::not_equals(m_inner, other); }
-
-                        encapsulator<bool> operator!=(type && other) const
-                        { return fct::not_equals(m_inner, other); }
-
-                    public:
-                        encapsulator<bool> operator and (const encapsulator<bool>& other)
-                        { return encapsulator<bool>(fct::logic_and(m_inner, other.m_inner)); }
-
-                        encapsulator<bool> operator and (encapsulator<bool> && other)
-                        { return encapsulator<bool>(fct::logic_and(m_inner, other.m_inner)); }
-
-                        encapsulator<bool> operator and (const type& other)
-                        { return encapsulator<bool>(fct::logic_and(m_inner, other)); }
-
-                        encapsulator<bool> operator and (type && other)
-                        { return encapsulator<bool>(fct::logic_and(m_inner, other)); }
-
-                    public:
-                        encapsulator<bool> operator or (const encapsulator<bool>& other)
-                        { return encapsulator<bool>(fct::logic_or(m_inner, other.m_inner)); }
-
-                        encapsulator<bool> operator or (encapsulator<bool> && other)
-                        { return encapsulator<bool>(fct::logic_or(m_inner, other.m_inner)); }
-
-                        encapsulator<bool> operator or (const type& other)
-                        { return encapsulator<bool>(fct::logic_or(m_inner, other)); }
-
-                        encapsulator<bool> operator or (type && other)
-                        { return encapsulator<bool>(fct::logic_or(m_inner, other)); }
-
-                    public :
-                        encapsulator<bool> operator !()
-                        { return encapsulator<bool>(fct::logic_not(m_inner)); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<type> operator+(encapsulator<other_t> && other) const
-                        { return fct::adds(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<type> operator+(const encapsulator<other_t>& other)  const
-                        { return fct::adds(m_inner, other.m_inner); }
-
-                        encapsulator<type> operator+(const type& other)  const
-                        { return fct::adds(m_inner, other); }
-
-                        encapsulator<type> operator+(type && other)  const
-                        { return fct::adds(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<type> operator-(encapsulator<other_t> && other) const
-                        { return fct::substracts(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<type> operator-(const encapsulator<other_t>& other)  const
-                        { return fct::substracts(m_inner, other.m_inner); }
-
-                        encapsulator<type> operator-(const type& other)  const
-                        { return fct::substracts(m_inner, other); }
-
-                        encapsulator<type> operator-(type && other)  const
-                        { return fct::substracts(m_inner, other); }
-
-                        encapsulator<type> operator-() const
-                        { return fct::minus(m_inner); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<type> operator*(encapsulator<other_t> && other) const
-                        { return fct::multiplies(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<type> operator*(const encapsulator<other_t>& other)  const
-                        { return fct::multiplies(m_inner, other.m_inner); }
-
-                        encapsulator<type> operator*(const type& other)  const
-                        { return fct::multiplies(m_inner, other); }
-
-                        encapsulator<type> operator*(type && other)  const
-                        { return fct::multiplies(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<type> operator/(encapsulator<other_t> && other) const
-                        { return fct::divides(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<type> operator/(const encapsulator<other_t>& other)  const
-                        { return fct::divides(m_inner, other.m_inner); }
-
-                        encapsulator<type> operator/(const type& other)  const
-                        { return fct::divides(m_inner, other); }
-
-                        encapsulator<type> operator/(type && other)  const
-                        { return fct::divides(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<type> operator%(encapsulator<other_t> && other) const
-                        { return fct::modulo(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<type> operator%(const encapsulator<other_t>& other)  const
-                        { return fct::modulo(m_inner, other.m_inner); }
-
-                        encapsulator<type> operator%(const type& other)  const
-                        { return fct::modulo(m_inner, other); }
-
-                        encapsulator<type> operator%(type && other)  const
-                        { return fct::modulo(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<bool> operator>(encapsulator<other_t> && other) const
-                        { return fct::greater(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<bool> operator>(const encapsulator<other_t>& other)  const
-                        { return fct::greater(m_inner, other.m_inner); }
-
-                        encapsulator<bool> operator>(const type& other)  const
-                        { return fct::greater(m_inner, other); }
-
-                        encapsulator<bool> operator>(type && other)  const
-                        { return fct::greater(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<bool> operator<(encapsulator<other_t> && other) const
-                        { return fct::less(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<bool> operator<(const encapsulator<other_t>& other)  const
-                        { return fct::less(m_inner, other.m_inner); }
-
-                        encapsulator<bool> operator<(const type& other)  const
-                        { return fct::less(m_inner, other); }
-
-                        encapsulator<bool> operator<(type && other)  const
-                        { return fct::less(m_inner, other); }
-                    public:
-                        template<typename other_t>
-                        encapsulator<bool> operator>=(encapsulator<other_t> && other) const
-                        { return fct::greater_equal(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<bool> operator>=(const encapsulator<other_t>& other)  const
-                        { return fct::greater_equal(m_inner, other.m_inner); }
-
-                        encapsulator<bool> operator>=(const type& other)  const
-                        { return fct::greater_equal(m_inner, other); }
-
-                        encapsulator<bool> operator>=(type && other)  const
-                        { return fct::greater_equal(m_inner, other); }
-
-                    public:
-                        template<typename other_t>
-                        encapsulator<bool> operator<=(encapsulator<other_t> && other) const
-                        { return fct::less_equal(m_inner, other.m_inner); }
-
-                        template<typename other_t>
-                        encapsulator<bool> operator<=(const encapsulator<other_t>& other)  const
-                        { return fct::less_equal(m_inner, other.m_inner); }
-
-                        encapsulator<bool> operator<=(const type& other)  const
-                        { return fct::less_equal(m_inner, other); }
-
-                        encapsulator<bool> operator<=(type && other)  const
-                        { return fct::less_equal(m_inner, other); }
-
-                    public:
-                        auto& operator++()
-                        {
-                            fct::assign(m_inner, fct::adds(m_inner, 1));
-                            return fct::inner(this);
-                        }
-
-                        auto operator++(int)
-                        {
-                            auto old = fct::inner(this);
-                            fct::inner(this)++;
-                            return old;
-                        }
-
-                        auto& operator--()
-                        {
-                            fct::assign(m_inner, fct::substracts(m_inner, 1));
-                            return fct::inner(this);
-                        }
-
-                        auto operator--(int)
-                        {
-                            auto old = fct::inner(this);
-                            fct::inner(this)--;
-                            return old;
-                        }
-                };
-
-                using boolean = encapsulator<bool>;
-
-                using integer = encapsulator<int>;
-                using linteger = encapsulator<long>;
-                using llinteger = encapsulator<long long>;
-
-                using sizeinteger = encapsulator<size_t>;
-
-                using uinteger = encapsulator<unsigned>;
-                using ulinteger = encapsulator<unsigned long>;
-                using ullinteger = encapsulator<unsigned long long>;
-
-                using floating = encapsulator<float>;
-                using dfloating = encapsulator<double>;
-                using ldfloating = encapsulator<long double>;
-
-                template<typename container_t>
-                struct container_delegated:
-                    public encapsulator_delegated<container_t>
-                {
-                    boolean empty() const
-                    { return fct::inner(this).inner().empty(); }
-
-                    sizeinteger length() const
-                    { return fct::inner(this).inner().length(); }
-                };
-
-                using string = encapsulator<std::string, container_delegated<std::string>>;
-
-                template<typename type_t>
-                inline std::ostream& operator<<(std::ostream& o, encapsulator<type_t> && enc)
-                { return o << enc.inner(); }
-
-                template<typename type_t>
-                inline std::ostream& operator<<(std::ostream& o, const encapsulator<type_t> & enc)
-                { return o << enc.inner(); }
-        */
-        /**
-         * @class enum_iterator
-         * @author Benjamin
-         * @date 21/09/2015
-         * @file core.hpp
-         * @brief Enum iterator
-         */
-        /*template<typename enum_t, enum_t ... args >
-         class enum_iterator:
-             public nat::object,
-             public std::iterator<std::input_iterator_tag, enum_t, ptrdiff_t, const enum_t*, const enum_t&>
-         {
-                 nat::uinteger m_pos;
-
-             public:
-                 static constexpr std::size_t size = sizeof...(args);
-                 static constexpr std::array<enum_t, size> values = {args...};
-
-             public:
-                 constexpr enum_iterator() : m_pos(size) {}
-                 constexpr enum_iterator(const enum_t val) : m_pos(std::distance(&values[0], std::find(&values[0], &values[size], val))) {}
-
-             public:
-                 const enum_t& operator*() const
-                 { return values[m_pos]; }
-
-                 enum_iterator& operator++()
-                 { ++m_pos; return *this; }
-
-                 enum_iterator operator++(int)
-                 {
-                     enum_iterator r(*this);
-                     this->operator++();
-                     return r;
-                 }
-
-             public:
-                 constexpr nat::boolean operator==(enum_iterator const& rhs) const
-                 {return fct::equals(m_pos, rhs.m_pos);}
-
-                 constexpr nat::boolean operator!=(enum_iterator const& rhs) const
-                 {return fct::not_equals(m_pos, rhs.m_pos);}
-
-                 constexpr nat::boolean empty()
-                 { return fct::equals(size, 0u); }
-
-             public:
-                 constexpr auto begin()
-                 {
-                     return fct::logic_not(fct::empty(*this)) ?
-                            enum_iterator(values[0]) :
-                            end();
-                 }
-
-                 constexpr auto end()
-                 { return enum_iterator(); }
-         };
-
-         template<typename enum_t, enum_t... args>
-         constexpr std::size_t enum_iterator<enum_t, args...>::size;
-
-         template<typename enum_t, enum_t... args>
-         constexpr std::array<enum_t,  enum_iterator<enum_t, args...>::size> enum_iterator<enum_t, args...>::values;*/
     }
 
 
@@ -1462,7 +1046,7 @@ namespace brain
         template<>
         inline auto& lvlname<Level::ERROR>()
         { static std::string name = "ERROR"; return name; }
-
+        
         template<>
         inline auto& lvlname<Level::FATAL>()
         { static std::string name = "FATAL"; return name; }
@@ -1633,7 +1217,7 @@ namespace brain
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using error = log<Level::ERROR, type_t, clock>;
-
+    
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using fatal = log<Level::FATAL, type_t, clock>;
@@ -1660,7 +1244,7 @@ namespace brain
                 inline static void warn(t && ... message) noexcept
                 {  logging::warn<type_t, clock>()(message...); }
 
-                template <typename ... t>
+               template <typename ... t>
                 inline static void error(t && ... message) noexcept
                 {  logging::error<type_t, clock>()(message...); }
 
@@ -1924,13 +1508,9 @@ namespace brain
 
     enum class exitcode
     : int
-    { WELL = 0, ERROR = 1 };
+    { WELL = 0, CRITIC = 1 };
 
-    /**
-     *
-     *
-     *
-     */
+
     namespace test
     {
         struct basic_test
@@ -2545,7 +2125,7 @@ namespace brain
         };
     }
 
-    namespace net
+    /*namespace net
     {
         template < unsigned _port,
                  int _domain,
@@ -2692,6 +2272,7 @@ namespace brain
 
         };
     }
+    //*/
 }
 
 #endif /* CORE_CORE_HPP_ */

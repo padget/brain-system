@@ -10,16 +10,189 @@
 
 namespace brain
 {
+    namespace meta
+    {
+        namespace test
+        {
+            /// Unitary test for
+            /// member meta features
+            struct member_test :
+                public brain::test::basic_test
+            {
+                struct a_type
+                {
+                    using type = a_type;
+                    static constexpr int value = 1;
+                    static constexpr size_t size = 12;
+
+                    template<typename ... args>
+                    using return_ = a_type;
+                };
+
+                struct another_type {};
+
+                virtual bool test()
+                {
+                    static_assert(v_<std::is_same<t_<a_type>, a_type>>, "");
+                    static_assert(v_<a_type> == 1, "");
+                    static_assert(std::is_same<vt_<a_type>, const int>::value, "");
+                    static_assert(size_<a_type> == 12, "");
+                    static_assert(std::is_same<return_<a_type, int>, a_type>::value, "");
+                    static_assert(std::is_same<r_<a_type, int>, a_type>::value, "");
+
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for
+            /// literal meta features
+            struct literal_test:
+                public brain::test::basic_test
+            {
+                virtual bool test()
+                {
+                    static_assert(v_<bool_<true>> == true, "");
+                    static_assert(v_<short_<1>> == 1, "");
+                    static_assert(v_<ushort_<1>> == 1, "");
+                    static_assert(v_ < char_ < 'c' >> == 'c', "");
+                    static_assert(v_<int_<1>> == 1, "");
+                    static_assert(v_<long_<1>> == 1, "");
+                    static_assert(v_<longlong_<1>> == 1, "");
+                    static_assert(v_<unsigned_<1>> == 1, "");
+                    static_assert(v_<unsignedl_<1>> == 1, "");
+                    static_assert(v_<unsignedll_<1>> == 1, "");
+                    static_assert(v_<size_t_<1>> == 1, "");
+
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for
+            /// const keyword meta
+            /// features
+            struct constkw_test:
+                public brain::test::basic_test
+            {
+                virtual bool test()
+                {
+                    static_assert(v_<sizeof_<int>> == sizeof(int), "");
+                    static_assert(v_<sizeof_pack_<int, double, int>> == 3, "");
+                    static_assert(v_<alignof_<int>> == alignof(int), "");
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for
+            /// pack meta features
+            struct pack_test:
+                public brain::test::basic_test
+            {
+                using a_list = list<int, float, double>;
+
+                virtual bool test()
+                {
+                    static_assert(size_<a_list> == v_<sizeof_pack_<int, float, double>>, "");
+                    static_assert(v_<std::is_same<t_<a_list>, a_list>>, "");
+                    static_assert(v_<std::is_same<front<a_list>, int>>, "");
+                    static_assert(v_<std::is_same<back<a_list>, double>>, "");
+                    static_assert(v_<std::is_same<concat<list<int>, list<float, double>>, list<int, float, double>>>, "");
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for
+            /// meta function features
+            struct function_test:
+                public brain::test::basic_test
+            {
+                struct a_type
+                {
+                    template<typename ... args>
+                    using return_ = int;
+
+                    using type = int;
+                };
+
+                struct another_type
+                {
+                };
+
+                virtual bool test()
+                {
+                    /// TODO Unitary for compose
+                    static_assert(v_<std::is_same<r_<always<void>>, void>>, "");
+                    static_assert(v_<has_type<a_type>>, "");
+                    static_assert(!v_<has_type<another_type>>, "");
+                    static_assert(v_<has_return<a_type>>, "");
+                    static_assert(!v_<has_return<another_type>>, "");
+                    static_assert(v_<is_meta_function<a_type>>, "");
+                    static_assert(!v_<is_meta_function<another_type>>, "");
+                    /// TODO Unitary for bind_front
+                    /// TODO Unitary for bind_back
+                    static_assert(v_<std::is_same<expand<a_type, list<int, double>>, int>>, "");
+
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for 
+            /// deferring feature
+            struct deferring_test:
+                public brain::test::basic_test
+            {
+                template<typename ... args_t>
+                struct a_type
+                {
+                    using type = void;
+                };
+
+                virtual bool test()
+                {
+                    static_assert(v_<std::is_same<t_<defer<a_type, int, double>>, void>>, "");
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for 
+            /// quote feature
+            struct quote_test:
+                public brain::test::basic_test
+            {
+                template<typename ... args_t>
+                struct a_type
+                {};
+
+                virtual bool test()
+                {
+                    static_assert(v_<std::is_same<r_<quote<a_type>, int, float, double>, a_type<int, float, double>>> , "");
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            /// Unitary test for 
+            /// math features
+            struct math_test:
+                public brain::test::basic_test
+            {
+                virtual bool test()
+                {
+                    return v_<std::true_type>;
+                }
+            };
+        }
+    }
+
+
+
     namespace test
     {
-        struct meta_test :
-            public basic_test
-        {
-            virtual bool test()
-            {
-                return true;
-            }
-        };
 
         struct system_test :
             public basic_test
