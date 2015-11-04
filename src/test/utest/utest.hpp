@@ -122,6 +122,7 @@ namespace brain
                 };
 
                 using a_list = list<int, double>;
+                using a_second_list = list<int>;
 
                 virtual bool test()
                 {
@@ -139,8 +140,7 @@ namespace brain
 
                     static_assert(v_<std::is_same<push_back<float, a_list>, list<int, double, float>>>, "");
                     static_assert(v_<std::is_same<push_front<float, a_list>, list<float, int, double>>>, "");
-                    std::cout << typeid(impl::pop_back<a_list>).name() << std::endl;
-                    static_assert(v_<std::is_same<impl::pop_back<a_list>, list<int>>>, "");
+                    static_assert(v_<std::is_same<pop_back<a_list>, list<int>>>, "");
                     static_assert(v_<std::is_same<pop_front<a_list>, list<double>>>, "");
 
                     return v_<std::true_type>;

@@ -383,9 +383,10 @@ namespace brain
             struct concat <
                     list<types1_t...>,
                     list<types2_t...>,
-                    others_t... > :
-                    concat <list<types1_t..., types2_t...>, others_t...>
+                    others_t... >
+                    
             {
+                using type = t_<concat<list<types1_t..., types2_t...>, others_t...>>;
             };
         }
 
@@ -407,13 +408,6 @@ namespace brain
             struct pop_back;
 
 
-            template<>
-            struct pop_back<list<>>
-            {
-                using type = list<>;
-            };
-
-
             template<typename type_t>
             struct pop_back<list<type_t>>
             {
@@ -425,7 +419,7 @@ namespace brain
                      typename ... types_t >
             struct pop_back<list<type_t, types_t...>>
             {
-                using type = concat<list<type_t>, pop_back<list<types_t...>>>;
+                using type = meta::concat<list<type_t>, t_<pop_back<list<types_t...>>>>;
             };
         }
 
