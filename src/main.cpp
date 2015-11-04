@@ -22,8 +22,10 @@ int main()
          meta::test::constkw_test,
          meta::test::pack_test,
          meta::test::function_test,
+         meta::test::math_test,
+         meta::test::conditional_test/*,
          test::system_test,
-         test::smart_ptr_test/*,
+         test::smart_ptr_test,
          test::scanner_test,
          test::parser_test,
          test::tree_maker_test*/ > ()();

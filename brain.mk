@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=bmathieu
-Date                   :=03/11/2015
+Date                   :=04/11/2015
 CodeLitePath           :="C:\Program Files\CodeLite"
 LinkerName             :=C:/TDM-GCC-64/bin/g++.exe
 SharedObjectLinkerName :=C:/TDM-GCC-64/bin/g++.exe -shared -fPIC
@@ -101,7 +101,7 @@ $(IntermediateDirectory)/src_main.cpp$(DependSuffix): src/main.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_main.cpp$(DependSuffix) -MM "src/main.cpp"
 
 $(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix): src/main.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix) "src/main.cpp"
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix) "src/main.cpp"
 
 $(IntermediateDirectory)/test_Socket.cpp$(ObjectSuffix): src/test/Socket.cpp $(IntermediateDirectory)/test_Socket.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/project/c++/code_lite_w/brain-system/src/test/Socket.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/test_Socket.cpp$(ObjectSuffix) $(IncludePath)
@@ -109,7 +109,7 @@ $(IntermediateDirectory)/test_Socket.cpp$(DependSuffix): src/test/Socket.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/test_Socket.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/test_Socket.cpp$(DependSuffix) -MM "src/test/Socket.cpp"
 
 $(IntermediateDirectory)/test_Socket.cpp$(PreprocessSuffix): src/test/Socket.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/test_Socket.cpp$(PreprocessSuffix) "src/test/Socket.cpp"
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/test_Socket.cpp$(PreprocessSuffix) "src/test/Socket.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

@@ -23,7 +23,8 @@ namespace brain
         /// Access to value member
         /// of type_t
         template<typename type_t>
-        constexpr auto v_ = t_<type_t>::value;
+        constexpr decltype(t_<type_t>::value) v_ =
+            t_<type_t>::value;
 
 
         /// Access to value_type member
@@ -36,7 +37,7 @@ namespace brain
         /// Access to size member
         /// of type_t
         template<typename type_t>
-        constexpr auto size_ =
+        constexpr decltype(t_<type_t>::size) size_ =
             t_<type_t>::size;
 
 
@@ -243,6 +244,90 @@ namespace brain
             t_<impl::back<list_t>>;
 
 
+        namespace impl
+        {
+            /// Push a type_t at
+            /// back of list_t
+            template < typename type_t,
+                     typename list_t >
+            struct push_back;
+
+
+            /// Specialisation for
+            /// push_back_ to expand
+            /// types_t pack parameters
+            template < typename type_t,
+                     typename ... types_t >
+            struct push_back<type_t, list<types_t...>>
+            {
+                using type = list<types_t..., type_t>;
+            };
+        }
+
+        /// Evaluates the result
+        /// of t_<push_back_<type_t, list_t>>
+        template < typename type_t,
+                 typename list_t >
+        using push_back =
+            t_<impl::push_back<type_t, list_t>>;
+
+
+        namespace impl
+        {
+            /// Pushs a type_t at
+            /// front of list_t
+            template < typename type_t,
+                     typename list_t >
+            struct push_front;
+
+
+            /// Specialisation for
+            /// push_front_ to expand
+            /// types_t pack parameters
+            template < typename type_t,
+                     typename ... types_t >
+            struct push_front<type_t, list<types_t...>>
+            {
+                using type = list<type_t, types_t...>;
+            };
+        }
+
+
+        /// Evaluates the result
+        /// of t_<push_front_<type_t, list_t>>
+        template < typename type_t,
+                 typename list_t >
+        using push_front =
+            t_<impl::push_front<type_t, list_t>>;
+
+
+        namespace impl
+        {
+            /// Removes the first
+            /// type of list_t
+            template<typename list_t>
+            struct pop_front;
+
+
+            /// Specialisation for
+            /// pop_front_ that identifies
+            /// and removes the first
+            /// type
+            template < typename first_t,
+                     typename ... types_t >
+            struct pop_front<list<first_t, types_t...>>
+            {
+                using type = list<types_t...>;
+            };
+        }
+
+
+        /// Evaluates the result
+        /// of t_<pop_front_<list_t>>
+        template<typename list_t>
+        using pop_front =
+            t_<impl::pop_front<list_t>>;
+
 
         namespace impl
         {
@@ -311,6 +396,45 @@ namespace brain
         using concat =
             t_<impl::concat<lists_t...>>;
 
+
+        namespace impl
+        {
+            /// TODO pop_back
+
+            /// Removes the last
+            /// type of list_t
+            template<typename list_t>
+            struct pop_back;
+
+
+            template<>
+            struct pop_back<list<>>
+            {
+                using type = list<>;
+            };
+
+
+            template<typename type_t>
+            struct pop_back<list<type_t>>
+            {
+                using type = list<>;
+            };
+
+
+            template < typename type_t,
+                     typename ... types_t >
+            struct pop_back<list<type_t, types_t...>>
+            {
+                using type = concat<list<type_t>, pop_back<list<types_t...>>>;
+            };
+        }
+
+
+        /// Evaluates the result
+        /// of t_<pop_back_<list_t>>
+        template<typename list_t>
+        using pop_back =
+            t_<impl::pop_back<list_t>>;
 
         /// ////////////////////////// ///
         /// Meta function manipulation ///
@@ -746,11 +870,13 @@ namespace brain
         /// ////////////// ///
         /// Type selection ///
         /// ////////////// ///
-        namespace conditional
+
+
+        namespace impl
         {
             /// Type selector
             template<typename ...>
-            struct _if_;
+            struct if_;
 
 
             /// Type selector
@@ -758,7 +884,7 @@ namespace brain
             /// returns void
             /// if_t is true
             template<typename if_t>
-            struct _if_<if_t> :
+            struct if_<if_t> :
                     std::enable_if<v_<if_t>>
             {
             };
@@ -770,7 +896,7 @@ namespace brain
             /// if_t is true
             template < typename if_t,
                      typename then_t >
-            struct _if_<if_t, then_t>:
+            struct if_<if_t, then_t>:
                     std::enable_if<v_<if_t>, then_t>
             {
             };
@@ -784,45 +910,51 @@ namespace brain
             template < typename if_t,
                      typename then_t,
                      typename else_t >
-            struct _if_<if_t, then_t, else_t>:
+            struct if_<if_t, then_t, else_t>:
                     std::conditional<v_<if_t>, then_t, else_t>
             {
             };
+        }
+
+        /// Evaluates the result
+        /// of t_<_if_<args_t...>>
+        template<typename ... args_t>
+        using if_ =
+            t_<impl::if_<args_t...>>;
 
 
-            /// Evaluates the result
-            /// of t_<_if_<args_t...>>
-            template<typename ... args_t>
-            using if_ = t_<_if_<args_t...>>;
+        /// Evaluates the result
+        /// of if_<bool_<_b>, args_t... >
+        template < bool _b,
+                 typename... args_t >
+        using if_c =
+            t_<impl::if_<bool_<_b>, args_t...>>;
 
 
-            /// Evaluates the result
-            /// of if_<bool_<_b>, args_t... >
-            template < bool _b,
-                     typename... args_t >
-            using if_c =  if_<bool_<_b>, args_t...>;
+        /// Evaluates the result
+        /// of if_<if_t, then_t, else_t>
+        template < typename if_t,
+                 typename then_t,
+                 typename else_t >
+        using select =
+            if_<if_t, then_t, else_t> ;
 
 
-            /// Evaluates the result
-            /// of if_<if_t, then_t, else_t>
-            template < typename if_t,
-                     typename then_t,
-                     typename else_t >
-            using select = if_<if_t, then_t, else_t> ;
+        /// Evaluates the result
+        /// of if_c<_b, then_t, else_t>
+        template < bool _b,
+                 typename then_t,
+                 typename else_t >
+        using select_c =
+            if_c<_b, then_t, else_t> ;
 
 
-            /// Evaluates the result
-            /// of if_c<_b, then_t, else_t>
-            template < bool _b,
-                     typename then_t,
-                     typename else_t >
-            using select_c = if_c<_b, then_t, else_t> ;
-
-
+        namespace impl
+        {
             /// Returns std::true_type
             /// if all bools_t are true
             template <typename... bools_t>
-            struct _and_;
+            struct and_;
 
 
             /// Specialisation for
@@ -830,37 +962,38 @@ namespace brain
             /// std::true_type for
             /// default case.
             template <>
-            struct _and_<> :
+            struct and_<> :
                     std::true_type
             {
             };
 
 
             /// Specialisation for
-            /// _and_ that returns
+            /// and_ that returns
             /// std::false_type if
             /// one of bools_t is
             /// false
             template < typename bool_t,
                      typename... bools_t >
-            struct _and_<bool_t, bools_t...>:
-                    if_c < !v_<bool_t>, std::false_type, _and_<bools_t... >>
+            struct and_<bool_t, bools_t...>:
+                    if_c < !v_<bool_t>, std::false_type, and_<bools_t... >>
             {
             };
+        }
 
+        /// Evaluates the result
+        /// of t_<_and_<bools_t...>>
+        template<typename ... bools_t>
+        using and_ =
+            t_<impl::and_<bools_t...>>;
 
-            /// Evaluates the result
-            /// of t_<_and_<bools_t...>>
-            template<typename ... bools_t>
-            using and_ =
-                t_<_and_<bools_t...>>;
-
-
+        namespace impl
+        {
             /// Returns std::true_type
             /// if one or more bools_t
             /// is true
             template <typename... bools_t>
-            struct _or_;
+            struct or_;
 
 
             /// Specialisation for
@@ -868,7 +1001,7 @@ namespace brain
             /// std::false_type
             /// for default case
             template <>
-            struct _or_<> :
+            struct or_<> :
                     std::false_type
             {
             };
@@ -881,138 +1014,28 @@ namespace brain
             /// false
             template < typename bool_t,
                      typename... bools_t >
-            struct _or_<bool_t, bools_t...> :
+            struct or_<bool_t, bools_t...> :
                     if_c < v_<bool_t>,
                     std::true_type,
-                    _or_<bools_t... >>
+                    or_<bools_t... >>
             {
             };
-
-
-            /// Evaluates the result
-            /// of t_<_or_<bools_t...>>
-            template<typename ... bools_t>
-            using or_ =
-                t_<_or_<bools_t...>>;
-
-
-            /// Negates the bool_t
-            template<typename bool_t>
-            using not_ =
-                bool_ < !v_<bool_t >>;
-        }/// TODO Make shortcuts for conditional
-
-        /// TODO Shortcut for pack namespace
-        namespace pack
-        {
-            /// Joins a list of lists
-            /// into a single list.
-            template <typename list_of_lists_t>
-            using join =
-                expand<quote<concat>, list_of_lists_t>;
-
-
-            /// Push a type_t at
-            /// back of list_t
-            template < typename type_t,
-                     typename list_t >
-            struct push_back_;
-
-
-            /// Specialisation for
-            /// push_back_ to expand
-            /// types_t pack parameters
-            template < typename type_t,
-                     typename ... types_t >
-            struct push_back_<type_t, list<types_t...>>
-            {
-                using type = list<types_t..., type_t>;
-            };
-
-
-            /// Evaluates the result
-            /// of t_<push_back_<type_t, list_t>>
-            template < typename type_t,
-                     typename list_t >
-            using push_back =
-                t_<push_back_<type_t, list_t>>;
-
-
-            /// Pushs a type_t at
-            /// front of list_t
-            template < typename type_t,
-                     typename list_t >
-            struct push_front_;
-
-
-            /// Specialisation for
-            /// push_front_ to expand
-            /// types_t pack parameters
-            template < typename type_t,
-                     typename ... types_t >
-            struct push_front_<type_t, list<types_t...>>
-            {
-                using type = list<type_t, types_t...>;
-            };
-
-
-            /// Evaluates the result
-            /// of t_<push_front_<type_t, list_t>>
-            template < typename type_t,
-                     typename list_t >
-            using push_front =
-                t_<push_front_<type_t, list_t>>;
-
-
-            /// Removes the last
-            /// type of list_t
-            template<typename list_t>
-            struct pop_back_;
-
-
-            /// Specialisation for
-            /// pop_back_ that identifies
-            /// the last type and
-            /// remove it
-            template < typename back_t,
-                     typename ... types_t >
-            struct pop_back_<list<types_t..., back_t>>
-            {
-                using type = list<types_t...>;
-            };
-
-
-            /// Evaluates the result
-            /// of t_<pop_back_<list_t>>
-            template<typename list_t>
-            using pop_back =
-                t_<pop_back_<list_t>>;
-
-
-            /// Removes the first
-            /// type of list_t
-            template<typename list_t>
-            struct pop_front_;
-
-
-            /// Specialisation for
-            /// pop_front_ that identifies
-            /// and removes the first
-            /// type
-            template < typename first_t,
-                     typename ... types_t >
-            struct pop_front_<list<first_t, types_t...>>
-            {
-                using type = list<types_t...>;
-            };
-
-
-            /// Evaluates the result
-            /// of t_<pop_front_<list_t>>
-            template<typename list_t>
-            using pop_front =
-                t_<pop_front_<list_t>>;
         }
+
+        /// Evaluates the result
+        /// of t_<_or_<bools_t...>>
+        template<typename ... bools_t>
+        using or_ =
+            t_<impl::or_<bools_t...>>;
+
+
+        /// Negates the bool_t
+        template<typename bool_t>
+        using not_ =
+            bool_ < !v_<bool_t >>;
+
+
+
     }
 }
 

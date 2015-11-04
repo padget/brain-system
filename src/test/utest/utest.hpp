@@ -121,6 +121,8 @@ namespace brain
                 {
                 };
 
+                using a_list = list<int, double>;
+
                 virtual bool test()
                 {
                     /// TODO Unitary for compose
@@ -135,12 +137,18 @@ namespace brain
                     /// TODO Unitary for bind_back
                     static_assert(v_<std::is_same<expand<a_type, list<int, double>>, int>>, "");
 
+                    static_assert(v_<std::is_same<push_back<float, a_list>, list<int, double, float>>>, "");
+                    static_assert(v_<std::is_same<push_front<float, a_list>, list<float, int, double>>>, "");
+                    std::cout << typeid(impl::pop_back<a_list>).name() << std::endl;
+                    static_assert(v_<std::is_same<impl::pop_back<a_list>, list<int>>>, "");
+                    static_assert(v_<std::is_same<pop_front<a_list>, list<double>>>, "");
+
                     return v_<std::true_type>;
                 }
             };
 
 
-            /// Unitary test for 
+            /// Unitary test for
             /// deferring feature
             struct deferring_test:
                 public brain::test::basic_test
@@ -159,7 +167,7 @@ namespace brain
             };
 
 
-            /// Unitary test for 
+            /// Unitary test for
             /// quote feature
             struct quote_test:
                 public brain::test::basic_test
@@ -176,13 +184,56 @@ namespace brain
             };
 
 
-            /// Unitary test for 
+            /// Unitary test for
             /// math features
             struct math_test:
                 public brain::test::basic_test
             {
                 virtual bool test()
                 {
+                    static_assert(v_<inc<unsigned_<0>>> == 1, "");
+                    static_assert(v_<dec<unsigned_<1>>> == 0, "");
+                    static_assert(v_<plus<unsigned_<1>, unsigned_<1>>> == 2, "");
+                    static_assert(v_<minus<unsigned_<1>, unsigned_<1>>> == 0, "");
+                    static_assert(v_<multiplies<unsigned_<2>, unsigned_<2>>> == 4, "");
+                    static_assert(v_<divides<unsigned_<4>, unsigned_<2>>> == 2, "");
+                    static_assert(v_<negate<int_<1>>> == -1, "");
+                    static_assert(v_<modulus<unsigned_<5>, unsigned_<2>>> == 1, "");
+
+                    static_assert(v_<equal_to<int_<1>, int_<1>>>, "");
+                    static_assert(!v_<not_equal_to<int_<1>, int_<1>>>, "");
+                    static_assert(v_<greater<int_<2>, int_<1>>>, "");
+                    static_assert(v_<less<int_<1>, int_<2>>>, "");
+                    static_assert(v_<greater_equal<int_<2>, int_<1>>>, "");
+                    static_assert(v_<less_equal<int_<1>, int_<2>>>, "");
+                    static_assert(v_<greater_equal<int_<1>, int_<1>>>, "");
+                    static_assert(v_<less_equal<int_<1>, int_<1>>>, "");
+
+                    /// TODO Unitary test for bit operators
+                    return v_<std::true_type>;
+                }
+            };
+
+
+            ///
+            struct conditional_test:
+                public brain::test::basic_test
+            {
+                virtual bool test()
+                {
+                    static_assert(v_<std::is_same<if_c<true, int, double>, int>>, "");
+                    static_assert(v_<std::is_same<if_c<false, int, double>, double>>, "");
+                    static_assert(v_<std::is_same<if_<bool_<true>, int, double>, int>>, "");
+                    static_assert(v_<std::is_same<if_<bool_<false>, int, double>, double>>, "");
+                    static_assert(v_<std::is_same<select_c<true, int, double>, int>>, "");
+                    static_assert(v_<std::is_same<select_c<false, int, double>, double>>, "");
+                    static_assert(v_<std::is_same<select<bool_<true>, int, double>, int>>, "");
+                    static_assert(v_<std::is_same<select<bool_<false>, int, double>, double>>, "");
+                    static_assert(v_<std::is_same<std::true_type, and_<bool_<true>, bool_<true>>>>, "");
+                    static_assert(v_<std::is_same<std::false_type, and_<bool_<false>, bool_<true>>>>, "");
+                    static_assert(v_<std::is_same<std::true_type, or_<bool_<false>, bool_<true>>>>, "");
+                    static_assert(v_<std::is_same<std::false_type, or_<bool_<false>, bool_<false>>>>, "");
+                    static_assert(!v_<not_<bool_<true>>>, "");
                     return v_<std::true_type>;
                 }
             };
