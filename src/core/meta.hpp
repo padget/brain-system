@@ -400,14 +400,13 @@ namespace brain
 
         namespace impl
         {
-            /// TODO pop_back
-
             /// Removes the last
             /// type of list_t
             template<typename list_t>
             struct pop_back;
 
 
+            /// 
             template<typename type_t>
             struct pop_back<list<type_t>>
             {
@@ -415,6 +414,7 @@ namespace brain
             };
 
 
+            /// 
             template < typename type_t,
                      typename ... types_t >
             struct pop_back<list<type_t, types_t...>>
