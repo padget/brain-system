@@ -237,6 +237,17 @@ namespace brain
                     return v_<std::true_type>;
                 }
             };
+
+
+            struct iterate_test:
+            public brain::test::basic_test
+            {
+                virtual bool test()
+                {
+                        
+                    return v_<std::true_type>;
+                }
+            };
         }
     }
 

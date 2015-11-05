@@ -174,6 +174,13 @@ namespace brain
         };
 
 
+        /// Returns bool_<true>
+        /// if list_t is empty
+        template<typename list_t>
+        using empty =
+            bool_<size_<list_t>>;
+
+
         namespace impl
         {
             /// Returns first type
@@ -384,7 +391,7 @@ namespace brain
                     list<types1_t...>,
                     list<types2_t...>,
                     others_t... >
-                    
+
             {
                 using type = t_<concat<list<types1_t..., types2_t...>, others_t...>>;
             };
@@ -406,7 +413,7 @@ namespace brain
             struct pop_back;
 
 
-            /// 
+            ///
             template<typename type_t>
             struct pop_back<list<type_t>>
             {
@@ -414,7 +421,7 @@ namespace brain
             };
 
 
-            /// 
+            ///
             template < typename type_t,
                      typename ... types_t >
             struct pop_back<list<type_t, types_t...>>
@@ -429,6 +436,7 @@ namespace brain
         template<typename list_t>
         using pop_back =
             t_<impl::pop_back<list_t>>;
+
 
         /// ////////////////////////// ///
         /// Meta function manipulation ///
@@ -1029,8 +1037,80 @@ namespace brain
             bool_ < !v_<bool_t >>;
 
 
+        /// ////////////////// ///
+        /// Iteration features ///
+        /// ////////////////// ///
 
+
+        namespace impl
+        {
+            /// Iterates over list_t
+            /// the meta function func_t
+            /// that must take two 
+            /// parameters res_t and 
+            /// current type_t of list_t
+            /// and finally returns the 
+            /// result res_t
+            template < typename list_t,
+                     typename res_t,
+                     typename func_t >
+            struct accumulate
+            {
+            };
+
+
+            ///
+            template < typename res_t,
+                     typename func_t >
+            struct accumulate<list<>, res_t, func_t>
+            {
+                using type = res_t;
+            };
+            
+            
+            ///
+            template < typename type_t,
+                     typename ... types_t,
+                     typename res_t,
+                     typename func_t >
+            struct accumulate<list<type_t, types_t...>, res_t, func_t>:
+                    accumulate<list<types_t...>, r_<func_t, res_t, type_t>, func_t>
+            {
+            };
+        }
+
+
+        /// Evaluates the result
+        /// of t_<impl::accumulate<list_t, res_t, func_t>>
+        template < typename list_t,
+                 typename res_t,
+                 typename func_t >
+        using accumulate =
+            t_ < impl::accumulate <list_t, res_t, func_t >>;
+
+
+        namespace impl
+        {
+            template<typename predicate_t>
+            struct filter
+            {
+                template < typename list_t,
+                         typename type_t >
+                using return_ =
+                    select <
+                    r_<predicate_t, type_t>,
+                    push_back<list_t, type_t>,
+                    list_t >;
+            };
+        }
+
+        
+        template < typename list_t,
+                 typename predicate_t >
+        using filter =
+            accumulate<list_t, list<>, impl::filter<predicate_t>>;
     }
+
 }
 
 
