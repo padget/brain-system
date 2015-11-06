@@ -96,9 +96,9 @@ namespace brain
                 {
                     static_assert(size_<a_list> == v_<sizeof_pack_<int, float, double>>, "");
                     static_assert(v_<std::is_same<t_<a_list>, a_list>>, "");
-                    static_assert(v_<std::is_same<front<a_list>, int>>, "");
-                    static_assert(v_<std::is_same<back<a_list>, double>>, "");
-                    static_assert(v_<std::is_same<concat<list<int>, list<float, double>>, list<int, float, double>>>, "");
+                    static_assert(v_<std::is_same<front_t<a_list>, int>>, "");
+                    static_assert(v_<std::is_same<back_t<a_list>, double>>, "");
+                    static_assert(v_<std::is_same<concat_t<list<int>, list<float, double>>, list<int, float, double>>>, "");
                     return v_<std::true_type>;
                 }
             };
@@ -138,10 +138,10 @@ namespace brain
                     /// TODO Unitary for bind_back
                     static_assert(v_<std::is_same<expand<a_type, list<int, double>>, int>>, "");
 
-                    static_assert(v_<std::is_same<push_back<float, a_list>, list<int, double, float>>>, "");
-                    static_assert(v_<std::is_same<push_front<float, a_list>, list<float, int, double>>>, "");
-                    static_assert(v_<std::is_same<pop_back<a_list>, list<int>>>, "");
-                    static_assert(v_<std::is_same<pop_front<a_list>, list<double>>>, "");
+                    static_assert(v_<std::is_same<push_back_t<float, a_list>, list<int, double, float>>>, "");
+                    static_assert(v_<std::is_same<push_front_t<float, a_list>, list<float, int, double>>>, "");
+                    static_assert(v_<std::is_same<pop_back_t<a_list>, list<int>>>, "");
+                    static_assert(v_<std::is_same<pop_front_t<a_list>, list<double>>>, "");
 
                     return v_<std::true_type>;
                 }
@@ -240,11 +240,21 @@ namespace brain
 
 
             struct iterate_test:
-            public brain::test::basic_test
+                public brain::test::basic_test
             {
+                struct is_int
+                {
+                    template<typename type_t>
+                    using return_ =
+                        bool_<v_<std::is_same<type_t, int>>>;
+                };
+                
+                using a_list = list<int, double, float, int>;
+
                 virtual bool test()
                 {
-                        
+
+                   static_assert(v_<std::is_same<filter<a_list, is_int>, list<int, int>>>, "");
                     return v_<std::true_type>;
                 }
             };

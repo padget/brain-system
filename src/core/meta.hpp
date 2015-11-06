@@ -4,8 +4,22 @@
 #include <type_traits>
 namespace brain
 {
-    /// TODO Documenter le namespace meta
-    /// Respect de la norme struct XXX{ using type = yyy; static constexpr auto value = zzz;}
+    /// This library contains tow main principles :
+    ///  - list<types_t...>
+    ///  - meta function return_<>;
+    ///
+    /// The public metas functions (with return_)
+    /// will present in ft namespace
+    /// The private private_ementations of all will be
+    /// present in private_ namespace.
+    /// For all struct / using that returns 'type'
+    /// an '_' will be added to end of its name.
+    /// For all using that encapsulate t_<type_t>
+    /// '_t' will be added to its name.
+    /// For all using / struct that represents
+    /// only alias for a private_ implementation
+    /// the '_' will be removed from the original
+    /// name.
     namespace meta
     {
         /// //////////////////////////////////// ///
@@ -66,74 +80,74 @@ namespace brain
         /// std::integral_constant
         template < typename literal_t,
                  literal_t _l >
-        using igral =
+        using igral_ =
             std::integral_constant<literal_t, _l>;
 
 
         /// Wrapper for bool
         template<bool _b>
         using bool_ =
-            igral<bool, _b>;
+            igral_<bool, _b>;
 
 
         /// Wrapper for short
         template<short _s>
         using short_ =
-            igral<short, _s>;
+            igral_<short, _s>;
 
 
         /// Wrapper for unsigned short
         template<unsigned short _us>
         using ushort_ =
-            igral<unsigned short, _us>;
+            igral_<unsigned short, _us>;
 
 
         /// Wrapper for char
         template<char _c>
         using char_ =
-            igral<char, _c>;
+            igral_<char, _c>;
 
 
         /// Wrapper for int
         template<int _i>
         using int_ =
-            igral<int, _i>;
+            igral_<int, _i>;
 
 
         /// Wrapper for long
         template<long _l>
         using long_ =
-            igral<long, _l>;
+            igral_<long, _l>;
 
 
         /// Wrapper for long long
         template<long long _ll>
         using longlong_ =
-            igral<long long, _ll>;
+            igral_<long long, _ll>;
 
 
         /// Wrapper for unsigned
         template<unsigned _u>
         using unsigned_ =
-            igral<unsigned, _u>;
+            igral_<unsigned, _u>;
 
 
         /// Wrapper for unsigned long
         template<unsigned long _ul>
         using unsignedl_ =
-            igral<unsigned long, _ul>;
+            igral_<unsigned long, _ul>;
 
 
         /// Wrapper for unsigned long long
         template<unsigned long long _ull>
         using unsignedll_ =
-            igral<unsigned long long, _ull>;
+            igral_<unsigned long long, _ull>;
 
 
         /// Wrapper for size_t
         template<std::size_t _s>
         using size_t_ =
-            igral<std::size_t, _s>;
+            igral_<std::size_t, _s>;
 
 
         /// ////////////////////////////// ///
@@ -175,18 +189,24 @@ namespace brain
 
 
         /// Returns bool_<true>
-        /// if list_t is empty
+        /// if list_t is empty_
         template<typename list_t>
-        using empty =
+        using empty_ =
             bool_<size_<list_t>>;
 
 
-        namespace impl
+        /// t_ shortcut for empty_
+        template<typename list_t>
+        using empty_t =
+            t_<empty_<list_t>>;
+
+
+        namespace private_
         {
             /// Returns first type
             /// of list_t
             template<typename list_t>
-            struct front;
+            struct front_;
 
 
             /// Specialisation of
@@ -194,7 +214,7 @@ namespace brain
             /// the head_t of list_t
             template < typename head_t,
                      typename ... types_t >
-            struct front<list<head_t, types_t...>>
+            struct front_<list<head_t, types_t...>>
             {
                 using type = head_t;
             };
@@ -203,61 +223,61 @@ namespace brain
 
         /// Evaluates t_<front_<list_t>>
         template<typename list_t>
-        using front =
-            t_<impl::front<list_t>>;
+        using front_t =
+            t_<private_::front_<list_t>>;
 
 
-        namespace impl
+        namespace private_
         {
-            /// Private implementation
+            /// Private private_ementation
             /// of back_ template
             template<typename ... types_t>
-            struct back;
+            struct back_;
 
 
-            /// Private implementation
+            /// Private private_ementation
             /// of back_
             template<typename type_t>
-            struct back<type_t>
+            struct back_<type_t>
             {
                 using type = type_t;
             };
 
 
-            /// Private implementation
+            /// Private private_ementation
             /// of back_ template
             template < typename type_t,
                      typename ... types_t >
-            struct back<type_t, types_t...>
+            struct back_<type_t, types_t...>
             {
-                using type = t_<back<types_t...>>;
+                using type = t_<back_<types_t...>>;
             };
 
 
-            /// Implementation for
+            /// private_ementation for
             /// back_ in case of list
             template<typename ... types_t>
-            struct back<list<types_t...>>
+            struct back_<list<types_t...>>
             {
-                using type = t_<back<types_t...>>;
+                using type = t_<back_<types_t...>>;
             };
         }
 
 
         /// Evaluates the result of
-        /// t_<impl::back_<list_t>>
+        /// t_<private_::back_<list_t>>
         template<typename list_t>
-        using back =
-            t_<impl::back<list_t>>;
+        using back_t =
+            t_<private_::back_<list_t>>;
 
 
-        namespace impl
+        namespace private_
         {
             /// Push a type_t at
             /// back of list_t
             template < typename type_t,
                      typename list_t >
-            struct push_back;
+            struct push_back_ {};
 
 
             /// Specialisation for
@@ -265,7 +285,7 @@ namespace brain
             /// types_t pack parameters
             template < typename type_t,
                      typename ... types_t >
-            struct push_back<type_t, list<types_t...>>
+            struct push_back_<type_t, list<types_t...>>
             {
                 using type = list<types_t..., type_t>;
             };
@@ -275,17 +295,17 @@ namespace brain
         /// of t_<push_back_<type_t, list_t>>
         template < typename type_t,
                  typename list_t >
-        using push_back =
-            t_<impl::push_back<type_t, list_t>>;
+        using push_back_t =
+            t_<private_::push_back_<type_t, list_t>>;
 
 
-        namespace impl
+        namespace private_
         {
             /// Pushs a type_t at
-            /// front of list_t
+            /// front_ of list_t
             template < typename type_t,
                      typename list_t >
-            struct push_front;
+            struct push_front_;
 
 
             /// Specialisation for
@@ -293,7 +313,7 @@ namespace brain
             /// types_t pack parameters
             template < typename type_t,
                      typename ... types_t >
-            struct push_front<type_t, list<types_t...>>
+            struct push_front_<type_t, list<types_t...>>
             {
                 using type = list<type_t, types_t...>;
             };
@@ -304,16 +324,16 @@ namespace brain
         /// of t_<push_front_<type_t, list_t>>
         template < typename type_t,
                  typename list_t >
-        using push_front =
-            t_<impl::push_front<type_t, list_t>>;
+        using push_front_t =
+            t_<private_::push_front_<type_t, list_t>>;
 
 
-        namespace impl
+        namespace private_
         {
             /// Removes the first
             /// type of list_t
             template<typename list_t>
-            struct pop_front;
+            struct pop_front_;
 
 
             /// Specialisation for
@@ -322,7 +342,7 @@ namespace brain
             /// type
             template < typename first_t,
                      typename ... types_t >
-            struct pop_front<list<first_t, types_t...>>
+            struct pop_front_<list<first_t, types_t...>>
             {
                 using type = list<types_t...>;
             };
@@ -332,24 +352,24 @@ namespace brain
         /// Evaluates the result
         /// of t_<pop_front_<list_t>>
         template<typename list_t>
-        using pop_front =
-            t_<impl::pop_front<list_t>>;
+        using pop_front_t =
+            t_<private_::pop_front_<list_t>>;
 
 
-        namespace impl
+        namespace private_
         {
             /// Concatenates all lists_t
             /// into a single list
             template <typename... lists_t>
-            struct concat;
+            struct concat_;
 
 
             /// Specialisation for
             /// concat_ that takes no
             /// list and return an
-            /// empty list.
+            /// empty_ list.
             template <>
-            struct concat<>
+            struct concat_<>
             {
                 using type = list<>;
             };
@@ -360,7 +380,7 @@ namespace brain
             /// only one list and
             /// returns the same list
             template <typename... types_t>
-            struct concat<list<types_t...>>
+            struct concat_<list<types_t...>>
             {
                 using type = list<types_t...>;
             };
@@ -372,7 +392,7 @@ namespace brain
             /// the concatenated list
             template < typename... types1_t,
                      typename... types2_t >
-            struct concat <
+            struct concat_ <
                     list<types1_t...>,
                     list<types2_t...> >
             {
@@ -387,13 +407,13 @@ namespace brain
             template < typename... types1_t,
                      typename... types2_t,
                      typename... others_t >
-            struct concat <
+            struct concat_ <
                     list<types1_t...>,
                     list<types2_t...>,
                     others_t... >
 
             {
-                using type = t_<concat<list<types1_t..., types2_t...>, others_t...>>;
+                using type = t_<concat_<list<types1_t..., types2_t...>, others_t...>>;
             };
         }
 
@@ -401,21 +421,21 @@ namespace brain
         /// Evaluates the result
         /// of t_<concat_<lists_t...>>
         template <typename... lists_t>
-        using concat =
-            t_<impl::concat<lists_t...>>;
+        using concat_t =
+            t_<private_::concat_<lists_t...>>;
 
 
-        namespace impl
+        namespace private_
         {
             /// Removes the last
             /// type of list_t
             template<typename list_t>
-            struct pop_back;
+            struct pop_back_;
 
 
             ///
             template<typename type_t>
-            struct pop_back<list<type_t>>
+            struct pop_back_<list<type_t>>
             {
                 using type = list<>;
             };
@@ -424,9 +444,10 @@ namespace brain
             ///
             template < typename type_t,
                      typename ... types_t >
-            struct pop_back<list<type_t, types_t...>>
+            struct pop_back_<list<type_t, types_t...>>
             {
-                using type = meta::concat<list<type_t>, t_<pop_back<list<types_t...>>>>;
+                using type = concat_t < list<type_t>,
+                      t_<pop_back_<list<types_t...>> >>;
             };
         }
 
@@ -434,8 +455,8 @@ namespace brain
         /// Evaluates the result
         /// of t_<pop_back_<list_t>>
         template<typename list_t>
-        using pop_back =
-            t_<impl::pop_back<list_t>>;
+        using pop_back_t =
+            t_<private_::pop_back_<list_t>>;
 
 
         /// ////////////////////////// ///
@@ -453,7 +474,7 @@ namespace brain
         /// delt with
 
 
-        namespace impl
+        namespace private_
         {
             /// A meta function that
             /// returns the composition
@@ -492,10 +513,10 @@ namespace brain
 
 
         /// Evaluates the result of
-        /// impl::compose<funcs_t...>
+        /// private_::compose<funcs_t...>
         template<typename ... funcs_t>
         using compose =
-            impl::compose<funcs_t...>;
+            private_::compose<funcs_t...>;
 
 
         /// A meta function
@@ -518,7 +539,7 @@ namespace brain
                       args_t... >;
 
 
-        namespace impl
+        namespace private_
         {
             /// Determines if a
             /// type_t has the
@@ -546,10 +567,10 @@ namespace brain
         /// of t_<has_type_<type_t>>
         template<typename type_t>
         using has_type =
-            impl::has_type<type_t>;
+            private_::has_type<type_t>;
 
 
-        namespace impl
+        namespace private_
         {
             /// Determines if a
             /// type has a return_
@@ -578,7 +599,7 @@ namespace brain
         /// of t_<has_return_<type_t>>
         template<typename type_t>
         using has_return =
-            t_<impl::has_return<type_t>>;
+            t_<private_::has_return<type_t>>;
 
 
         /// Determines if type_t
@@ -623,7 +644,7 @@ namespace brain
         };
 
 
-        namespace impl
+        namespace private_
         {
             /// Meta function that
             /// expands the list
@@ -649,11 +670,11 @@ namespace brain
 
 
         /// Evaluates the result of
-        /// t_<impl::expand<func_t, list_t>>
+        /// t_<private_::expand<func_t, list_t>>
         template < typename func_t,
                  typename list_t >
         using expand =
-            t_<impl::expand<func_t, list_t>>;
+            t_<private_::expand<func_t, list_t>>;
 
 
         /// //////////////////////////// ///
@@ -709,7 +730,7 @@ namespace brain
         /// Wrapper for incrementing
         template<typename type_t>
         using inc =
-            igral <
+            igral_ <
             decltype(v_<type_t> + 1),
             v_<type_t> + 1 >;
 
@@ -717,7 +738,7 @@ namespace brain
         /// Wrapper for decrementing
         template<typename type_t>
         using dec =
-            igral <
+            igral_ <
             decltype(v_<type_t> - 1),
             v_<type_t> - 1 >;
 
@@ -726,7 +747,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using plus =
-            igral <
+            igral_ <
             decltype(v_<type_t> + v_<other_t>),
             v_<type_t> + v_<other_t >>;
 
@@ -735,7 +756,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using minus =
-            igral <
+            igral_ <
             decltype(v_<type_t> - v_<other_t>),
             v_<type_t> - v_<other_t >>;
 
@@ -744,7 +765,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using multiplies =
-            igral <
+            igral_ <
             decltype(v_<type_t> * v_<other_t>),
             v_<type_t> * v_<other_t >>;
 
@@ -753,7 +774,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using divides =
-            igral <
+            igral_ <
             decltype(v_<type_t> / v_<other_t>),
             v_<type_t> / v_<other_t >>;
 
@@ -761,7 +782,7 @@ namespace brain
         /// Wrapper for negating
         template <typename type_t>
         using negate =
-            igral <
+            igral_ <
             decltype(-v_<type_t>),
             -v_<type_t >>;
 
@@ -770,7 +791,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using modulus =
-            igral <
+            igral_ <
             decltype(v_<type_t> % v_<other_t>),
             v_<type_t> % v_<other_t >>;
 
@@ -874,7 +895,7 @@ namespace brain
         /// ////////////// ///
 
 
-        namespace impl
+        namespace private_
         {
             /// Type selector
             template<typename ...>
@@ -922,7 +943,7 @@ namespace brain
         /// of t_<_if_<args_t...>>
         template<typename ... args_t>
         using if_ =
-            t_<impl::if_<args_t...>>;
+            t_<private_::if_<args_t...>>;
 
 
         /// Evaluates the result
@@ -930,7 +951,7 @@ namespace brain
         template < bool _b,
                  typename... args_t >
         using if_c =
-            t_<impl::if_<bool_<_b>, args_t...>>;
+            t_<private_::if_<bool_<_b>, args_t...>>;
 
 
         /// Evaluates the result
@@ -951,7 +972,7 @@ namespace brain
             if_c<_b, then_t, else_t> ;
 
 
-        namespace impl
+        namespace private_
         {
             /// Returns std::true_type
             /// if all bools_t are true
@@ -987,9 +1008,9 @@ namespace brain
         /// of t_<_and_<bools_t...>>
         template<typename ... bools_t>
         using and_ =
-            t_<impl::and_<bools_t...>>;
+            t_<private_::and_<bools_t...>>;
 
-        namespace impl
+        namespace private_
         {
             /// Returns std::true_type
             /// if one or more bools_t
@@ -1028,7 +1049,7 @@ namespace brain
         /// of t_<_or_<bools_t...>>
         template<typename ... bools_t>
         using or_ =
-            t_<impl::or_<bools_t...>>;
+            t_<private_::or_<bools_t...>>;
 
 
         /// Negates the bool_t
@@ -1042,14 +1063,14 @@ namespace brain
         /// ////////////////// ///
 
 
-        namespace impl
+        namespace private_
         {
-            /// Iterates over list_t
+            /// Accumulates res_t over list_t
             /// the meta function func_t
-            /// that must take two 
-            /// parameters res_t and 
+            /// that must take two
+            /// parameters res_t and
             /// current type_t of list_t
-            /// and finally returns the 
+            /// and finally returns the
             /// result res_t
             template < typename list_t,
                      typename res_t,
@@ -1059,38 +1080,55 @@ namespace brain
             };
 
 
-            ///
+            /// Specialisation for
+            /// accumulate that takes
+            /// an empty_ list as first
+            /// parameter. It returns
+            /// res_t itself. So this
+            /// has no effect on the
+            /// result.
             template < typename res_t,
                      typename func_t >
             struct accumulate<list<>, res_t, func_t>
             {
                 using type = res_t;
             };
-            
-            
-            ///
+
+
+            /// Specialisation for
+            /// accumulate that takes
+            /// a list with one or more
+            /// types and inherits from
+            /// the next step of the
+            /// accumulation on res_t
             template < typename type_t,
                      typename ... types_t,
                      typename res_t,
                      typename func_t >
-            struct accumulate<list<type_t, types_t...>, res_t, func_t>:
-                    accumulate<list<types_t...>, r_<func_t, res_t, type_t>, func_t>
+            struct accumulate <list<type_t, types_t...>, res_t, func_t> :
+                    accumulate <list<types_t...>, r_<func_t, res_t, type_t>, func_t>
             {
             };
         }
 
 
         /// Evaluates the result
-        /// of t_<impl::accumulate<list_t, res_t, func_t>>
+        /// of t_<private_::accumulate<list_t, res_t, func_t>>
         template < typename list_t,
                  typename res_t,
                  typename func_t >
         using accumulate =
-            t_ < impl::accumulate <list_t, res_t, func_t >>;
+            t_ < private_::accumulate <
+            list_t, res_t, func_t >>;
 
 
-        namespace impl
+        namespace private_
         {
+            /// Meta function that
+            /// add type_t to list_t
+            /// if r_<predicate_t, type_t>
+            /// returns true. Else it
+            /// returns list_t itself
             template<typename predicate_t>
             struct filter
             {
@@ -1099,16 +1137,20 @@ namespace brain
                 using return_ =
                     select <
                     r_<predicate_t, type_t>,
-                    push_back<list_t, type_t>,
+                    push_back_t<type_t, list_t>,
                     list_t >;
             };
         }
 
-        
+
+        /// Evaluates the result
+        /// of accumulate < list_t, list<>,
+        /// private_::filter<predicate_t >>;
         template < typename list_t,
                  typename predicate_t >
         using filter =
-            accumulate<list_t, list<>, impl::filter<predicate_t>>;
+            meta::accumulate < list_t, list<>,
+            private_::filter<predicate_t >>;
     }
 
 }
