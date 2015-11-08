@@ -98,7 +98,10 @@ namespace brain
                     static_assert(v_<std::is_same<t_<a_list>, a_list>>, "");
                     static_assert(v_<std::is_same<front_t<a_list>, int>>, "");
                     static_assert(v_<std::is_same<back_t<a_list>, double>>, "");
-                    static_assert(v_<std::is_same<concat_t<list<int>, list<float, double>>, list<int, float, double>>>, "");
+                    static_assert(v_<std::is_same<concat_t<list<int>, list<float, double>, list<>>, list<int, float, double>>>, "");
+                    static_assert(v_<std::is_same<at_t<unsigned_t<2>, a_list>, double>>, "");
+                    static_assert(v_<std::is_same<repeat_t<unsigned_t<3>, int>, list<int, int, int>>>, "");
+                    static_assert(v_<std::is_same<to_list_t<std::tuple<int, int>>, list<int, int>>>, "");
                     return v_<std::true_type>;
                 }
             };

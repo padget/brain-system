@@ -18,6 +18,8 @@ namespace brain
     /// by adding '_r_'(and '_r')
     namespace meta
     {
+        struct nil {};
+
         /// //////////////////////////////////// ///
         /// Shortcut for access template members ///
         /// //////////////////////////////////// ///
@@ -78,6 +80,12 @@ namespace brain
                  literal_t _l >
         using igral_t_ =
             std::integral_constant<literal_t, _l>;
+
+
+        template < typename literal_t,
+                 literal_t _l >
+        using igral_t =
+            t_<igral_t_<literal_t, _l>>;
 
 
         /// Wrapper for bool
@@ -1326,6 +1334,113 @@ namespace brain
         using filter_t =
             accumulate_t < list_t, list<>,
             filter_t_<predicate_t >>;
+
+
+        ///
+        template < typename target_t,
+                 typename current_t,
+                 typename list_t >
+        struct at_t_;
+
+
+        ///
+        template < typename target_t,
+                 typename current_t >
+        struct at_t_<target_t, current_t, list<>>
+        {
+            using type = nil;
+        };
+
+
+        ///
+        template < typename target_t,
+                 typename current_t,
+                 typename type_t,
+                 typename ... types_t >
+        struct at_t_<target_t, current_t, list<type_t, types_t...>>
+        {
+            using type =
+                if_t <
+                equal_to_t<target_t, current_t>,
+                type_t,
+                t_<at_t_<target_t, inc_t<current_t>, list<types_t...>> >>;
+
+        };
+
+
+        ///
+        template < typename target_t,
+                 typename list_t >
+        using at_t =
+            t_<at_t_<target_t, unsigned_t<0>, list_t>>;
+
+
+
+        ///
+        template < unsigned _target,
+                 typename list_t >
+        using at_c =
+            at_t<unsigned_t<_target>, list_t>;
+
+
+        ///
+        template < unsigned _nb,
+                 typename type_t >
+        struct repeat_t_
+        {
+            using type = concat_t <
+                         t_ < repeat_t_ < _nb / 2, type_t >> ,
+                         t_ < repeat_t_ < _nb / 2, type_t >> ,
+                         t_ < repeat_t_ < _nb % 2, type_t >>>;
+        };
+
+
+        ///
+        template < typename type_t >
+        struct repeat_t_<0u, type_t>
+        {
+            using type = list<>;
+        };
+
+
+        ///
+        template < typename type_t >
+        struct repeat_t_<1u, type_t>
+        {
+            using type = list<type_t>;
+        };
+
+
+        ///
+        template < typename nb_t,
+                 typename type_t >
+        using repeat_t =
+            t_<repeat_t_<v_<nb_t>, type_t>>;
+
+
+        ///
+        template < unsigned _nb,
+                 typename type_t >
+        using repeat_c =
+            repeat_t<unsigned_t<_nb>, type_t>;
+
+
+        ///
+        template<typename pack_t>
+        struct to_list_t_;
+
+        template < template<typename ...> typename pack_t,
+                 typename ... types_t >
+        struct to_list_t_<pack_t<types_t...>>
+        {
+            using type = list<types_t...>;
+        };
+
+
+        ///
+        template<typename pack_t>
+        using to_list_t =
+            t_<to_list_t_<pack_t>>;
     }
 }
 
