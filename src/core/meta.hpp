@@ -18,8 +18,10 @@ namespace brain
     /// by adding '_r_'(and '_r')
     namespace meta
     {
-        struct nil {};
 
+        struct nil {};
+        
+        
         /// //////////////////////////////////// ///
         /// Shortcut for access template members ///
         /// //////////////////////////////////// ///
@@ -67,6 +69,33 @@ namespace brain
                  typename ... args_t >
         using r_ =
             return_<type_t, args_t...>;
+
+
+        /// //////////////////////////// ///
+        /// Type instanciation deferring ///
+        /// //////////////////////////// ///
+
+
+        /// Defers the instation of
+        /// a template
+        template < template<typename ...> typename func_t,
+                 typename ... args_t >
+        struct defer_t_
+        {
+            using type = func_t<args_t...>;
+        };
+
+
+        template < template<typename ...> typename func_t,
+                 typename ... args_t >
+        using defer_t =
+            t_<defer_t_<func_t, args_t...>>;
+
+
+        template < template<typename ...> typename func_t,
+                 typename ... args_t >
+        using defer_t_t =
+            t_<defer_t<func_t, args_t...>>;
 
 
         /// ///////////////////////// ///
@@ -228,7 +257,7 @@ namespace brain
         ///
         template<typename type_t>
         using sizeof_t =
-            t_<sizeof_t_<type_t>>;
+            defer_t_t<sizeof_t_, type_t>;
 
 
         /// Wrapper for sizeof...
@@ -238,9 +267,9 @@ namespace brain
 
 
         ///
-        template<typename type_t>
+        template<typename ... types_t>
         using sizeof_pack_t =
-            t_<sizeof_pack_t_<type_t>>;
+            defer_t_t<sizeof_pack_t_, types_t...>;
 
 
         /// Wrapper for alignof
@@ -252,7 +281,465 @@ namespace brain
         ///
         template<typename type_t>
         using alignof_t =
-            t_<alignof_t_<type_t>>;
+            defer_t_t<alignof_t_, type_t>;
+
+
+        /// ///////////////////////////// ///
+        /// Mathematical wrapper features ///
+        /// ///////////////////////////// ///
+
+
+        /// Wrapper for incrementing
+        template<typename type_t>
+        using inc_t_ =
+            igral_t_ <
+            decltype(v_<type_t> + 1),
+            v_<type_t> + 1 >;
+
+
+        ///
+        template<typename type_t>
+        using inc_t =
+            defer_t_t<inc_t_, type_t>;
+
+
+        /// Wrapper for decrementing
+        template<typename type_t>
+        using dec_t_ =
+            igral_t_ <
+            decltype(v_<type_t> - 1),
+            v_<type_t> - 1 >;
+
+
+        ///
+        template<typename type_t>
+        using dec_t =
+            defer_t_t<dec_t_, type_t>;
+
+
+        /// Wrapper for additing
+        template < typename type_t,
+                 typename other_t >
+        using plus_t_ =
+            igral_t_ <
+            decltype(v_<type_t> + v_<other_t>),
+            v_<type_t> + v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using plus_t =
+            defer_t_t<plus_t_, type_t, other_t>;
+
+
+        /// Wrapper for substracting
+        template < typename type_t,
+                 typename other_t >
+        using minus_t_ =
+            igral_t_ <
+            decltype(v_<type_t> - v_<other_t>),
+            v_<type_t> - v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using minus_t =
+            defer_t_t<minus_t_, type_t, other_t>;
+
+
+        /// Wrapper for multiplying
+        template < typename type_t,
+                 typename other_t >
+        using multiplies_t_ =
+            igral_t_ <
+            decltype(v_<type_t> * v_<other_t>),
+            v_<type_t> * v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using multiplies_t =
+            defer_t_t<multiplies_t_, type_t, other_t>;
+
+
+        /// Wrapper for dividing
+        template < typename type_t,
+                 typename other_t >
+        using divides_t_ =
+            igral_t_ <
+            decltype(v_<type_t> / v_<other_t>),
+            v_<type_t> / v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using divides_t =
+            defer_t_t<divides_t_, type_t, other_t>;
+
+
+        /// Wrapper for negating
+        template <typename type_t>
+        using negate_t_ =
+            igral_t_ <
+            decltype(-v_<type_t>),
+            -v_<type_t >>;
+
+
+        ///
+        template<typename type_t>
+        using negate_t =
+            defer_t_t<negate_t_, type_t>;
+
+
+        /// Wrapper for moduling
+        template < typename type_t,
+                 typename other_t >
+        using modulus_t_ =
+            igral_t_ <
+            decltype(v_<type_t> % v_<other_t>),
+            v_<type_t> % v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using modulus_t =
+            defer_t_t<modulus_t_, type_t, other_t>;
+
+        /// /////////////////////// ///
+        /// Logical wrapper feature ///
+        /// /////////////////////// ///
+
+
+        /// Wrapper for equal
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using equal_to_t_ =
+            bool_t_ < v_<type_t>
+            == v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using equal_to_t =
+            defer_t_t<equal_to_t_, type_t, other_t>;
+
+
+        /// Wrapper for not equal
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using not_equal_to_t_ =
+            bool_t_ < v_<type_t>
+            != v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using not_equal_to_t =
+            defer_t_t<not_equal_to_t_, type_t, other_t>;
+
+
+        /// Wrapper for greater
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using greater_t_ =
+            bool_t_ < (v_<type_t>
+                       > v_<other_t>) >;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using greater_t =
+            defer_t_t<greater_t_, type_t, other_t>;
+
+
+        /// Wrapper for less
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using less_t_ =
+            bool_t_ < (v_<type_t>
+                       < v_<other_t>) >;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using less_t =
+            defer_t_t<less_t_, type_t, other_t>;
+
+
+        /// Wrapper for greater equal
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using greater_equal_t_ =
+            bool_t_ < (v_<type_t>
+                       >= v_<other_t>) >;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using greater_equal_t =
+            defer_t_t<greater_equal_t_, type_t, other_t>;
+
+
+        /// Wrapper for less equal
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using less_equal_t_ =
+            bool_t_ < (v_<type_t>
+                       <= v_<other_t>) >;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using less_equal_t =
+            defer_t_t<less_equal_t_, type_t, other_t>;
+
+
+        /// Wrapper for bit and
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using bit_and_t_ =
+            bool_t_ < v_<type_t>
+            & v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using bit_and_t =
+            defer_t_t<bit_and_t_, type_t, other_t>;
+
+
+        /// Wrapper for bit or
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using bit_or_t_ =
+            bool_t_ < v_<type_t>
+            | v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using bit_or_t =
+            defer_t_t<bit_or_t_, type_t, other_t>;
+
+
+        /// Wrapper for bit xor
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using bit_xor_t_ =
+            bool_t_ < v_<type_t>
+            ^ v_<other_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using bit_xor_t =
+            defer_t_t<bit_xor_t_, type_t, other_t>;
+
+
+        /// Wrapper for bit not
+        /// operator
+        template < typename type_t,
+                 typename other_t >
+        using bit_not_t_ =
+            bool_t_ < ~v_<type_t >>;
+
+
+        ///
+        template < typename type_t,
+                 typename other_t >
+        using bit_not_t =
+            defer_t_t<bit_not_t_, type_t, other_t>;
+
+
+        /// ////////////// ///
+        /// Type selection ///
+        /// ////////////// ///
+
+
+        /// Type selector
+        template<typename ...>
+        struct if_t_;
+
+
+        /// Type selector
+        /// specialisation that
+        /// returns void
+        /// if_t is true
+        template<typename if_t>
+        struct if_t_<if_t> :
+                std::enable_if<v_<if_t>>
+        {
+        };
+
+
+        /// Type selector
+        /// specialisation that
+        /// returns then_t
+        /// if_t is true
+        template < typename if_t,
+                 typename then_t >
+        struct if_t_<if_t, then_t>:
+                std::enable_if<v_<if_t>, then_t>
+        {
+        };
+
+
+        /// Type selector
+        /// specialisation that
+        /// returns then_t
+        /// if_t is true
+        /// else else_t
+        template < typename if_t,
+                 typename then_t,
+                 typename else_t >
+        struct if_t_<if_t, then_t, else_t>:
+                std::conditional<v_<if_t>, then_t, else_t>
+        {
+        };
+
+
+        /// Evaluates the result
+        /// of t_<_if_<args_t...>>
+        template<typename ... args_t>
+        using if_t =
+            defer_t_t<if_t_, args_t...>;
+
+
+        /// Evaluates the result
+        /// of if_<bool_<_b>, args_t... >
+        template < bool _b,
+                 typename... args_t >
+        using if_c =
+            if_t<bool_t_<_b>, args_t...>;
+
+
+        /// Evaluates the result
+        /// of if_<if_t, then_t, else_t>
+        template < typename test_t,
+                 typename then_t,
+                 typename else_t >
+        using select_t =
+            if_t<test_t, then_t, else_t> ;
+
+
+        /// Evaluates the result
+        /// of if_c<_b, then_t, else_t>
+        template < bool _b,
+                 typename then_t,
+                 typename else_t >
+        using select_c =
+            if_c<_b, then_t, else_t> ;
+
+
+        /// Returns std::true_type
+        /// if all bools_t are true
+        template <typename... bools_t>
+        struct and_t_;
+
+
+        /// Specialisation for
+        /// _and_ that returns
+        /// std::true_type for
+        /// default case.
+        template <>
+        struct and_t_<> :
+                std::true_type
+        {
+        };
+
+
+        /// Specialisation for
+        /// and_ that returns
+        /// std::false_type if
+        /// one of bools_t is
+        /// false
+        template < typename bool_t,
+                 typename... bools_t >
+        struct and_t_<bool_t, bools_t...>:
+                if_c < !v_<bool_t>, std::false_type, and_t_<bools_t... >>
+        {
+        };
+
+
+        /// Evaluates the result
+        /// of t_<_and_<bools_t...>>
+        template<typename ... bools_t>
+        using and_t =
+            defer_t_t<and_t_, bools_t...>;
+
+
+        /// Returns std::true_type
+        /// if one or more bools_t
+        /// is true
+        template <typename... bools_t>
+        struct or_t_;
+
+
+        /// Specialisation for
+        /// _or_ that returns
+        /// std::false_type
+        /// for default case
+        template <>
+        struct or_t_<> :
+                std::false_type
+        {
+        };
+
+
+        /// Specialisation for
+        /// _and_ that returns
+        /// std::false_type if
+        /// all of bools_t is
+        /// false
+        template < typename bool_t,
+                 typename... bools_t >
+        struct or_t_<bool_t, bools_t...> :
+                if_c < v_<bool_t>,
+                std::true_type,
+                or_t_<bools_t... >>
+        {
+        };
+
+
+        /// Evaluates the result
+        /// of t_<_or_<bools_t...>>
+        template<typename ... bools_t>
+        using or_t =
+            defer_t_t<or_t_, bools_t...>;
+
+
+        /// Negates the bool_t
+        template<typename bool_t>
+        using not_t_ =
+            bool_t_ < !v_<bool_t >>;
+
+
+        template<typename bool_t>
+        using not_t =
+            defer_t_t<not_t_, bool_t>;
 
 
         /// //////////////////////////////////////// ///
@@ -280,7 +767,69 @@ namespace brain
         /// t_ shortcut for empty_
         template<typename list_t>
         using empty_t =
-            t_<empty_t_<list_t>>;
+            defer_t_t<empty_t_, list_t>;
+
+
+        /// Returns the type
+        /// at the target_t
+        /// position if current_t
+        /// and target_t represents
+        /// the same position in
+        /// pack list_t
+        template < typename target_t,
+                 typename current_t,
+                 typename list_t >
+        struct at_t_;
+
+
+        /// Specialisation for
+        /// at_t that takes an
+        /// empty list and returns
+        /// nil type
+        template < typename target_t,
+                 typename current_t >
+        struct at_t_<target_t, current_t, list<>>
+        {
+            using type = nil;
+        };
+
+
+        /// Specialisation for
+        /// at_t_ that distings
+        /// the first type_t off
+        /// the others types_t
+        /// from the list.
+        template < typename target_t,
+                 typename current_t,
+                 typename type_t,
+                 typename ... types_t >
+        struct at_t_ < target_t,
+                current_t,
+                list<type_t, types_t... >>
+        {
+            using type =
+                if_t <
+                equal_to_t<target_t, current_t>,
+                type_t,
+                t_<at_t_<target_t, inc_t<current_t>, list<types_t...>> >>;
+
+        };
+
+
+        /// t_ shortcut for at_t_
+        template < typename target_t,
+                 typename list_t >
+        using at_t =
+            defer_t_t<at_t_, target_t, unsigned_t<0>, list_t>;
+
+
+
+        /// Shortcut for at_t that
+        /// takes directly an unsigned
+        template < unsigned _target,
+                 typename list_t >
+        using at_c =
+            at_t<unsigned_t<_target>, list_t>;
 
 
         /// Returns first type
@@ -303,7 +852,7 @@ namespace brain
         /// Evaluates t_<front_<list_t>>
         template<typename list_t>
         using front_t =
-            t_<front_t_<list_t>>;
+            defer_t_t<front_t_, list_t>;
 
 
         /// Private private_ementation
@@ -344,14 +893,14 @@ namespace brain
         /// t_<private_::back_<list_t>>
         template<typename list_t>
         using back_t =
-            t_<back_t_<list_t>>;
+            defer_t_t<back_t_, list_t>;
 
 
         /// Push a type_t at
         /// back of list_t
         template < typename type_t,
                  typename list_t >
-        struct push_back_t_ {};
+        struct push_back_t_ ;
 
 
         /// Specialisation for
@@ -370,7 +919,7 @@ namespace brain
         template < typename type_t,
                  typename list_t >
         using push_back_t =
-            t_<push_back_t_<type_t, list_t>>;
+            defer_t_t<push_back_t_, type_t, list_t>;
 
 
         /// Pushs a type_t at
@@ -396,7 +945,7 @@ namespace brain
         template < typename type_t,
                  typename list_t >
         using push_front_t =
-            t_<push_front_t_<type_t, list_t>>;
+            defer_t_t<push_front_t_, type_t, list_t>;
 
 
         /// Removes the first
@@ -421,7 +970,7 @@ namespace brain
         /// of t_<pop_front_<list_t>>
         template<typename list_t>
         using pop_front_t =
-            t_<pop_front_t_<list_t>>;
+            defer_t_t<pop_front_t_, list_t>;
 
 
         /// Concatenates all lists_t
@@ -487,7 +1036,7 @@ namespace brain
         /// of t_<concat_<lists_t...>>
         template <typename... lists_t>
         using concat_t =
-            t_<concat_t_<lists_t...>>;
+            defer_t_t<concat_t_, lists_t...>;
 
 
         /// Removes the last
@@ -518,7 +1067,7 @@ namespace brain
         /// of t_<pop_back_<list_t>>
         template<typename list_t>
         using pop_back_t =
-            t_<pop_back_t_<list_t>>;
+            defer_t_t<pop_back_t_, list_t>;
 
 
         /// ////////////////////////// ///
@@ -601,7 +1150,7 @@ namespace brain
         /// the type void
         template<typename ... args_t>
         using void_r =
-            always_r<void, args_t... >;
+            always_r<void, args_t...>;
 
 
         /// Determines if a
@@ -630,7 +1179,7 @@ namespace brain
         /// of t_<has_type_<type_t>>
         template<typename type_t>
         using has_type_t =
-            has_type_t_<type_t>;
+            defer_t_t<has_type_t_, type_t>;
 
 
         /// Determines if a
@@ -660,7 +1209,7 @@ namespace brain
         /// of t_<has_return_<type_t>>
         template<typename type_t>
         using has_return_t =
-            t_<has_return_t_<type_t>>;
+            defer_t_t<has_return_t_, type_t>;
 
 
         /// Determines if type_t
@@ -734,42 +1283,26 @@ namespace brain
         template < typename func_t,
                  typename list_t >
         using expand_t =
-            t_<expand_t_<func_t, list_t>>;
-
-
-        /// //////////////////////////// ///
-        /// Type instanciation deferring ///
-        /// //////////////////////////// ///
-
-
-        /// Defers the instation of
-        /// a template
-        /*template < template<typename ...> typename func_t,
-                 typename ... args_t >
-        struct defer :
-                func_t<args_t...>
-        {
-        };*/
-
+            defer_t_t <expand_t_, func_t, list_t>;
 
 
         /// //////////////////////// ///
         /// Meta function conversion ///
         /// //////////////////////// ///
 
-        /// Transforms type_t into
+        /// Transforms func_t into
         /// a meta function
-        template <template<typename...> typename type_t>
+        template <template<typename...> typename func_t>
         struct quote_r_
         {
             template<typename ... args_t>
             using return_ =
-                type_t<args_t...>;
+                defer_t<func_t, args_t...>;
         };
 
 
         ///
-        template < template<typename ...>typename type_t,
+        template < template<typename ...> typename type_t,
                  typename ... args_t >
         using quote_r =
             r_<quote_r_<type_t>, args_t...>;
@@ -786,464 +1319,6 @@ namespace brain
         // using uncurry =
         //    bind_front<quote<apply_list>, F>;
 
-
-
-        /// ///////////////////////////// ///
-        /// Mathematical wrapper features ///
-        /// ///////////////////////////// ///
-
-
-        /// Wrapper for incrementing
-        template<typename type_t>
-        using inc_t_ =
-            igral_t_ <
-            decltype(v_<type_t> + 1),
-            v_<type_t> + 1 >;
-
-
-        ///
-        template<typename type_t>
-        using inc_t =
-            t_<inc_t_<type_t>>;
-
-
-        /// Wrapper for decrementing
-        template<typename type_t>
-        using dec_t_ =
-            igral_t_ <
-            decltype(v_<type_t> - 1),
-            v_<type_t> - 1 >;
-
-
-        ///
-        template<typename type_t>
-        using dec_t =
-            t_<dec_t_<type_t>>;
-
-
-        /// Wrapper for additing
-        template < typename type_t,
-                 typename other_t >
-        using plus_t_ =
-            igral_t_ <
-            decltype(v_<type_t> + v_<other_t>),
-            v_<type_t> + v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using plus_t =
-            t_<plus_t_<type_t, other_t>>;
-
-
-        /// Wrapper for substracting
-        template < typename type_t,
-                 typename other_t >
-        using minus_t_ =
-            igral_t_ <
-            decltype(v_<type_t> - v_<other_t>),
-            v_<type_t> - v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using minus_t =
-            t_<minus_t_<type_t, other_t>>;
-
-
-        /// Wrapper for multiplying
-        template < typename type_t,
-                 typename other_t >
-        using multiplies_t_ =
-            igral_t_ <
-            decltype(v_<type_t> * v_<other_t>),
-            v_<type_t> * v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using multiplies_t =
-            t_<multiplies_t_<type_t, other_t>>;
-
-
-        /// Wrapper for dividing
-        template < typename type_t,
-                 typename other_t >
-        using divides_t_ =
-            igral_t_ <
-            decltype(v_<type_t> / v_<other_t>),
-            v_<type_t> / v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using divides_t =
-            t_<divides_t_<type_t, other_t>>;
-
-
-        /// Wrapper for negating
-        template <typename type_t>
-        using negate_t_ =
-            igral_t_ <
-            decltype(-v_<type_t>),
-            -v_<type_t >>;
-
-
-        ///
-        template<typename type_t>
-        using negate_t =
-            t_<negate_t_<type_t>>;
-
-
-        /// Wrapper for moduling
-        template < typename type_t,
-                 typename other_t >
-        using modulus_t_ =
-            igral_t_ <
-            decltype(v_<type_t> % v_<other_t>),
-            v_<type_t> % v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using modulus_t =
-            t_<modulus_t_<type_t, other_t>>;
-
-        /// /////////////////////// ///
-        /// Logical wrapper feature ///
-        /// /////////////////////// ///
-
-
-        /// Wrapper for equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using equal_to_t_ =
-            bool_t_ < v_<type_t>
-            == v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using equal_to_t =
-            t_<equal_to_t_<type_t, other_t>>;
-
-
-        /// Wrapper for not equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using not_equal_to_t_ =
-            bool_t_ < v_<type_t>
-            != v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using not_equal_to_t =
-            t_<not_equal_to_t_<type_t, other_t>>;
-
-
-        /// Wrapper for greater
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using greater_t_ =
-            bool_t_ < (v_<type_t>
-                       > v_<other_t>) >;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using greater_t =
-            t_<greater_t_<type_t, other_t>>;
-
-
-        /// Wrapper for less
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using less_t_ =
-            bool_t_ < (v_<type_t>
-                       < v_<other_t>) >;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using less_t =
-            t_<less_t_<type_t, other_t>>;
-
-
-        /// Wrapper for greater equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using greater_equal_t_ =
-            bool_t_ < (v_<type_t>
-                       >= v_<other_t>) >;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using greater_equal_t =
-            t_<greater_equal_t_<type_t, other_t>>;
-
-
-        /// Wrapper for less equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using less_equal_t_ =
-            bool_t_ < (v_<type_t>
-                       <= v_<other_t>) >;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using less_equal_t =
-            t_<less_equal_t_<type_t, other_t>>;
-
-
-        /// Wrapper for bit and
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_and_t_ =
-            bool_t_ < v_<type_t>
-            & v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using bit_and_t =
-            t_<bit_and_t_<type_t, other_t>>;
-
-
-        /// Wrapper for bit or
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_or_t_ =
-            bool_t_ < v_<type_t>
-            | v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using bit_or_t =
-            t_<bit_or_t_<type_t, other_t>>;
-
-
-        /// Wrapper for bit xor
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_xor_t_ =
-            bool_t_ < v_<type_t>
-            ^ v_<other_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using bit_xor_t =
-            t_<bit_xor_t_<type_t, other_t>>;
-
-
-        /// Wrapper for bit not
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_not_t_ =
-            bool_t_ < ~v_<type_t >>;
-
-
-        ///
-        template < typename type_t,
-                 typename other_t >
-        using bit_not_t =
-            t_<bit_not_t_<type_t, other_t>>;
-
-
-        /// ////////////// ///
-        /// Type selection ///
-        /// ////////////// ///
-
-
-        /// Type selector
-        template<typename ...>
-        struct if_t_;
-
-
-        /// Type selector
-        /// specialisation that
-        /// returns void
-        /// if_t is true
-        template<typename if_t>
-        struct if_t_<if_t> :
-                std::enable_if<v_<if_t>>
-        {
-        };
-
-
-        /// Type selector
-        /// specialisation that
-        /// returns then_t
-        /// if_t is true
-        template < typename if_t,
-                 typename then_t >
-        struct if_t_<if_t, then_t>:
-                std::enable_if<v_<if_t>, then_t>
-        {
-        };
-
-
-        /// Type selector
-        /// specialisation that
-        /// returns then_t
-        /// if_t is true
-        /// else else_t
-        template < typename if_t,
-                 typename then_t,
-                 typename else_t >
-        struct if_t_<if_t, then_t, else_t>:
-                std::conditional<v_<if_t>, then_t, else_t>
-        {
-        };
-
-
-        /// Evaluates the result
-        /// of t_<_if_<args_t...>>
-        template<typename ... args_t>
-        using if_t =
-            t_<if_t_<args_t...>>;
-
-
-        /// Evaluates the result
-        /// of if_<bool_<_b>, args_t... >
-        template < bool _b,
-                 typename... args_t >
-        using if_c =
-            if_t<bool_t_<_b>, args_t...>;
-
-
-        /// Evaluates the result
-        /// of if_<if_t, then_t, else_t>
-        template < typename test_t,
-                 typename then_t,
-                 typename else_t >
-        using select_t =
-            if_t<test_t, then_t, else_t> ;
-
-
-        /// Evaluates the result
-        /// of if_c<_b, then_t, else_t>
-        template < bool _b,
-                 typename then_t,
-                 typename else_t >
-        using select_c =
-            if_c<_b, then_t, else_t> ;
-
-
-        /// Returns std::true_type
-        /// if all bools_t are true
-        template <typename... bools_t>
-        struct and_t_;
-
-
-        /// Specialisation for
-        /// _and_ that returns
-        /// std::true_type for
-        /// default case.
-        template <>
-        struct and_t_<> :
-                std::true_type
-        {
-        };
-
-
-        /// Specialisation for
-        /// and_ that returns
-        /// std::false_type if
-        /// one of bools_t is
-        /// false
-        template < typename bool_t,
-                 typename... bools_t >
-        struct and_t_<bool_t, bools_t...>:
-                if_c < !v_<bool_t>, std::false_type, and_t_<bools_t... >>
-        {
-        };
-
-
-        /// Evaluates the result
-        /// of t_<_and_<bools_t...>>
-        template<typename ... bools_t>
-        using and_t =
-            t_<and_t_<bools_t...>>;
-
-
-        /// Returns std::true_type
-        /// if one or more bools_t
-        /// is true
-        template <typename... bools_t>
-        struct or_t_;
-
-
-        /// Specialisation for
-        /// _or_ that returns
-        /// std::false_type
-        /// for default case
-        template <>
-        struct or_t_<> :
-                std::false_type
-        {
-        };
-
-
-        /// Specialisation for
-        /// _and_ that returns
-        /// std::false_type if
-        /// all of bools_t is
-        /// false
-        template < typename bool_t,
-                 typename... bools_t >
-        struct or_t_<bool_t, bools_t...> :
-                if_c < v_<bool_t>,
-                std::true_type,
-                or_t_<bools_t... >>
-        {
-        };
-
-
-        /// Evaluates the result
-        /// of t_<_or_<bools_t...>>
-        template<typename ... bools_t>
-        using or_t =
-            t_<or_t_<bools_t...>>;
-
-
-        /// Negates the bool_t
-        template<typename bool_t>
-        using not_t_ =
-            bool_t_ < !v_<bool_t >>;
-
-
-        template<typename bool_t>
-        using not_t =
-            t_<not_t_<bool_t>>;
 
         /// ////////////////// ///
         /// Iteration features ///
@@ -1303,8 +1378,8 @@ namespace brain
                  typename res_t,
                  typename func_t >
         using accumulate_t =
-            t_ < accumulate_t_ <
-            list_t, res_t, func_t >>;
+            defer_t_t < accumulate_t_ ,
+            list_t, res_t, func_t >;
 
 
         /// Meta function that
@@ -1313,7 +1388,7 @@ namespace brain
         /// returns true. Else it
         /// returns list_t itself
         template<typename predicate_t>
-        struct filter_t_
+        struct filter_r_
         {
             template < typename list_t,
                      typename type_t >
@@ -1325,62 +1400,14 @@ namespace brain
         };
 
 
-
         /// Evaluates the result
         /// of accumulate < list_t, list<>,
         /// private_::filter<predicate_t >>;
         template < typename list_t,
                  typename predicate_t >
         using filter_t =
-            accumulate_t < list_t, list<>,
-            filter_t_<predicate_t >>;
-
-
-        ///
-        template < typename target_t,
-                 typename current_t,
-                 typename list_t >
-        struct at_t_;
-
-
-        ///
-        template < typename target_t,
-                 typename current_t >
-        struct at_t_<target_t, current_t, list<>>
-        {
-            using type = nil;
-        };
-
-
-        ///
-        template < typename target_t,
-                 typename current_t,
-                 typename type_t,
-                 typename ... types_t >
-        struct at_t_<target_t, current_t, list<type_t, types_t...>>
-        {
-            using type =
-                if_t <
-                equal_to_t<target_t, current_t>,
-                type_t,
-                t_<at_t_<target_t, inc_t<current_t>, list<types_t...>> >>;
-
-        };
-
-
-        ///
-        template < typename target_t,
-                 typename list_t >
-        using at_t =
-            t_<at_t_<target_t, unsigned_t<0>, list_t>>;
-
-
-
-        ///
-        template < unsigned _target,
-                 typename list_t >
-        using at_c =
-            at_t<unsigned_t<_target>, list_t>;
+            defer_t_t < accumulate_t ,  list_t, list<>,
+            filter_r_<predicate_t >>;
 
 
         ///
@@ -1396,7 +1423,7 @@ namespace brain
 
 
         ///
-        template < typename type_t >
+        template <typename type_t>
         struct repeat_t_<0u, type_t>
         {
             using type = list<>;
@@ -1404,7 +1431,7 @@ namespace brain
 
 
         ///
-        template < typename type_t >
+        template <typename type_t>
         struct repeat_t_<1u, type_t>
         {
             using type = list<type_t>;
@@ -1422,7 +1449,7 @@ namespace brain
         template < unsigned _nb,
                  typename type_t >
         using repeat_c =
-            repeat_t<unsigned_t<_nb>, type_t>;
+            defer_t<repeat_t, unsigned_t<_nb>, type_t>;
 
 
         ///
@@ -1440,7 +1467,61 @@ namespace brain
         ///
         template<typename pack_t>
         using to_list_t =
-            t_<to_list_t_<pack_t>>;
+            defer_t_t<to_list_t_, pack_t>;
+
+
+        /// placeholders
+        template<unsigned c>
+        struct placeholder;
+
+        using _0_ =
+            placeholder <0>;
+
+
+        using _1_ =
+            placeholder <1>;
+
+
+        using _2_ =
+            placeholder <2>;
+
+
+        using _3_ =
+            placeholder <3>;
+
+
+        template < typename captures_t,
+                 typename func_t ,
+                 typename defargs_t >
+        struct lambda;
+
+
+        template < typename ... captures_t,
+                 typename func_t,
+                 typename ... defargs_t >
+        struct lambda < list<captures_t...>,
+                func_t, list<defargs_t... >>
+        {
+            using captures_ = list<captures_t...>;
+            using defargs_ = list<defargs_t...>;
+
+            template<typename ... args_t>
+            using return_ =
+                r_<func_t, args_t...>;
+        };
+
+
+        ///
+        using l1 =
+            lambda <
+            list<_0_>,
+            quote_r_<plus_t>,
+            list<_0_, _0_ >>;
+
+
+        /// <=> plus_t<1, 1>;
+        using l1_instance =
+            r_<l1, short_t<1>, short_t<1>>;
     }
 }
 

@@ -35,10 +35,10 @@ namespace brain
                 {
                     static_assert(v_<std::is_same<t_<a_type>, a_type>>, "");
                     static_assert(v_<a_type> == 1, "");
-                    static_assert(std::is_same<vt_<a_type>, const int>::value, "");
+                    static_assert(v_<std::is_same<vt_<a_type>, const int>>, "");
                     static_assert(size_<a_type> == 12, "");
-                    static_assert(std::is_same<return_<a_type, int>, a_type>::value, "");
-                    static_assert(std::is_same<r_<a_type, int>, a_type>::value, "");
+                    static_assert(v_<std::is_same<return_<a_type, int>, a_type>>, "");
+                    static_assert(v_<std::is_same<r_<a_type, int>, a_type>>, "");
 
                     return v_<std::true_type>;
                 }
@@ -196,7 +196,7 @@ namespace brain
                 {
                     static_assert(v_<inc_t_<unsigned_t_<0>>> == 1, "");
                     static_assert(v_<dec_t_<unsigned_t_<1>>> == 0, "");
-                    static_assert(v_<plus_t_<unsigned_t_<1>, unsigned_t_<1>>> == 2, "");
+                    static_assert(v_<plus_t<unsigned_t_<1>, unsigned_t_<1>>> == 2, "");
                     static_assert(v_<minus_t_<unsigned_t_<1>, unsigned_t_<1>>> == 0, "");
                     static_assert(v_<multiplies_t_<unsigned_t_<2>, unsigned_t_<2>>> == 4, "");
                     static_assert(v_<divides_t_<unsigned_t_<4>, unsigned_t_<2>>> == 2, "");
@@ -242,7 +242,7 @@ namespace brain
             };
 
 
-            struct iterate_test:
+            struct accumulate_test:
                 public brain::test::basic_test
             {
                 struct is_int
