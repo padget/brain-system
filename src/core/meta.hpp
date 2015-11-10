@@ -89,13 +89,7 @@ namespace brain
         template < template<typename ...> typename func_t,
                  typename ... args_t >
         using defer_t =
-            t_<defer_t_<func_t, args_t...>>;
-
-
-        template < template<typename ...> typename func_t,
-                 typename ... args_t >
-        using defer_t_t =
-            t_<defer_t<func_t, args_t...>>;
+            t_<t_<defer_t_<func_t, args_t...>>>;
 
 
         /// ///////////////////////// ///
@@ -257,7 +251,7 @@ namespace brain
         ///
         template<typename type_t>
         using sizeof_t =
-            defer_t_t<sizeof_t_, type_t>;
+            defer_t<sizeof_t_, type_t>;
 
 
         /// Wrapper for sizeof...
@@ -269,7 +263,7 @@ namespace brain
         ///
         template<typename ... types_t>
         using sizeof_pack_t =
-            defer_t_t<sizeof_pack_t_, types_t...>;
+            defer_t<sizeof_pack_t_, types_t...>;
 
 
         /// Wrapper for alignof
@@ -281,7 +275,7 @@ namespace brain
         ///
         template<typename type_t>
         using alignof_t =
-            defer_t_t<alignof_t_, type_t>;
+            defer_t<alignof_t_, type_t>;
 
 
         /// ///////////////////////////// ///
@@ -300,7 +294,7 @@ namespace brain
         ///
         template<typename type_t>
         using inc_t =
-            defer_t_t<inc_t_, type_t>;
+            defer_t<inc_t_, type_t>;
 
 
         /// Wrapper for decrementing
@@ -314,7 +308,7 @@ namespace brain
         ///
         template<typename type_t>
         using dec_t =
-            defer_t_t<dec_t_, type_t>;
+            defer_t<dec_t_, type_t>;
 
 
         /// Wrapper for additing
@@ -330,7 +324,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using plus_t =
-            defer_t_t<plus_t_, type_t, other_t>;
+            defer_t<plus_t_, type_t, other_t>;
 
 
         /// Wrapper for substracting
@@ -346,7 +340,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using minus_t =
-            defer_t_t<minus_t_, type_t, other_t>;
+            defer_t<minus_t_, type_t, other_t>;
 
 
         /// Wrapper for multiplying
@@ -362,7 +356,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using multiplies_t =
-            defer_t_t<multiplies_t_, type_t, other_t>;
+            defer_t<multiplies_t_, type_t, other_t>;
 
 
         /// Wrapper for dividing
@@ -378,7 +372,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using divides_t =
-            defer_t_t<divides_t_, type_t, other_t>;
+            defer_t<divides_t_, type_t, other_t>;
 
 
         /// Wrapper for negating
@@ -392,7 +386,7 @@ namespace brain
         ///
         template<typename type_t>
         using negate_t =
-            defer_t_t<negate_t_, type_t>;
+            defer_t<negate_t_, type_t>;
 
 
         /// Wrapper for moduling
@@ -408,7 +402,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using modulus_t =
-            defer_t_t<modulus_t_, type_t, other_t>;
+            defer_t<modulus_t_, type_t, other_t>;
 
         /// /////////////////////// ///
         /// Logical wrapper feature ///
@@ -428,7 +422,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using equal_to_t =
-            defer_t_t<equal_to_t_, type_t, other_t>;
+            defer_t<equal_to_t_, type_t, other_t>;
 
 
         /// Wrapper for not equal
@@ -444,7 +438,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using not_equal_to_t =
-            defer_t_t<not_equal_to_t_, type_t, other_t>;
+            defer_t<not_equal_to_t_, type_t, other_t>;
 
 
         /// Wrapper for greater
@@ -460,7 +454,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using greater_t =
-            defer_t_t<greater_t_, type_t, other_t>;
+            defer_t<greater_t_, type_t, other_t>;
 
 
         /// Wrapper for less
@@ -476,7 +470,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using less_t =
-            defer_t_t<less_t_, type_t, other_t>;
+            defer_t<less_t_, type_t, other_t>;
 
 
         /// Wrapper for greater equal
@@ -492,7 +486,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using greater_equal_t =
-            defer_t_t<greater_equal_t_, type_t, other_t>;
+            defer_t<greater_equal_t_, type_t, other_t>;
 
 
         /// Wrapper for less equal
@@ -508,7 +502,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using less_equal_t =
-            defer_t_t<less_equal_t_, type_t, other_t>;
+            defer_t<less_equal_t_, type_t, other_t>;
 
 
         /// Wrapper for bit and
@@ -524,7 +518,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using bit_and_t =
-            defer_t_t<bit_and_t_, type_t, other_t>;
+            defer_t<bit_and_t_, type_t, other_t>;
 
 
         /// Wrapper for bit or
@@ -540,7 +534,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using bit_or_t =
-            defer_t_t<bit_or_t_, type_t, other_t>;
+            defer_t<bit_or_t_, type_t, other_t>;
 
 
         /// Wrapper for bit xor
@@ -556,7 +550,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using bit_xor_t =
-            defer_t_t<bit_xor_t_, type_t, other_t>;
+            defer_t<bit_xor_t_, type_t, other_t>;
 
 
         /// Wrapper for bit not
@@ -571,7 +565,7 @@ namespace brain
         template < typename type_t,
                  typename other_t >
         using bit_not_t =
-            defer_t_t<bit_not_t_, type_t, other_t>;
+            defer_t<bit_not_t_, type_t, other_t>;
 
 
         /// ////////////// ///
@@ -625,7 +619,7 @@ namespace brain
         /// of t_<_if_<args_t...>>
         template<typename ... args_t>
         using if_t =
-            defer_t_t<if_t_, args_t...>;
+            defer_t<if_t_, args_t...>;
 
 
         /// Evaluates the result
@@ -688,7 +682,7 @@ namespace brain
         /// of t_<_and_<bools_t...>>
         template<typename ... bools_t>
         using and_t =
-            defer_t_t<and_t_, bools_t...>;
+            defer_t<and_t_, bools_t...>;
 
 
         /// Returns std::true_type
@@ -728,7 +722,7 @@ namespace brain
         /// of t_<_or_<bools_t...>>
         template<typename ... bools_t>
         using or_t =
-            defer_t_t<or_t_, bools_t...>;
+            defer_t<or_t_, bools_t...>;
 
 
         /// Negates the bool_t
@@ -739,7 +733,7 @@ namespace brain
 
         template<typename bool_t>
         using not_t =
-            defer_t_t<not_t_, bool_t>;
+            defer_t<not_t_, bool_t>;
 
 
         /// //////////////////////////////////////// ///
@@ -767,7 +761,7 @@ namespace brain
         /// t_ shortcut for empty_
         template<typename list_t>
         using empty_t =
-            defer_t_t<empty_t_, list_t>;
+            defer_t<empty_t_, list_t>;
 
 
         /// Returns the type
@@ -820,7 +814,7 @@ namespace brain
         template < typename target_t,
                  typename list_t >
         using at_t =
-            defer_t_t<at_t_, target_t, unsigned_t<0>, list_t>;
+            defer_t<at_t_, target_t, unsigned_t<0>, list_t>;
 
 
 
@@ -852,7 +846,7 @@ namespace brain
         /// Evaluates t_<front_<list_t>>
         template<typename list_t>
         using front_t =
-            defer_t_t<front_t_, list_t>;
+            defer_t<front_t_, list_t>;
 
 
         /// Private private_ementation
@@ -893,7 +887,7 @@ namespace brain
         /// t_<private_::back_<list_t>>
         template<typename list_t>
         using back_t =
-            defer_t_t<back_t_, list_t>;
+            defer_t<back_t_, list_t>;
 
 
         /// Push a type_t at
@@ -919,7 +913,7 @@ namespace brain
         template < typename type_t,
                  typename list_t >
         using push_back_t =
-            defer_t_t<push_back_t_, type_t, list_t>;
+            defer_t<push_back_t_, type_t, list_t>;
 
 
         /// Pushs a type_t at
@@ -945,7 +939,7 @@ namespace brain
         template < typename type_t,
                  typename list_t >
         using push_front_t =
-            defer_t_t<push_front_t_, type_t, list_t>;
+            defer_t<push_front_t_, type_t, list_t>;
 
 
         /// Removes the first
@@ -970,7 +964,7 @@ namespace brain
         /// of t_<pop_front_<list_t>>
         template<typename list_t>
         using pop_front_t =
-            defer_t_t<pop_front_t_, list_t>;
+            defer_t<pop_front_t_, list_t>;
 
 
         /// Concatenates all lists_t
@@ -1036,7 +1030,7 @@ namespace brain
         /// of t_<concat_<lists_t...>>
         template <typename... lists_t>
         using concat_t =
-            defer_t_t<concat_t_, lists_t...>;
+            defer_t<concat_t_, lists_t...>;
 
 
         /// Removes the last
@@ -1067,7 +1061,7 @@ namespace brain
         /// of t_<pop_back_<list_t>>
         template<typename list_t>
         using pop_back_t =
-            defer_t_t<pop_back_t_, list_t>;
+            defer_t<pop_back_t_, list_t>;
 
 
         /// ////////////////////////// ///
@@ -1179,7 +1173,7 @@ namespace brain
         /// of t_<has_type_<type_t>>
         template<typename type_t>
         using has_type_t =
-            defer_t_t<has_type_t_, type_t>;
+            defer_t<has_type_t_, type_t>;
 
 
         /// Determines if a
@@ -1209,7 +1203,7 @@ namespace brain
         /// of t_<has_return_<type_t>>
         template<typename type_t>
         using has_return_t =
-            defer_t_t<has_return_t_, type_t>;
+            defer_t<has_return_t_, type_t>;
 
 
         /// Determines if type_t
@@ -1283,7 +1277,7 @@ namespace brain
         template < typename func_t,
                  typename list_t >
         using expand_t =
-            defer_t_t <expand_t_, func_t, list_t>;
+            defer_t <expand_t_, func_t, list_t>;
 
 
         /// //////////////////////// ///
@@ -1297,7 +1291,7 @@ namespace brain
         {
             template<typename ... args_t>
             using return_ =
-                defer_t<func_t, args_t...>;
+                t_<defer_t_<func_t, args_t...>>;
         };
 
 
@@ -1378,7 +1372,7 @@ namespace brain
                  typename res_t,
                  typename func_t >
         using accumulate_t =
-            defer_t_t < accumulate_t_ ,
+            defer_t < accumulate_t_ ,
             list_t, res_t, func_t >;
 
 
@@ -1406,7 +1400,7 @@ namespace brain
         template < typename list_t,
                  typename predicate_t >
         using filter_t =
-            defer_t_t < accumulate_t ,  list_t, list<>,
+            defer_t < accumulate_t ,  list_t, list<>,
             filter_r_<predicate_t >>;
 
 
@@ -1467,7 +1461,7 @@ namespace brain
         ///
         template<typename pack_t>
         using to_list_t =
-            defer_t_t<to_list_t_, pack_t>;
+            defer_t<to_list_t_, pack_t>;
 
 
         /// placeholders
