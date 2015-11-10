@@ -1420,7 +1420,7 @@ namespace brain
             filter_r_<predicate_t >>;
 
 
-        ///
+        /// TODO Sort + Doc
         template < unsigned _nb,
                  typename type_t >
         struct repeat_t_
@@ -1432,7 +1432,7 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template <typename type_t>
         struct repeat_t_<0u, type_t>
         {
@@ -1440,7 +1440,7 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template <typename type_t>
         struct repeat_t_<1u, type_t>
         {
@@ -1448,21 +1448,21 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template < typename nb_t,
                  typename type_t >
         using repeat_t =
             t_<repeat_t_<v_<nb_t>, type_t>>;
 
 
-        ///
+        /// TODO Sort + Doc
         template < unsigned _nb,
                  typename type_t >
         using repeat_c =
             defer_t<repeat_t, unsigned_t<_nb>, type_t>;
 
 
-        ///
+        /// TODO Sort + Doc
         template<typename pack_t>
         struct to_list_t_;
 
@@ -1474,13 +1474,13 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template<typename pack_t>
         using to_list_t =
             defer_t<to_list_t_, pack_t>;
 
 
-        ///
+        /// TODO Sort + Doc
         template < typename type1_t,
                  typename type2_t >
         struct pair
@@ -1490,7 +1490,7 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template<typename pair_t>
         struct first_t_
         {
@@ -1499,13 +1499,13 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template<typename pair_t>
         using first_t =
             defer_t<first_t_, pair_t>;
 
 
-        ///
+        /// TODO Sort + Doc
         template<typename pair_t>
         struct second_t_
         {
@@ -1514,19 +1514,19 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template<typename pair_t>
         using second_t =
             defer_t<second_t_, pair_t>;
 
 
-        ///
+        /// TODO Sort + Doc
         template < typename keys_t,
                  typename values_t >
         struct to_map_t_;
 
 
-        ///
+        /// TODO Sort + Doc
         template < typename key_t,
                  typename ... keys_t,
                  typename value_t,
@@ -1543,7 +1543,7 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template < typename key_t,
                  typename value_t >
         struct to_map_t_ <
@@ -1554,44 +1554,168 @@ namespace brain
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template<>
         struct to_map_t_<list<>, list<>> : empty_list_t_
         {
         };
 
 
-        ///
+        /// TODO Sort + Doc
         template < typename keys_t,
                  typename values_t >
         using to_map_t =
             defer_t<to_map_t_, keys_t, values_t>;
 
 
+        /// TODO Doc + Sort
+        template < typename list_t,
+                 typename predicate_t >
+        struct find_one_if_t_;
 
-        ///
+
+        /// TODO Doc + Sort
+        template < typename type_t,
+                 typename ... types_t,
+                 typename predicate_t >
+        struct find_one_if_t_ <
+                list<type_t, types_t...>,
+                predicate_t >
+        {
+            using type = if_t <
+                         r_<predicate_t, type_t>,
+                         type_t,
+                         defer_t<find_one_if_t_, list<types_t...>, predicate_t >>;
+        };
+
+
+        /// TODO Sort + Doc
+        template < typename type_t,
+                 typename predicate_t >
+        struct find_one_if_t_<list<type_t>, predicate_t>
+        {
+            using type = if_t <
+                         r_<predicate_t, type_t>,
+                         type_t,
+                         nil >;
+        };
+
+
+        /// TODO Sort + Doc
+        template < typename list_t,
+                 typename predicate_t >
+        using find_one_if_t =
+            defer_t<find_one_if_t_, list_t, predicate_t>;
+
+
+        /// TODO Sort + Doc
+        template < typename map_t,
+                 typename key_t >
+        struct value_of_t_
+        {
+            template<typename type_t>
+            using predicate_ = std::is_same<key_t, first_t<type_t>>;
+
+            using type =
+                second_t<find_one_if_t<map_t, quote_r_<predicate_>>>;
+        };
+
+
+        /// TODO Sort + Doc
+        template < typename map_t,
+                 typename key_t >
+        using value_of_t =
+            defer_t<value_of_t_, map_t, key_t>;
+
+
+        /// TODO Sort + Doc
+        template < typename list_t,
+                 typename old_t,
+                 typename new_t >
+        struct replace_t_;
+
+
+        /// TODO Sort + Doc
+        template < typename ... types_t,
+                 typename old_t,
+                 typename new_t >
+        struct replace_t_<list<types_t...>, old_t, new_t>
+        {
+            using type = /// TODO Faire du replace_if et donc transformer is_same en prédicat.
+                list<if_t<std::is_same<types_t, old_t>, new_t, types_t>...>;
+        };
+
+
+        /// TODO Sort + Doc
+        template < typename list_t,
+                 typename old_t,
+                 typename new_t >
+        using replace_t =
+            defer_t<replace_t_, list_t, old_t, new_t>;
+
+
+        /// TODO Sort + Doc
+        template < typename list_t,
+                 typename map_t >
+        struct map_replace_t_;
+
+
+        /// TODO Sort + Doc
+        template < typename ... types_t,
+                 typename map_t >
+        struct map_replace_t_<list<types_t...>, map_t>
+        {
+            using type =
+                list<value_of_t<map_t, types_t>...>;
+        };
+
+
+        /// TODO Sort + Doc
+        template < typename list_t,
+                 typename map_t >
+        using map_replace_t =
+            defer_t<map_replace_t_, list_t, map_t>;
+
+
+        /// TODO Sort + Doc
         template < typename real_args_t, /// real arguments for func_t call in lambda call (eg : <short_t<1>>)
                  typename lambda_args_t, /// lambda arguments defined in lambda definition (eg : <_0_>)
                  typename func_args_t > /// disposition of the lambda arguments in func_t call (eg : <_0_, _0_>)
-        struct subsitor
+        struct pl_args_translator_t_
         {
             using lambda_args_ = lambda_args_t;
-            using theory_args_ = func_args_t;
+            using func_args_ = func_args_t;
             using real_args_ = real_args_t;
 
-            /// 1 - Build a map args_mapping_ containing the 
+
+            /// 1 - Build a map args_mapping_ containing the
             ///     {key: lambda_args_[n], value: real_args_[n]}
             ///         => lambda_args_.length == real_args_.length
             using args_mapping_ =
                 to_map_t<lambda_args_, real_args_>;
-                
+
+
             /// 2 - Create the final_args_ that serves in func_t call :
             ///     Replace types in func_args_ by corresponding types in previous map :
             ///     for func_args_[n] the value is args_mapping_[func_args_[n]].
-            
-            /// 3 - Returns the final_args_ list
+            using final_args_ = map_replace_t<func_args_, args_mapping_>;
 
+
+            /// 3 - Returns the final_args_ list
+            using type = final_args_;
         };
+
+
+        /// TODO Sort + Doc
+        template < typename real_args_t,
+                 typename lambda_args_t,
+                 typename func_args_t >
+        using pl_args_translator_t =
+            defer_t <
+            pl_args_translator_t_,
+            real_args_t,
+            lambda_args_t,
+            func_args_t >;
 
 
         /// placeholders
