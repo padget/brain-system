@@ -20,8 +20,8 @@ namespace brain
     {
 
         struct nil {};
-        
-        
+
+
         /// //////////////////////////////////// ///
         /// Shortcut for access template members ///
         /// //////////////////////////////////// ///
@@ -751,6 +751,22 @@ namespace brain
         };
 
 
+        /// Returns an empty
+        /// list. Its a convenient
+        /// shortcut for many
+        /// list algorithm
+        struct empty_list_t_
+        {
+            using type = list<>;
+        };
+
+
+        /// t_ shortcut for
+        /// empty_list_t_
+        using empty_list_t =
+            t_<empty_list_t_>;
+
+
         /// Returns bool_<true>
         /// if list_t is empty_
         template<typename list_t>
@@ -1464,6 +1480,120 @@ namespace brain
             defer_t<to_list_t_, pack_t>;
 
 
+        ///
+        template < typename type1_t,
+                 typename type2_t >
+        struct pair
+        {
+            using first_ = type1_t;
+            using second_ = type2_t;
+        };
+
+
+        ///
+        template<typename pair_t>
+        struct first_t_
+        {
+            using type =
+                typename pair_t::first_;
+        };
+
+
+        ///
+        template<typename pair_t>
+        using first_t =
+            defer_t<first_t_, pair_t>;
+
+
+        ///
+        template<typename pair_t>
+        struct second_t_
+        {
+            using type =
+                typename pair_t::second_;
+        };
+
+
+        ///
+        template<typename pair_t>
+        using second_t =
+            defer_t<second_t_, pair_t>;
+
+
+        ///
+        template < typename keys_t,
+                 typename values_t >
+        struct to_map_t_;
+
+
+        ///
+        template < typename key_t,
+                 typename ... keys_t,
+                 typename value_t,
+                 typename ... values_t >
+        struct to_map_t_ <
+                list<key_t, keys_t...>,
+                list<value_t, values_t... >>
+        {
+            using type =
+                concat_t <
+                list<pair<key_t, value_t>>,
+                t_ < to_map_t_<list<keys_t...>, list<values_t...>>
+                >>;
+        };
+
+
+        ///
+        template < typename key_t,
+                 typename value_t >
+        struct to_map_t_ <
+                list<key_t>,
+                list<value_t >>
+        {
+            using type = list<pair<key_t, value_t>>;
+        };
+
+
+        ///
+        template<>
+        struct to_map_t_<list<>, list<>> : empty_list_t_
+        {
+        };
+
+
+        ///
+        template < typename keys_t,
+                 typename values_t >
+        using to_map_t =
+            defer_t<to_map_t_, keys_t, values_t>;
+
+
+
+        ///
+        template < typename real_args_t, /// real arguments for func_t call in lambda call (eg : <short_t<1>>)
+                 typename lambda_args_t, /// lambda arguments defined in lambda definition (eg : <_0_>)
+                 typename func_args_t > /// disposition of the lambda arguments in func_t call (eg : <_0_, _0_>)
+        struct subsitor
+        {
+            using lambda_args_ = lambda_args_t;
+            using theory_args_ = func_args_t;
+            using real_args_ = real_args_t;
+
+            /// 1 - Build a map args_mapping_ containing the 
+            ///     {key: lambda_args_[n], value: real_args_[n]}
+            ///         => lambda_args_.length == real_args_.length
+            using args_mapping_ =
+                to_map_t<lambda_args_, real_args_>;
+                
+            /// 2 - Create the final_args_ that serves in func_t call :
+            ///     Replace types in func_args_ by corresponding types in previous map :
+            ///     for func_args_[n] the value is args_mapping_[func_args_[n]].
+            
+            /// 3 - Returns the final_args_ list
+
+        };
+
+
         /// placeholders
         template<unsigned c>
         struct placeholder;
@@ -1490,14 +1620,14 @@ namespace brain
         struct lambda;
 
 
-        template < typename ... captures_t,
+        template < typename ... lambda_args_t,
                  typename func_t,
-                 typename ... defargs_t >
-        struct lambda < list<captures_t...>,
-                func_t, list<defargs_t... >>
+                 typename ... func_args_t >
+        struct lambda < list<lambda_args_t...>,
+                func_t, list<func_args_t... >>
         {
-            using captures_ = list<captures_t...>;
-            using defargs_ = list<defargs_t...>;
+            using lambda_args_ = list<lambda_args_t...>;
+            using theory_args_ = list<func_args_t...>;
 
             template<typename ... args_t>
             using return_ =
@@ -1506,16 +1636,11 @@ namespace brain
 
 
         ///
-        using l1 =
-            lambda <
-            list<_0_>,
-            quote_r_<plus_t>,
-            list<_0_, _0_ >>;
+        using l1 = lambda <list<_0_>, quote_r_<plus_t>, list<_0_, _0_>>;
 
 
         /// <=> plus_t<1, 1>;
-        using l1_instance =
-            r_<l1, short_t<1>, short_t<1>>;
+        using l1_instance = r_<l1, short_t<1>, short_t<2>>;
     }
 }
 
