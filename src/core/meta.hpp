@@ -1698,11 +1698,13 @@ namespace brain
             /// 2 - Create the final_args_ that serves in func_t call :
             ///     Replace types in func_args_ by corresponding types in previous map :
             ///     for func_args_[n] the value is args_mapping_[func_args_[n]].
-            using final_args_ = map_replace_t<func_args_, args_mapping_>;
+            using final_args_ =
+                map_replace_t<func_args_, args_mapping_>;
 
 
             /// 3 - Returns the final_args_ list
-            using type = final_args_;
+            using type =
+                final_args_;
         };
 
 
@@ -1719,31 +1721,34 @@ namespace brain
 
 
         /// placeholders
-        template<unsigned c>
+        template<unsigned _u>
         struct placeholder;
 
-        using _0_ =
-            placeholder <0>;
+        using _0_ = placeholder<0>;
+        using _1_ = placeholder<1>;
+        using _2_ = placeholder<2>;
+        using _3_ = placeholder<3>;
+        using _4_ = placeholder<4>;
+        using _5_ = placeholder<5>;
+        using _6_ = placeholder<6>;
+        using _7_ = placeholder<7>;
+        using _8_ = placeholder<8>;
+        using _9_ = placeholder<9>;
+        using _10_ = placeholder<10>;
+        using _11_ = placeholder<11>;
+        using _12_ = placeholder<12>;
+        using _13_ = placeholder<13>;
+        using _14_ = placeholder<14>;
 
 
-        using _1_ =
-            placeholder <1>;
-
-
-        using _2_ =
-            placeholder <2>;
-
-
-        using _3_ =
-            placeholder <3>;
-
-
+        /// TODO Sort + Doc
         template < typename captures_t,
                  typename func_t ,
                  typename defargs_t >
         struct lambda;
 
-
+        
+        /// TODO Sort + Doc
         template < typename ... lambda_args_t,
                  typename func_t,
                  typename ... func_args_t >
@@ -1751,20 +1756,26 @@ namespace brain
                 func_t, list<func_args_t... >>
         {
             using lambda_args_ = list<lambda_args_t...>;
-            using theory_args_ = list<func_args_t...>;
+            using func_args_ = list<func_args_t...>;
 
             template<typename ... args_t>
             using return_ =
-                r_<func_t, args_t...>;
+                expand_t<func_t, pl_args_translator_t<list<args_t...>, lambda_args_, func_args_>>;
         };
 
 
-        ///
-        using l1 = lambda <list<_0_>, quote_r_<plus_t>, list<_0_, _0_>>;
+        /// TODO Sort + Doc
+        using l1 =
+            lambda <list<_0_>, quote_r_<plus_t>, list<_0_, _0_>>;
+            
+        template<typename arg>
+        using l2 = plus_t<arg, arg>;
 
 
         /// <=> plus_t<1, 1>;
-        using l1_instance = r_<l1, short_t<1>, short_t<2>>;
+        using l1_instance = r_<l1, short_t<1>>;
+        
+        static_assert(v_<l1_instance> == 2, "");
     }
 }
 
