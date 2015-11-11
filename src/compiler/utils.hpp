@@ -554,9 +554,7 @@ namespace brain
 
             target operator()(const node_type& n)
             {
-                logger<ROOT>::debug("coucou1");
                 node_displayer<enum_t>()(n);
-                logger<ROOT>::debug("coucou2");
                 
                 if(fct::not_empty(n.childs))
                 {

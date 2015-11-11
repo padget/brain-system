@@ -30,7 +30,7 @@
 #include <chrono>
 #include "macro.hpp"
 #include "meta.hpp"
-
+#include "server_ptr.hpp"
 /*#define WIN32
 
 #if defined (WIN32)
@@ -308,7 +308,10 @@ namespace brain
 
         template<typename type_t>
         inline void delete_if_not_null(type_t* p)
-        { if(fct::not_null(p)) delete p; }
+        {
+            if(fct::not_null(p))
+            { delete p; p = nullptr; }
+        }
 
 
         template < typename arg_test_t,
@@ -345,27 +348,18 @@ namespace brain
         { std::for_each(c.begin(), c.end(), f); }
     }
 
-    namespace tpl
-    {
-
-    }
-
-
-
     namespace pattern
     {
-        /**
-         * @class stringable
-         * @author bmathieu
-         * @date 18/09/2015
-         * @file pattern.hpp
-         * @brief Enable to a class to be convertible to std::string
-         */
+        /// Enables to a class
+        /// to be convertible
+        /// into basic_string<char_t>
         template<typename string_t>
-        class stringable
+        struct stringable
         {
             public:
-                virtual ~stringable() {};
+                virtual ~stringable() = default;
+
+            public:
                 virtual operator string_t() noexcept = 0;
         };
 
@@ -383,7 +377,7 @@ namespace brain
         template <typename str>
         std::string concat(str && ch1)
         {
-            std::stringstream stream;
+            std::wstringstream stream;
             return (stream << ch1, stream.str());
         }
 
@@ -448,301 +442,7 @@ namespace brain
         };
     }
 
-    namespace ptr
-    {
 
-        template<typename type_t>
-        class client_ptr;
-
-        /**
-         * @class server_pointer_base
-         * @author Benjamin
-         * @date 01/10/2015
-         * @file core.hpp
-         * @brief Class defined for dynamic cast features.
-         */
-        class server_pointer_base
-        {
-            public:
-                BRAIN_ALL_DEFAULT(server_pointer_base)
-        };
-
-        /**
-         * @class server_ptr
-         * @author bmathieu
-         * @date 29/09/2015
-         * @file core.hpp
-         * @brief A server_ptr allows to define a smart pointer that's
-         * the owner of a resource. This resource can be distributed
-         * into several client_ptr.
-         */
-        template<typename type_t>
-        class server_ptr:
-            public server_pointer_base
-        {
-            public:
-                using type = type_t;
-                using pointer = type*;
-                using ureference = type &&;
-                using reference = type&;
-                using client = client_ptr<type>;
-
-            public:
-                pointer m_owned {nullptr};
-                std::list<client*> m_clients;
-
-            public:
-                /**
-                 * @brief Build an empty server_ptr (bool(*this) is false)
-                 */
-                server_ptr() : server_pointer_base() {}
-
-                /**
-                 * @brief Build an server_ptr with owned
-                 * @param owned pointer that will be owned by server_ptr
-                 */
-                server_ptr(pointer owned):
-                    server_pointer_base(),
-                    m_owned(owned) {}
-
-                /**
-                 * @brief Polymorphic builder.
-                 * @param owned pointer of type or one of these deriveds.
-                 */
-                template < typename other_t,
-                         typename = std::_Require < std::is_polymorphic<other_t>,
-                         std::is_base_of<type, other_t> >>
-                server_ptr(other_t* owned):
-                    server_pointer_base(),
-                    m_owned(owned) {}
-
-                /**
-                 * @brief Copy a server_ptr is forbidden.
-                 */
-                server_ptr(const server_ptr<type>&) = delete;
-
-                /**
-                 * @brief Move constructor
-                 */
-                server_ptr(server_ptr<type> && other) :
-                    server_pointer_base(),
-                    m_owned(other.release()),
-                    m_clients(fct::mv(other.clients()))
-                {
-                    fct::for_each(m_clients, [&](auto * client)
-                    { client->switch_server(this); });
-
-                    other.m_clients.clear();
-                }
-
-                /**
-                 * @brief Destructor. Delete owned pointer and
-                 * unsubscribe all clients
-                 */
-                virtual ~server_ptr()
-                {
-                    std::cout << "delete server " << std::endl;
-                    fct::delete_if_not_null(m_owned);
-                    fct::for_each(m_clients, [&](auto * client)
-                    { client->switch_server(); });
-                }
-
-            public:
-                server_ptr<type>& operator=(const server_ptr<type> &) = delete;
-
-                server_ptr<type>& operator=(server_ptr<type> && other)
-                {
-                    reset(other.release());
-
-                    fct::assign(m_clients, fct::mv(other.m_clients));
-                    fct::for_each(m_clients, [&](auto * client)
-                    { (*client).switch_server(this); });
-                    other.m_clients.clear();
-
-
-                    return *this;
-                }
-
-            public:
-                void reset(pointer p = nullptr)
-                {
-                    std::swap(m_owned, p);
-                    fct::delete_if_not_null(p);
-                }
-
-                pointer release()
-                {
-                    pointer p = get();
-                    fct::assign(m_owned, nullptr);
-                    return p;
-                }
-
-                pointer get()
-                { return m_owned; }
-
-                const pointer get() const
-                { return m_owned; }
-
-                auto& clients()
-                { return m_clients; }
-
-                const auto& clients() const
-                { return m_clients; }
-
-            public:
-                void subscribe(client_ptr<type>* subscriber)
-                { m_clients.push_front(subscriber); }
-
-                void unsubscribe(client_ptr<type>* subscriber)
-                {
-                    m_clients.remove_if([subscriber](auto * client)
-                    { return fct::equals(subscriber, client); });
-                }
-
-            public:
-                pointer operator->()
-                { return m_owned; }
-
-                const pointer operator->() const
-                { return m_owned; }
-
-                reference operator*()
-                { return *m_owned; }
-
-                const reference operator*() const
-                { return *m_owned; }
-
-                operator bool() const
-                { return fct::not_null(m_owned); }
-
-            public:
-                auto make_client()
-                { return client_ptr<type> {*this}; }
-        };
-
-        template < typename type_t,
-                 typename base_t,
-                 typename ... args_t >
-        auto make_server(args_t && ... args)
-        { return server_ptr<base_t>(new type_t(std::forward<args_t>(args)...)); }
-
-
-        template<typename type_t>
-        class client_ptr
-        {
-            public:
-                using type = type_t;
-                using pointer = type*;
-                using reference = type&;
-
-            public:
-                server_pointer_base* m_server = nullptr;
-
-            public:
-                client_ptr() {}
-
-                client_ptr(server_ptr<type>& server = nullptr) :
-                    m_server {&server}
-                { subscribe(); }
-
-                client_ptr(const client_ptr<type>& other):
-                    m_server {other.m_server}
-                { subscribe(); }
-
-                client_ptr(client_ptr<type> && other):
-                    m_server {other.m_server}
-                {
-                    if(fct::not_null(other.m_server))
-                        other.unsubscribe();
-
-                    subscribe();
-                }
-
-                ~client_ptr()
-                { unsubscribe(); }
-
-            public:
-                client_ptr<type>& operator=(const client_ptr<type>& other)
-                {
-                    if(fct::not_equals(this, &other))
-                    {
-                        unsubscribe();
-                        fct::assign(m_server, other.m_server);
-                        subscribe();
-                    }
-
-                    return fct::inner(this);
-                }
-
-                client_ptr<type>& operator=(client_ptr<type> && other) = delete;
-
-                template<typename other_t>
-                client_ptr<type>& operator=(const client_ptr<other_t>& other)
-                {
-                    if(fct::not_equals(this, &other))
-                    {
-                        unsubscribe();
-                        fct::assign(m_server, other.m_server);
-                        subscribe();
-                    }
-
-                    return fct::inner(this);
-                }
-
-            public:
-                inline void unsubscribe()
-                {
-                    if(fct::not_null(m_server))
-                    {
-                        cast_server()->unsubscribe(this);
-                        fct::assign(m_server, nullptr);
-                    }
-                }
-
-                void subscribe()
-                {
-                    if(fct::not_null(m_server))
-                        cast_server()->subscribe(this);
-                }
-
-            public:
-                pointer operator->()
-                {return cast_server()->get(); }
-
-                const pointer operator->() const
-                {return cast_server()->get(); }
-
-                pointer get()
-                {return cast_server()->get(); }
-
-                const pointer get() const
-                {return cast_server()->get(); }
-
-                reference operator*()
-                { return **cast_server(); }
-
-                const reference operator*() const
-                { return **cast_server(); }
-
-                operator bool() const
-                {
-                    return fct::not_null(m_server)
-                           and static_cast<bool>(fct::inner(this->cast_server()));
-                }
-
-                void switch_server(server_ptr<type>* s = nullptr)
-                { fct::assign(m_server, s); }
-
-                const server_ptr<type>* cast_server() const
-                { return dynamic_cast<const server_ptr<type>*>(m_server); }
-
-                server_ptr<type>* cast_server()
-                { return dynamic_cast<server_ptr<type>*>(m_server); }
-        };
-
-
-
-    }
 
     namespace nat
     {
@@ -845,7 +545,7 @@ namespace brain
         { return os << static_cast<const type_t&>(p); }
 
         template<typename type_t>
-        using client_property = property<ptr::client_ptr<type_t>>;
+        using client_property = property< ptr::client_ptr<type_t>>;
 
         template<typename type_t>
         using server_property = property<ptr::server_ptr<type_t>>;
@@ -1046,7 +746,7 @@ namespace brain
         template<>
         inline auto& lvlname<Level::ERROR>()
         { static std::string name = "ERROR"; return name; }
-        
+
         template<>
         inline auto& lvlname<Level::FATAL>()
         { static std::string name = "FATAL"; return name; }
@@ -1217,7 +917,7 @@ namespace brain
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using error = log<Level::ERROR, type_t, clock>;
-    
+
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using fatal = log<Level::FATAL, type_t, clock>;
@@ -1244,7 +944,7 @@ namespace brain
                 inline static void warn(t && ... message) noexcept
                 {  logging::warn<type_t, clock>()(message...); }
 
-               template <typename ... t>
+                template <typename ... t>
                 inline static void error(t && ... message) noexcept
                 {  logging::error<type_t, clock>()(message...); }
 
@@ -2139,9 +1839,9 @@ namespace brain
                 bool is_server = _is_server;
                 int domain = _domain;
                 int protocol = _protocol;
-#if defined (WIN32)
+    #if defined (WIN32)
                 static WSADATA wsadata;
-#endif
+    #endif
 
             public:
                 socket() = default;
@@ -2235,7 +1935,7 @@ namespace brain
                         recv(this->sock, buffer, bufferSize, 0);
                     }
                 }
-                
+
                 void bthShutdown(int how)
                 {
                     shutdown(this->sock, how);
@@ -2245,26 +1945,26 @@ namespace brain
                 {
                     return closesocket(sock);
                 }
-                
+
                 static int initSystem()
                 {
-#if defined (WIN32)
+    #if defined (WIN32)
                     WSADATA WSAData;
                     return WSAStartup(MAKEWORD(2, 2), &WSAData);
-#else
+    #else
                     return 0;
-#endif
+    #endif
                 }
-                
+
                 static int cleanSystem();
                 {
-#if defined (WIN32)
+    #if defined (WIN32)
                     return WSACleanup();
-#else
+    #else
                     return 0;
-#endif
+    #endif
                 }
-                
+
                 SOCKET getSocket()
                 {
                     return this->sock;

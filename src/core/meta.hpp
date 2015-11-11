@@ -1093,7 +1093,7 @@ namespace brain
 
         /// Specialisation for
         /// pop_back_t_ used
-        /// for list with one 
+        /// for list with one
         /// element inside
         template<typename type_t>
         struct pop_back_t_<list<type_t>>
@@ -1104,7 +1104,7 @@ namespace brain
 
         /// Specialisation for
         /// pop_back_t_ used
-        /// for list with no 
+        /// for list with no
         /// element inside
         template < typename type_t,
                  typename ... types_t >
@@ -1588,7 +1588,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for 
+        /// t_ shortcut for
         /// map_replace_t
         template < typename list_t,
                  typename map_t >
@@ -1620,7 +1620,7 @@ namespace brain
         /// A lambda is a anonymous
         /// meta function that can
         /// support placeholding
-        /// feature between lambda 
+        /// feature between lambda
         /// arguments and meta function
         /// func_t arguments
         template < typename lambda_args_t,
@@ -1723,12 +1723,16 @@ namespace brain
             defer_t<repeat_t, unsigned_t<_nb>, type_t>;
 
 
+        template < typename res_t ,
+                 typename type_t,
+                 typename ref_t>
+        using inc_if_t = if_t<std::is_same<ref_t, type_t>, inc_t<res_t>, res_t>;
 
 
 
-
-
-
+        template < typename list_t,
+                 typename ref_t >
+        using count_t = accumulate_t<list_t, unsigned_t<0>, bind_back_r_<quote_r_<inc_if_t>, ref_t>>;
 
 
         /// TODO Sort + Doc
