@@ -57,18 +57,18 @@ namespace brain
 
         /// Access to return_ member
         /// of type_t
-        template < typename type_t,
+        template < typename type_r,
                  typename ... args_t >
         using return_ =
-            typename type_t::
+            typename type_r::
             template return_<args_t...>;
 
 
         /// Shortcut for return_
-        template < typename type_t,
+        template < typename type_r,
                  typename ... args_t >
         using r_ =
-            return_<type_t, args_t...>;
+            return_<type_r, args_t...>;
 
 
         /// //////////////////////////// ///
@@ -86,10 +86,34 @@ namespace brain
         };
 
 
+        /// t_ shortcut for defer_t_
         template < template<typename ...> typename func_t,
                  typename ... args_t >
         using defer_t =
             t_<t_<defer_t_<func_t, args_t...>>>;
+
+
+        /// //////////////////////// ///
+        /// Meta function conversion ///
+        /// //////////////////////// ///
+
+
+        /// Transforms func_t into
+        /// a meta function
+        template <template<typename...> typename func_t>
+        struct quote_r_
+        {
+            template<typename ... args_t>
+            using return_ =
+                t_<defer_t_<func_t, args_t...>>;
+        };
+
+
+        /// r_ shortcut for quote_r_
+        template < template<typename ...> typename type_t,
+                 typename ... args_t >
+        using quote_r =
+            r_<quote_r_<type_t>, args_t...>;
 
 
         /// ///////////////////////// ///
@@ -105,6 +129,7 @@ namespace brain
             std::integral_constant<literal_t, _l>;
 
 
+        /// t_ shortcut for igral_t_
         template < typename literal_t,
                  literal_t _l >
         using igral_t =
@@ -117,7 +142,8 @@ namespace brain
             igral_t_<bool, _b>;
 
 
-        ///
+        /// t_ shortcut
+        /// for bool_t_
         template<bool _b>
         using bool_t =
             t_<bool_t_<_b>>;
@@ -129,7 +155,8 @@ namespace brain
             igral_t_<short, _s>;
 
 
-        ///
+        /// t_ shortcut
+        /// for short_t_
         template<short _s>
         using short_t =
             t_<short_t_<_s>>;
@@ -141,7 +168,8 @@ namespace brain
             igral_t_<unsigned short, _us>;
 
 
-        ///
+        /// t_ shortcut
+        /// for ushort_t_
         template<unsigned short _us>
         using ushort_t =
             t_<ushort_t_<_us>>;
@@ -153,7 +181,8 @@ namespace brain
             igral_t_<char, _c>;
 
 
-        ///
+        /// t_ shortcut
+        /// for char_t_
         template<char _c>
         using char_t =
             t_<char_t_<_c>>;
@@ -165,7 +194,8 @@ namespace brain
             igral_t_<int, _i>;
 
 
-        ///
+        /// t_ shortcut
+        /// for int_t_
         template<int _i>
         using int_t =
             t_<int_t_<_i>>;
@@ -177,7 +207,8 @@ namespace brain
             igral_t_<long, _l>;
 
 
-        ///
+        /// t_ shortcut
+        /// for long_t_
         template<long _l>
         using long_t =
             t_<long_t_<_l>>;
@@ -189,7 +220,8 @@ namespace brain
             igral_t_<long long, _ll>;
 
 
-        ///
+        /// t_ shortcut
+        /// for longlong_t_
         template<long long _ll>
         using longlong_t =
             t_<longlong_t_<_ll>>;
@@ -201,7 +233,8 @@ namespace brain
             igral_t_<unsigned, _u>;
 
 
-        ///
+        /// t_ shortcut
+        /// for unsigned_t_
         template<unsigned _u>
         using unsigned_t =
             t_<unsigned_t_<_u>>;
@@ -213,7 +246,8 @@ namespace brain
             igral_t_<unsigned long, _ul>;
 
 
-        ///
+        /// t_ shortcut
+        /// for unsignedl_t_
         template<unsigned long _ul>
         using unsignedl_t =
             t_<unsignedl_t_<_ul>>;
@@ -225,7 +259,8 @@ namespace brain
             igral_t_<unsigned long long, _ull>;
 
 
-        ///
+        /// t_ shortcut
+        /// for unsignedll_t_
         template<unsigned long long _ull>
         using unsignedll_t =
             t_<unsignedll_t_<_ull>>;
@@ -248,7 +283,7 @@ namespace brain
             size_t_<sizeof(type_t)>;
 
 
-        ///
+        /// t_ shortcut for sizeof_t_
         template<typename type_t>
         using sizeof_t =
             defer_t<sizeof_t_, type_t>;
@@ -260,7 +295,7 @@ namespace brain
             size_t_<sizeof...(types_t)>;
 
 
-        ///
+        /// t_ shortcut for sizeof_pack_t_
         template<typename ... types_t>
         using sizeof_pack_t =
             defer_t<sizeof_pack_t_, types_t...>;
@@ -272,7 +307,7 @@ namespace brain
             size_t_<alignof(type_t)>;
 
 
-        ///
+        /// t_ shortcut for alignof_t_
         template<typename type_t>
         using alignof_t =
             defer_t<alignof_t_, type_t>;
@@ -291,7 +326,7 @@ namespace brain
             v_<type_t> + 1 >;
 
 
-        ///
+        /// t_ shortcut for inc_t_
         template<typename type_t>
         using inc_t =
             defer_t<inc_t_, type_t>;
@@ -305,7 +340,7 @@ namespace brain
             v_<type_t> - 1 >;
 
 
-        ///
+        /// t_ shortcut for dec_t_
         template<typename type_t>
         using dec_t =
             defer_t<dec_t_, type_t>;
@@ -320,7 +355,7 @@ namespace brain
             v_<type_t> + v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for plus_t_
         template < typename type_t,
                  typename other_t >
         using plus_t =
@@ -336,7 +371,7 @@ namespace brain
             v_<type_t> - v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for minus_t_
         template < typename type_t,
                  typename other_t >
         using minus_t =
@@ -352,7 +387,7 @@ namespace brain
             v_<type_t> * v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for multiplies_t_
         template < typename type_t,
                  typename other_t >
         using multiplies_t =
@@ -368,7 +403,7 @@ namespace brain
             v_<type_t> / v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for divides_t_
         template < typename type_t,
                  typename other_t >
         using divides_t =
@@ -383,7 +418,7 @@ namespace brain
             -v_<type_t >>;
 
 
-        ///
+        /// t_ shortcut for negate_t_
         template<typename type_t>
         using negate_t =
             defer_t<negate_t_, type_t>;
@@ -398,7 +433,7 @@ namespace brain
             v_<type_t> % v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for modulus_t_
         template < typename type_t,
                  typename other_t >
         using modulus_t =
@@ -418,7 +453,7 @@ namespace brain
             == v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for equal_to_t_
         template < typename type_t,
                  typename other_t >
         using equal_to_t =
@@ -434,7 +469,7 @@ namespace brain
             != v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for not_equal_to_t_
         template < typename type_t,
                  typename other_t >
         using not_equal_to_t =
@@ -450,7 +485,7 @@ namespace brain
                        > v_<other_t>) >;
 
 
-        ///
+        /// t_ shortcut for greater_t_
         template < typename type_t,
                  typename other_t >
         using greater_t =
@@ -466,7 +501,7 @@ namespace brain
                        < v_<other_t>) >;
 
 
-        ///
+        /// t_ shortcut for less_t_
         template < typename type_t,
                  typename other_t >
         using less_t =
@@ -482,7 +517,7 @@ namespace brain
                        >= v_<other_t>) >;
 
 
-        ///
+        /// t_ shortcut for greater_equal_t_
         template < typename type_t,
                  typename other_t >
         using greater_equal_t =
@@ -498,7 +533,7 @@ namespace brain
                        <= v_<other_t>) >;
 
 
-        ///
+        /// t_ shortcut for less_equal_t_
         template < typename type_t,
                  typename other_t >
         using less_equal_t =
@@ -514,7 +549,7 @@ namespace brain
             & v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for bit_and_t_
         template < typename type_t,
                  typename other_t >
         using bit_and_t =
@@ -530,7 +565,7 @@ namespace brain
             | v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for bit_or_t_
         template < typename type_t,
                  typename other_t >
         using bit_or_t =
@@ -546,7 +581,7 @@ namespace brain
             ^ v_<other_t >>;
 
 
-        ///
+        /// t_ shortcut for bit_xor_t_
         template < typename type_t,
                  typename other_t >
         using bit_xor_t =
@@ -561,7 +596,7 @@ namespace brain
             bool_t_ < ~v_<type_t >>;
 
 
-        ///
+        /// t_ shortcut for bit_not_t_
         template < typename type_t,
                  typename other_t >
         using bit_not_t =
@@ -731,6 +766,7 @@ namespace brain
             bool_t_ < !v_<bool_t >>;
 
 
+        /// t_ shortcut for not_t_
         template<typename bool_t>
         using not_t =
             defer_t<not_t_, bool_t>;
@@ -1055,7 +1091,10 @@ namespace brain
         struct pop_back_t_;
 
 
-        ///
+        /// Specialisation for
+        /// pop_back_t_ used
+        /// for list with one 
+        /// element inside
         template<typename type_t>
         struct pop_back_t_<list<type_t>>
         {
@@ -1063,7 +1102,10 @@ namespace brain
         };
 
 
-        ///
+        /// Specialisation for
+        /// pop_back_t_ used
+        /// for list with no 
+        /// element inside
         template < typename type_t,
                  typename ... types_t >
         struct pop_back_t_<list<type_t, types_t...>>
@@ -1078,6 +1120,141 @@ namespace brain
         template<typename list_t>
         using pop_back_t =
             defer_t<pop_back_t_, list_t>;
+
+
+        /// Convert any pack
+        /// representation into
+        /// a list
+        template<typename pack_t>
+        struct to_list_t_;
+
+
+        /// Specialisation of
+        /// to_list_t_ that
+        /// distings the types_t
+        template < template<typename ...> typename pack_t,
+                 typename ... types_t >
+        struct to_list_t_<pack_t<types_t...>>
+        {
+            using type = list<types_t...>;
+        };
+
+
+        /// t_ shortcut for to_list_t_
+        template<typename pack_t>
+        using to_list_t =
+            defer_t<to_list_t_, pack_t>;
+
+
+        /// Finds the first type
+        /// that respects the
+        /// predicate_t. If there
+        /// is no element, it
+        /// won't compile.
+        template < typename list_t,
+                 typename predicate_t >
+        struct find_one_if_t_;
+
+
+        /// Specialisation for
+        /// find_one_if_t_ that
+        /// distings each type
+        /// of list_t
+        template < typename ... types_t,
+                 typename predicate_t >
+        struct find_one_if_t_<list<types_t...>, predicate_t>
+        {
+            using type = at_t <
+                         unsigned_t<0>,
+                         concat_t<if_t <r_<predicate_t, types_t>, list<types_t>, list<>>...>
+                         >;
+        };
+
+
+        /// t_ shortcut for
+        /// find_one_if_t_
+        template < typename list_t,
+                 typename predicate_t >
+        using find_one_if_t =
+            defer_t<find_one_if_t_, list_t, predicate_t>;
+
+
+        /// //////////////////////////// ///
+        /// Wrapper for map manipulation ///
+        /// //////////////////////////// ///
+
+
+        /// Wrapper for pair
+        /// key-value
+        template < typename key_t,
+                 typename value_t >
+        using pair =
+            list<key_t, value_t>;
+
+
+        /// Returns the first
+        /// type of a pair
+        template<typename pair_t>
+        using first_t =
+            at_t<unsigned_t<0>, pair_t>;
+
+
+        /// Returns the second
+        /// type of a pair
+        template<typename pair_t>
+        using second_t =
+            at_t<unsigned_t<1>, pair_t>;
+
+
+        /// Build a map from
+        /// list of keys and
+        /// list of values
+        template < typename keys_t,
+                 typename values_t >
+        struct to_map_t_;
+
+
+        /// Specialisation for
+        /// to_map_t_ that distings
+        /// elements of keys_t
+        /// and values_t
+        template < typename ... keys_t,
+                 typename ... values_t >
+        struct to_map_t_ <
+                list<keys_t...>,
+                list<values_t... >>
+        {
+            using type = list<pair<keys_t, values_t>...>;
+        };
+
+
+        /// t_ shortcut for to_map_t_
+        template < typename keys_t,
+                 typename values_t >
+        using to_map_t =
+            defer_t<to_map_t_, keys_t, values_t>;
+
+
+        /// Returns the value
+        /// of mapped key_t
+        /// from map_t
+        template < typename map_t,
+                 typename key_t >
+        struct value_of_t_
+        {
+            template<typename type_t>
+            using predicate_ = std::is_same<key_t, first_t<type_t>>;
+
+            using type =
+                second_t<find_one_if_t<map_t, quote_r_<predicate_>>>;
+        };
+
+
+        /// t_ shortcut for value_of_t_
+        template < typename map_t,
+                 typename key_t >
+        using value_of_t =
+            defer_t<value_of_t_, map_t, key_t>;
 
 
         /// ////////////////////////// ///
@@ -1148,7 +1325,7 @@ namespace brain
         };
 
 
-        ///
+        /// r_ shortcut always_r_
         template < typename type_t,
                  typename ... args_t >
         using always_r =
@@ -1296,44 +1473,9 @@ namespace brain
             defer_t <expand_t_, func_t, list_t>;
 
 
-        /// //////////////////////// ///
-        /// Meta function conversion ///
-        /// //////////////////////// ///
-
-        /// Transforms func_t into
-        /// a meta function
-        template <template<typename...> typename func_t>
-        struct quote_r_
-        {
-            template<typename ... args_t>
-            using return_ =
-                t_<defer_t_<func_t, args_t...>>;
-        };
-
-
-        ///
-        template < template<typename ...> typename type_t,
-                 typename ... args_t >
-        using quote_r =
-            r_<quote_r_<type_t>, args_t...>;
-
-        /// TODO Documentation curry
-        // template < typename func_t,
-        //         typename args_t = quote<list >>
-        // using curry =
-        //    compose<func_t, args_t>;
-
-
-        /// TODO Documentation uncurry
-        // template <typename F>
-        // using uncurry =
-        //    bind_front<quote<apply_list>, F>;
-
-
         /// ////////////////// ///
         /// Iteration features ///
         /// ////////////////// ///
-
 
 
         /// Accumulates res_t over list_t
@@ -1346,9 +1488,7 @@ namespace brain
         template < typename list_t,
                  typename res_t,
                  typename func_t >
-        struct accumulate_t_
-        {
-        };
+        struct accumulate_t_;
 
 
         /// Specialisation for
@@ -1383,13 +1523,134 @@ namespace brain
 
 
         /// Evaluates the result
-        /// of t_<private_::accumulate<list_t, res_t, func_t>>
+        /// of t_<accumulate<list_t, res_t, func_t>>
         template < typename list_t,
                  typename res_t,
                  typename func_t >
         using accumulate_t =
             defer_t < accumulate_t_ ,
             list_t, res_t, func_t >;
+
+
+        /// Iterates a meta
+        /// function over each
+        /// element of a list
+        /// and return the new list
+        template < typename list_t,
+                 typename func_t >
+        struct iterate_t_;
+
+
+        /// Specialisation for
+        /// iterate_t_ that
+        /// distings elements
+        /// of list_t
+        template < typename ... types_t,
+                 typename func_t >
+        struct iterate_t_<list<types_t...>, func_t>
+        {
+            using type =
+                list<r_<func_t, types_t>...>;
+        };
+
+
+        /// t_ shortcut
+        /// for iterate_t_
+        template < typename list_t,
+                 typename func_t >
+        using iterate_t =
+            defer_t<iterate_t_, list_t, func_t>;
+
+
+        /// ///////////////////////////////// ///
+        /// Lambda with placeholding features ///
+        /// ///////////////////////////////// ///
+
+
+        /// Replaces types from
+        /// list_t that represents
+        /// a key in map_t
+        template < typename list_t,
+                 typename map_t >
+        struct map_replace_t_;
+
+
+        /// Specialisation for
+        /// map_replace_t_ that
+        /// distings each type
+        /// of list_t
+        template < typename ... types_t,
+                 typename map_t >
+        struct map_replace_t_<list<types_t...>, map_t>
+        {
+            using type =
+                list<value_of_t<map_t, types_t>...>;
+        };
+
+
+        /// t_ shortcut for 
+        /// map_replace_t
+        template < typename list_t,
+                 typename map_t >
+        using map_replace_t =
+            defer_t<map_replace_t_, list_t, map_t>;
+
+
+        /// placeholders
+        template<unsigned _u>
+        struct placeholder;
+
+        using _0_ = placeholder<0>;
+        using _1_ = placeholder<1>;
+        using _2_ = placeholder<2>;
+        using _3_ = placeholder<3>;
+        using _4_ = placeholder<4>;
+        using _5_ = placeholder<5>;
+        using _6_ = placeholder<6>;
+        using _7_ = placeholder<7>;
+        using _8_ = placeholder<8>;
+        using _9_ = placeholder<9>;
+        using _10_ = placeholder<10>;
+        using _11_ = placeholder<11>;
+        using _12_ = placeholder<12>;
+        using _13_ = placeholder<13>;
+        using _14_ = placeholder<14>;
+
+
+        /// A lambda is a anonymous
+        /// meta function that can
+        /// support placeholding
+        /// feature between lambda 
+        /// arguments and meta function
+        /// func_t arguments
+        template < typename lambda_args_t,
+                 typename func_t ,
+                 typename func_args_t >
+        struct lambda;
+
+
+        /// Specialisation for
+        /// lambda that distings
+        /// each type of lambda_args_t
+        /// and of func_args_t
+        template < typename ... lambda_args_t,
+                 typename func_t,
+                 typename ... func_args_t >
+        struct lambda < list<lambda_args_t...>,
+                func_t, list<func_args_t... >>
+        {
+            using lambda_args_ = list<lambda_args_t...>;
+            using func_args_ = list<func_args_t...>;
+
+            template<typename ... args_t>
+            using return_ =
+                expand_t<func_t, map_replace_t<func_args_, to_map_t<lambda_args_, list<args_t...>>>>;
+        };
+
+
+        /// //////// ///
+        /// Unsorted ///
+        /// //////// ///
 
 
         /// Meta function that
@@ -1462,170 +1723,12 @@ namespace brain
             defer_t<repeat_t, unsigned_t<_nb>, type_t>;
 
 
-        /// TODO Sort + Doc
-        template<typename pack_t>
-        struct to_list_t_;
-
-        template < template<typename ...> typename pack_t,
-                 typename ... types_t >
-        struct to_list_t_<pack_t<types_t...>>
-        {
-            using type = list<types_t...>;
-        };
 
 
-        /// TODO Sort + Doc
-        template<typename pack_t>
-        using to_list_t =
-            defer_t<to_list_t_, pack_t>;
 
 
-        /// TODO Sort + Doc
-        template < typename type1_t,
-                 typename type2_t >
-        struct pair
-        {
-            using first_ = type1_t;
-            using second_ = type2_t;
-        };
 
 
-        /// TODO Sort + Doc
-        template<typename pair_t>
-        struct first_t_
-        {
-            using type =
-                typename pair_t::first_;
-        };
-
-
-        /// TODO Sort + Doc
-        template<typename pair_t>
-        using first_t =
-            defer_t<first_t_, pair_t>;
-
-
-        /// TODO Sort + Doc
-        template<typename pair_t>
-        struct second_t_
-        {
-            using type =
-                typename pair_t::second_;
-        };
-
-
-        /// TODO Sort + Doc
-        template<typename pair_t>
-        using second_t =
-            defer_t<second_t_, pair_t>;
-
-
-        /// TODO Sort + Doc
-        template < typename keys_t,
-                 typename values_t >
-        struct to_map_t_;
-
-
-        /// TODO Sort + Doc
-        template < typename key_t,
-                 typename ... keys_t,
-                 typename value_t,
-                 typename ... values_t >
-        struct to_map_t_ <
-                list<key_t, keys_t...>,
-                list<value_t, values_t... >>
-        {
-            using type =
-                concat_t <
-                list<pair<key_t, value_t>>,
-                t_ < to_map_t_<list<keys_t...>, list<values_t...>>
-                >>;
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename key_t,
-                 typename value_t >
-        struct to_map_t_ <
-                list<key_t>,
-                list<value_t >>
-        {
-            using type = list<pair<key_t, value_t>>;
-        };
-
-
-        /// TODO Sort + Doc
-        template<>
-        struct to_map_t_<list<>, list<>> : empty_list_t_
-        {
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename keys_t,
-                 typename values_t >
-        using to_map_t =
-            defer_t<to_map_t_, keys_t, values_t>;
-
-
-        /// TODO Doc + Sort
-        template < typename list_t,
-                 typename predicate_t >
-        struct find_one_if_t_;
-
-
-        /// TODO Doc + Sort
-        template < typename type_t,
-                 typename ... types_t,
-                 typename predicate_t >
-        struct find_one_if_t_ <
-                list<type_t, types_t...>,
-                predicate_t >
-        {
-            using type = if_t <
-                         r_<predicate_t, type_t>,
-                         type_t,
-                         defer_t<find_one_if_t_, list<types_t...>, predicate_t >>;
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename type_t,
-                 typename predicate_t >
-        struct find_one_if_t_<list<type_t>, predicate_t>
-        {
-            using type = if_t <
-                         r_<predicate_t, type_t>,
-                         type_t,
-                         nil >;
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename list_t,
-                 typename predicate_t >
-        using find_one_if_t =
-            defer_t<find_one_if_t_, list_t, predicate_t>;
-
-
-        /// TODO Sort + Doc
-        template < typename map_t,
-                 typename key_t >
-        struct value_of_t_
-        {
-            template<typename type_t>
-            using predicate_ = std::is_same<key_t, first_t<type_t>>;
-
-            using type =
-                second_t<find_one_if_t<map_t, quote_r_<predicate_>>>;
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename map_t,
-                 typename key_t >
-        using value_of_t =
-            defer_t<value_of_t_, map_t, key_t>;
 
 
         /// TODO Sort + Doc
@@ -1652,130 +1755,6 @@ namespace brain
                  typename new_t >
         using replace_t =
             defer_t<replace_t_, list_t, old_t, new_t>;
-
-
-        /// TODO Sort + Doc
-        template < typename list_t,
-                 typename map_t >
-        struct map_replace_t_;
-
-
-        /// TODO Sort + Doc
-        template < typename ... types_t,
-                 typename map_t >
-        struct map_replace_t_<list<types_t...>, map_t>
-        {
-            using type =
-                list<value_of_t<map_t, types_t>...>;
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename list_t,
-                 typename map_t >
-        using map_replace_t =
-            defer_t<map_replace_t_, list_t, map_t>;
-
-
-        /// TODO Sort + Doc
-        template < typename real_args_t, /// real arguments for func_t call in lambda call (eg : <short_t<1>>)
-                 typename lambda_args_t, /// lambda arguments defined in lambda definition (eg : <_0_>)
-                 typename func_args_t > /// disposition of the lambda arguments in func_t call (eg : <_0_, _0_>)
-        struct pl_args_translator_t_
-        {
-            using lambda_args_ = lambda_args_t;
-            using func_args_ = func_args_t;
-            using real_args_ = real_args_t;
-
-
-            /// 1 - Build a map args_mapping_ containing the
-            ///     {key: lambda_args_[n], value: real_args_[n]}
-            ///         => lambda_args_.length == real_args_.length
-            using args_mapping_ =
-                to_map_t<lambda_args_, real_args_>;
-
-
-            /// 2 - Create the final_args_ that serves in func_t call :
-            ///     Replace types in func_args_ by corresponding types in previous map :
-            ///     for func_args_[n] the value is args_mapping_[func_args_[n]].
-            using final_args_ =
-                map_replace_t<func_args_, args_mapping_>;
-
-
-            /// 3 - Returns the final_args_ list
-            using type =
-                final_args_;
-        };
-
-
-        /// TODO Sort + Doc
-        template < typename real_args_t,
-                 typename lambda_args_t,
-                 typename func_args_t >
-        using pl_args_translator_t =
-            defer_t <
-            pl_args_translator_t_,
-            real_args_t,
-            lambda_args_t,
-            func_args_t >;
-
-
-        /// placeholders
-        template<unsigned _u>
-        struct placeholder;
-
-        using _0_ = placeholder<0>;
-        using _1_ = placeholder<1>;
-        using _2_ = placeholder<2>;
-        using _3_ = placeholder<3>;
-        using _4_ = placeholder<4>;
-        using _5_ = placeholder<5>;
-        using _6_ = placeholder<6>;
-        using _7_ = placeholder<7>;
-        using _8_ = placeholder<8>;
-        using _9_ = placeholder<9>;
-        using _10_ = placeholder<10>;
-        using _11_ = placeholder<11>;
-        using _12_ = placeholder<12>;
-        using _13_ = placeholder<13>;
-        using _14_ = placeholder<14>;
-
-
-        /// TODO Sort + Doc
-        template < typename captures_t,
-                 typename func_t ,
-                 typename defargs_t >
-        struct lambda;
-
-        
-        /// TODO Sort + Doc
-        template < typename ... lambda_args_t,
-                 typename func_t,
-                 typename ... func_args_t >
-        struct lambda < list<lambda_args_t...>,
-                func_t, list<func_args_t... >>
-        {
-            using lambda_args_ = list<lambda_args_t...>;
-            using func_args_ = list<func_args_t...>;
-
-            template<typename ... args_t>
-            using return_ =
-                expand_t<func_t, pl_args_translator_t<list<args_t...>, lambda_args_, func_args_>>;
-        };
-
-
-        /// TODO Sort + Doc
-        using l1 =
-            lambda <list<_0_>, quote_r_<plus_t>, list<_0_, _0_>>;
-            
-        template<typename arg>
-        using l2 = plus_t<arg, arg>;
-
-
-        /// <=> plus_t<1, 1>;
-        using l1_instance = r_<l1, short_t<1>>;
-        
-        static_assert(v_<l1_instance> == 2, "");
     }
 }
 
