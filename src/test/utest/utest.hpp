@@ -130,7 +130,7 @@ namespace brain
                 virtual bool test()
                 {
                     /// TODO Unitary for compose
-                    static_assert(v_<std::is_same<always_r<void>, void >> , "");
+                    static_assert(v_<std::is_same<always_r<void>, void>> , "");
                     static_assert(v_<has_type_t<a_type>>, "");
                     static_assert(!v_<has_type_t<another_type>>, "");
                     static_assert(v_<has_return_t<a_type>>, "");
@@ -262,6 +262,31 @@ namespace brain
                 }
             };
         }
+    }
+
+
+    namespace test
+    {
+        struct property_test :
+            public basic_test
+        {
+            struct a_type
+            {
+                property<int> an_int = default_v<int>;
+            };
+
+            virtual bool test()
+            {
+
+                a_type instance;
+                auto res = instance.an_int() == default_v<int>;
+                res &= instance.an_int() + 1 == default_v<int> + 1;
+                res &= (instance.an_int() += 1) == default_v<int> - 1;
+                res &= instance.an_int() == default_v<int> + 1;
+                return res;
+            }
+        };
+
     }
 
 

@@ -51,8 +51,809 @@ typedef struct sockaddr SOCKADDR;
 #endif
 */
 
+/// Brain - System
 namespace brain
 {
+    /// /////////////////////////// ///
+    /// Pattern Tags Identification ///
+    /// /////////////////////////// ///
+
+
+    /// Returns true if
+    /// type_t implements
+    /// a specific pattern
+    /// pattern_tag_t
+    template < typename pattern_tag_t,
+             typename type_t >
+    using implements_pattern_t =
+        std::is_base_of<pattern_tag_t, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// factory pattern
+        struct factory {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// factory pattern
+    template<typename type_t>
+    using implements_factory_t =
+        implements_pattern_t<pattag::factory, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// abstract_factory pattern
+        struct abstract_factory {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// abstract_factory pattern
+    template<typename type_t>
+    using implements_abstract_factory_t =
+        implements_pattern_t<pattag::abstract_factory, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// adapter pattern
+        struct adapter {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// adapter pattern
+    template<typename type_t>
+    using implements_adapter_t =
+        implements_pattern_t<pattag::adapter, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// bridge pattern
+        struct bridge {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// bridge pattern
+    template<typename type_t>
+    using implements_bridge_t =
+        implements_pattern_t<pattag::bridge, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// chain of responsability
+        /// pattern
+        struct chain_of_resp {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// chain_of_resp pattern
+    template<typename type_t>
+    using implements_chain_of_resp_t =
+        implements_pattern_t<pattag::chain_of_resp, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// command pattern
+        struct command {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// command pattern
+    template<typename type_t>
+    using implements_command_t =
+        implements_pattern_t<pattag::command, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// composite pattern
+        struct composite {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// composite pattern
+    template<typename type_t>
+    using implements_composite_t =
+        implements_pattern_t<pattag::composite, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// decorator pattern
+        struct decorator {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// decorator pattern
+    template<typename type_t>
+    using implements_decorator_t =
+        implements_pattern_t<pattag::decorator, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// facade pattern
+        struct facade {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// facade pattern
+    template<typename type_t>
+    using implements_facade_t =
+        implements_pattern_t<pattag::facade, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// flyweight pattern
+        struct flyweight {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// flyweight pattern
+    template<typename type_t>
+    using implements_flyweight_t =
+        implements_pattern_t<pattag::flyweight, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// interpreter pattern
+        struct interpreter {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// interpreter pattern
+    template<typename type_t>
+    using implements_interpreter_t =
+        implements_pattern_t<pattag::interpreter, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// iterator pattern
+        struct iterator {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// iterator pattern
+    template<typename type_t>
+    using implements_iterator_t =
+        implements_pattern_t<pattag::iterator, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// mediator pattern
+        struct mediator {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// mediator pattern
+    template<typename type_t>
+    using implements_mediator_t =
+        implements_pattern_t<pattag::mediator, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// memento pattern
+        struct memento {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// memento pattern
+    template<typename type_t>
+    using implements_memento_t =
+        implements_pattern_t<pattag::memento, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// observer pattern
+        struct observer {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// observer pattern
+    template<typename type_t>
+    using implements_observer_t =
+        implements_pattern_t<pattag::observer, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// prototype pattern
+        struct prototype {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// prototype pattern
+    template<typename type_t>
+    using implements_prototype_t =
+        implements_pattern_t<pattag::prototype, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// proxy pattern
+        struct proxy {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// proxy pattern
+    template<typename type_t>
+    using implements_proxy_t =
+        implements_pattern_t<pattag::proxy, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// singleton pattern
+        struct singleton {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// singleton pattern
+    template<typename type_t>
+    using implements_singleton_t =
+        implements_pattern_t<pattag::singleton, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// state pattern
+        struct state {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// state pattern
+    template<typename type_t>
+    using implements_state_t =
+        implements_pattern_t<pattag::state, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// strategy pattern
+        struct strategy {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// strategy pattern
+    template<typename type_t>
+    using implements_strategy_t =
+        implements_pattern_t<pattag::strategy, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// visitor pattern
+        struct visitor {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// visitor pattern
+    template<typename type_t>
+    using implements_visitor_t =
+        implements_pattern_t<pattag::visitor, type_t>;
+
+
+    /// ///////////////////////// ///
+    /// Basic Concepts / Patterns ///
+    /// ///////////////////////// ///
+
+
+
+
+    ///
+    template<typename string_t>
+    struct basic_stringable
+    {
+        /// Default virtual destructor
+        /// for polymorphic inheritance
+        virtual ~basic_stringable() = default;
+
+        /// Operator string_t() for
+        /// explicit casting operation
+        /// Must be override for
+        /// inheritance to provide cast
+        virtual operator string_t() noexcept = 0;
+    };
+
+
+    /// Alias for basic_stringable
+    /// of std::string
+    using stringable =
+        basic_stringable<std::string>;
+
+
+    /// Alias for basic_stringable
+    /// of std::wstring
+    using wstringable =
+        basic_stringable<std::wstring>;
+
+
+    /// Design pattern Singleton.
+    /// Initiate the singleton
+    /// at the first invocation
+    /// and keep it all over the
+    /// execution of the program
+    template <typename type_t>
+    struct singleton :
+            pattag::singleton
+    {
+        /// Lazy loading of
+        /// the singleton
+        static type_t& single() noexcept
+        {
+            static type_t obj;
+            return obj;
+        }
+    };
+
+
+    /// Returns true if
+    /// type_t is derived
+    /// from singleton<type_t>
+    template<typename type_t>
+    using is_singleton =
+        std::is_base_of<singleton<type_t>, type_t>;
+
+
+    /// Accessor for single()
+    /// member of singleton_t
+    template<typename singleton_t>
+    const auto& single =
+        singleton_t::single();
+
+
+    /// Design pattern prototype
+    /// Provides a pure clone methode
+    template<typename type_t>
+    struct prototype:
+            pattag::prototype
+    {
+        /// Alias for
+        /// unique_ptr<type_t>
+        using type_ptr =
+            std::unique_ptr<type_t>;
+
+
+        /// Clone method that
+        /// returns a copy of
+        /// the prototype object
+        virtual type_ptr clone() = 0;
+    };
+
+
+    /// Alias for
+    /// prototype pattern
+    template<typename type_t>
+    using cloneable =
+        prototype<type_t>;
+
+
+    /// Returns true if
+    /// type_t inherits from
+    /// cloneable<type_t>
+    template<typename type_t>
+    using is_clonable =
+        std::is_base_of<cloneable<type_t>, type_t>;
+
+
+    /// ////// ///
+    /// Object ///
+    /// ////// ///
+
+
+    /// Fundamental class
+    /// for all class in
+    /// brain-system framework
+    class object
+    {
+        public:
+            BRAIN_ALL_DEFAULT(object)
+    };
+
+
+    /// ///////////////////////////// ///
+    /// Runtime Default value feature ///
+    /// ///////////////////////////// ///
+
+
+    /// Defines default
+    /// value for type_t
+    template <typename type_t>
+    struct default_value :
+            pattag::flyweight
+    {
+        using type = default_value;
+        using value_type = type_t;
+
+
+        /// Default value.
+        /// Must be defined
+        /// for each used type_t
+        /// out of this class
+        static const type_t value;
+    };
+
+
+    /// Alias for
+    /// v_<default_value<type_t>>
+    template <typename type_t>
+    type_t default_v =
+        default_value<type_t>::value;
+
+
+    /// Default value for
+    /// bool type
+    template<>
+    const bool
+    default_value<bool>::value =
+        false;
+
+
+    /// Default value for
+    /// int type
+    template<>
+    const int
+    default_value<int>::value =
+        0;
+
+
+    /// Default value for
+    /// long type
+    template<>
+    const long
+    default_value<long>::value =
+        0l;
+
+
+    /// Default value for
+    /// long long type
+    template<>
+    const long long
+    default_value<long long>::value =
+        0ll;
+
+
+    /// Default value for
+    /// unsigned type
+    template<>
+    const unsigned
+    default_value<unsigned>::value =
+        0u;
+
+
+    /// Default value for
+    /// long unsigned type
+    template<>
+    const long unsigned
+    default_value<long unsigned>::value =
+        0ul;
+
+
+    /// Default value for
+    /// long long unsigned type
+    template<>
+    const long long unsigned
+    default_value<long long unsigned>::value =
+        0ull;
+
+
+    /// Default value for
+    /// float type
+    template<>
+    const float
+    default_value<float>::value =
+        0.;
+
+
+    /// Default value for
+    /// double type
+    template<>
+    const double
+    default_value<double>::value =
+        0.;
+
+
+    /// Default value for
+    /// long double type
+    template<>
+    const long double
+    default_value<long double>::value =
+        0.;
+
+
+    /// Default value for
+    /// std::string type
+    template<>
+    const std::string
+    default_value<std::string>::value =
+        "";
+
+
+    /// //////// ///
+    /// Property ///
+    /// //////// ///
+
+
+    /// A property represents
+    /// an class attribute.
+    /// The using of a property
+    /// instead of traditionnal
+    /// attributes enables to
+    /// avoid the use of the
+    /// gette / setter.
+    template <typename type_t>
+    class property
+    {
+
+        public:
+            using value_type = type_t;
+            using type = property;
+
+        private:
+            /// Private value of
+            /// of the attribute
+            value_type m_prop;
+
+
+        public:
+            /// Build a default
+            constexpr property()
+                : m_prop(value_type())
+            {
+            }
+
+
+            /// Build with copy value
+            property(
+                const value_type& value)
+                : m_prop(value)
+            {
+            }
+
+
+            /// Build with move value
+            property(
+                value_type && value)
+                : m_prop(value)
+            {
+            }
+
+
+            /// Build with move
+            /// polymorphic value
+            template<typename other_t>
+            property(
+                other_t && value)
+                : m_prop(value)
+            {
+            }
+
+
+            /// Build with move
+            /// polymorphic
+            /// property value
+            template<typename other_t>
+            property(
+                property<other_t> && value)
+                : m_prop(std::move(*value))
+            {
+            }
+
+
+            /// Build with copy
+            /// polymorphic
+            /// property value
+            template<typename other_t>
+            property(
+                const property<other_t>& value)
+                : m_prop(*value) {}
+
+
+        public:
+            /// Copy assignement
+            property& operator=(
+                const value_type& value)
+            {
+                m_prop = value;
+                return *this;
+            }
+
+
+            /// Move assignement
+            property& operator=(
+                value_type && value)
+            {
+                m_prop = value;
+                return *this;
+            }
+
+
+            /// Polymorphic move
+            /// assignement
+            template<typename other_t>
+            property& operator=(
+                other_t && value)
+            {
+                m_prop = value;
+                return *this;
+            }
+
+
+            /// Polymorphic move
+            /// assignement
+            template<typename other_t>
+            property& operator=(
+                property<other_t> && value)
+            {
+                m_prop =  std::move(*value);
+                return *this;
+            }
+
+
+            /// Polymorphic copy
+            /// assignement
+            template<typename other_t>
+            property& operator=(
+                const property<other_t>& value)
+            {
+                m_prop = *value;
+                return *this;
+            }
+
+
+        public:
+            /// Value type caster
+            operator value_type&()
+            {
+                return m_prop;
+            }
+
+
+            /// Const value type
+            /// caster
+            operator const value_type&() const
+            {
+                return m_prop;
+            }
+
+
+        public:
+            /// TODO enable only if is pointer type
+            const auto* operator->() const
+            {
+                return m_prop.operator->();
+            }
+
+
+            /// TODO enable only if is pointer type
+            auto* operator->()
+            {
+                return m_prop.operator->();
+            }
+
+
+        public:
+            /// Value getter
+            value_type& operator()()
+            {
+                return m_prop;
+            }
+
+
+            /// Const value getter
+            const value_type& operator()() const
+            {
+                return m_prop;
+            }
+
+
+            /// Value copy setter
+            void operator()(
+                const value_type& value)
+            {
+                m_prop = value;
+            }
+
+
+            /// Value move setter
+            void operator()(
+                value_type && value)
+            {
+                m_prop = value;
+            }
+    };
+
+
+    /// Overload of << operator
+    /// for property<type_t>.
+    /// Simple indirection of
+    /// type_t::operator<<()
+    template <class type_t>
+    std::ostream& operator<<(
+        std::ostream& os,
+        const property<type_t>& p)
+    {
+        return os << static_cast<const type_t&>(p);
+    }
+
+
+
+    /// //////////////////////////// ///
+    /// Unsorted // TODO : Sort Them ///
+    /// //////////////////////////// ///
     namespace fct
     {
         template<typename ... types_t>
@@ -348,21 +1149,8 @@ namespace brain
         { std::for_each(c.begin(), c.end(), f); }
     }
 
-    namespace pattern
+    namespace cops
     {
-        /// Enables to a class
-        /// to be convertible
-        /// into basic_string<char_t>
-        template<typename string_t>
-        struct stringable
-        {
-            public:
-                virtual ~stringable() = default;
-
-            public:
-                virtual operator string_t() noexcept = 0;
-        };
-
         template <typename t>
         inline std::ostream& append(std::ostream& out, t && o) noexcept
         { return out << o; }
@@ -385,61 +1173,6 @@ namespace brain
         std::string concat(str1 && ch1, str2 && ... ch2)
         { return fct::adds(concat(ch1), concat(ch2...)); }
 
-        /**
-         * @class singleton
-         * @author bmathieu
-         * @date 18/09/2015
-         * @file pattern.hpp
-         * @brief Enable to generate a singleton.
-         *
-         * Warning : Don't forbidden to instanciate
-         * other than the singleton.
-         */
-        template <typename T>
-        class singleton
-        {
-            public:
-                static T& single() noexcept
-                {
-                    static T obj;
-                    return obj;
-                }
-        };
-
-        template<typename type_t>
-        class is_singleton :
-            public std::integral_constant < bool,
-            std::is_base_of<pattern::singleton<type_t>, type_t>::value >
-        {
-        };
-
-        template<typename single_t>
-        const auto& single = single_t::single();
-
-        /**
-         * @class cloneable
-         * @author bmathieu
-         * @date 18/09/2015
-         * @file pattern.hpp
-         * @brief Enable the clone method for a class
-         */
-        template<typename type_t>
-        class cloneable
-        {
-                using type_ptr = std::unique_ptr<type_t>;
-            public:
-                virtual type_ptr clone() = 0;
-        };
-
-        template<typename type_t>
-        using prototype = cloneable<type_t>;
-
-        template<typename type_t>
-        class is_clonable :
-            public std::integral_constant < bool,
-            std::is_base_of<pattern::cloneable<type_t>, type_t>::value >
-        {
-        };
     }
 
 
@@ -453,99 +1186,10 @@ namespace brain
          * @file core.hpp
          * @brief
          */
-        template <typename type_t>
-        class property
-        {
-            public:
-                using type = type_t;
 
-            private:
-                type m_prop;
-
-            public:
-                constexpr property()
-                    : m_prop(type()) {}
-
-                property(const type& value)
-                    : m_prop(value) {}
-
-                property(type && value)
-                    : m_prop(value) {}
-
-                template<typename other_t>
-                property(other_t && value)
-                    : m_prop(value) {}
-
-                template<typename other_t>
-                property(property<other_t> && value)
-                    : m_prop(fct::mv(*value)) {}
-
-                template<typename other_t>
-                property(const property<other_t>& value)
-                    : m_prop(*value) {}
-
-            public:
-                property& operator=(const type& value)
-                {
-                    fct::assign(m_prop, value);
-                    return fct::inner(this);
-                }
-
-                property& operator=(type && value)
-                {
-                    fct::assign(m_prop, value);
-                    return fct::inner(this);
-                }
-
-                template<typename other_t>
-                property& operator=(other_t && value)
-                {
-                    fct::assign(m_prop, value);
-                    return fct::inner(this);
-                }
-
-                template<typename other_t>
-                property& operator=(property<other_t> && value)
-                {
-                    fct::assign(m_prop, fct::mv(*value));
-                    return fct::inner(this);
-                }
-
-                template<typename other_t>
-                property& operator=(const property<other_t>& value)
-                {
-                    fct::assign(m_prop, *value);
-                    return fct::inner(this);
-                }
-
-            public:
-                operator type&()
-                { return m_prop; }
-
-                operator const type&() const
-                { return m_prop; }
-
-            public:
-                const auto* operator->() const
-                { return m_prop.operator->(); }
-
-                auto* operator->()
-                { return m_prop.operator->(); }
-
-            public:
-                type& operator()() {return m_prop;}
-                const type& operator()() const {return m_prop;}
-
-                void operator()(const type& value) { fct::assign(m_prop, value); }
-                void operator()(type && value) { fct::assign(m_prop, value); }
-        };
-
-        template <class type_t>
-        std::ostream& operator<<(std::ostream& os, const property<type_t>& p)
-        { return os << static_cast<const type_t&>(p); }
 
         template<typename type_t>
-        using client_property = property< ptr::client_ptr<type_t>>;
+        using client_property = property<ptr::client_ptr<type_t>>;
 
         template<typename type_t>
         using server_property = property<ptr::server_ptr<type_t>>;
@@ -669,18 +1313,6 @@ namespace brain
                  typename plm_policy = std::unique_ptr<type_t >>
         using plm = plmproperty<type_t, plm_policy>;
 
-        /**
-         * @class object
-         * @author Benjamin
-         * @date 21/09/2015
-         * @file core.hpp
-         * @brief Basic class of all hierarchal class tree.
-         */
-        class object
-        {
-            public:
-                BRAIN_ALL_DEFAULT(object)
-        };
 
         /**
          * @class default_value
@@ -689,30 +1321,7 @@ namespace brain
          * @file core.hpp
          * @brief Enable to defined default value for any type.
          */
-        template<typename type_t>
-        struct default_value
-        { static const type_t value; };
 
-        template<>
-        const bool default_value<bool>::value = false;
-        template<>
-        const int default_value<int>::value = 0;
-        template<>
-        const long default_value<long>::value = 0l;
-        template<>
-        const long long default_value<long long>::value = 0ll;
-        template<>
-        const unsigned default_value<unsigned>::value = 0u;
-        template<>
-        const long unsigned default_value<long unsigned>::value = 0ul;
-        template<>
-        const long long unsigned default_value<long long unsigned>::value = 0ull;
-        template<>
-        const float default_value<float>::value = 0.;
-        template<>
-        const double default_value<double>::value = 0.;
-        template<>
-        const long double default_value<long double>::value = 0.;
     }
 
 
@@ -925,7 +1534,7 @@ namespace brain
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         class logger :
-            public pattern::singleton<logger<type_t, clock>>
+            public singleton<logger<type_t, clock>>
         {
             public:
                 template <typename ... t>
@@ -1071,16 +1680,16 @@ namespace brain
          * and send events.
          */
         class system:
-            public nat::object
+            public object
         {
                 using system_clt = ptr::client_ptr<system>;
                 using systems_clt = std::vector<system_clt>;
                 using event_receiptors_u = std::vector<event_receiptor_u>;
 
             public:
-                nat::property<bool> autoconnected {nat::default_value<bool>::value};
-                nat::property<event_receiptors_u> receiptors;
-                nat::property<systems_clt> systems;
+                property<bool> autoconnected {default_v<bool>};
+                property<event_receiptors_u> receiptors;
+                property<systems_clt> systems;
 
             public:
                 BRAIN_ALL_DEFAULT(system)
@@ -1182,7 +1791,7 @@ namespace brain
                 using systems_clt = std::vector<system_clt>;
 
             public:
-                nat::property<systems_clt> sub_systems;
+                property<systems_clt> sub_systems;
 
             public:
                 BRAIN_ALL_DEFAULT(compound_system)
@@ -1215,7 +1824,11 @@ namespace brain
     {
         struct basic_test
         {
-            nat::property<std::string> name;
+            const std::string name() const
+            {
+                return typeid(*this).name();
+            };
+
 
             auto operator()()
             { return test(); }
@@ -1227,24 +1840,28 @@ namespace brain
         class test_suite;
 
         template <typename test_t>
-        class test_suite<test_t>
+        struct test_suite<test_t>
         {
-            public:
-                inline void operator()()
-                {
-                    timer<test_t> t;
 
-                    auto && test = test_t();
-                    t.start("Start of ", test.name());
+            inline void operator()()
+            {
+                timer<test_t> t;
 
-                    if(fct::logic_not(test()))
-                        logger<test_t>::error(test.name(), " ... :(");
+                auto && test = test_t();
+                logger<test_t>::info("==============================");
+                t.start("==      START == ");
+                logger<test_t>::info("==");
+                logger<test_t>::info("==");
 
-                    else
-                        logger<test_t>::info(test.name(), " ... :)");
+                if(fct::logic_not(test()))
+                    logger<test_t>::error("==      Result : KO /!\\");
 
-                    t.stop(" >> End of ", test.name());
-                }
+                else
+                    logger<test_t>::info("==      Result : OK !");
+
+                t.stop("==        END == ");
+                logger<test_t>::info("==============================");
+            }
         };
 
         template < typename test_t,
@@ -1255,17 +1872,7 @@ namespace brain
             public:
                 inline void operator()()
                 {
-                    auto && test = test_t();
-                    timer<test_t> t;
-                    t.start("Start of ", test.name());
-
-                    if(fct::logic_not(test()))
-                        logger<test_t>::error(test.name(), " ... :(");
-
-                    else
-                        logger<test_t>::info(test.name(), " ... :)");
-
-                    t.stop(" >> End of ", test.name());
+                    test_suite<test_t>()();
 
                     test_suite<next_t, other_t...>()();
                 }

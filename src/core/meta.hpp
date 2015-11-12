@@ -4,6 +4,9 @@
 #include <type_traits>
 namespace brain
 {
+    /// Inspired by https://github.com/ericniebler/meta
+    /// (author https://github.com/ericniebler)
+    ///
     /// This library contains tow main principles :
     ///  - list<types_t...>
     ///  - meta function return_<>;
@@ -1652,6 +1655,8 @@ namespace brain
         /// Unsorted ///
         /// //////// ///
 
+        /// TODO Sort + DOC all unsorted
+
 
         /// Meta function that
         /// add type_t to list_t
@@ -1723,13 +1728,14 @@ namespace brain
             defer_t<repeat_t, unsigned_t<_nb>, type_t>;
 
 
+        /// TODO Sort + Doc
         template < typename res_t ,
                  typename type_t,
-                 typename ref_t>
+                 typename ref_t >
         using inc_if_t = if_t<std::is_same<ref_t, type_t>, inc_t<res_t>, res_t>;
 
 
-
+        /// TODO Sort + Doc
         template < typename list_t,
                  typename ref_t >
         using count_t = accumulate_t<list_t, unsigned_t<0>, bind_back_r_<quote_r_<inc_if_t>, ref_t>>;
@@ -1759,6 +1765,7 @@ namespace brain
                  typename new_t >
         using replace_t =
             defer_t<replace_t_, list_t, old_t, new_t>;
+
     }
 }
 
