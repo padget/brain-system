@@ -275,6 +275,25 @@ namespace brain
                 property<int> an_int = default_v<int>;
             };
 
+
+            template<int _max>
+            struct less_politic
+            {
+                bool operator()(int value)
+                {
+                    return value < _max;
+                }
+            };
+            
+            template<int _max>
+            using less_p = less_politic<_max>;
+            
+            struct another_type
+            {
+                    property<int, less_p<12>> an_int = default_v<int>;
+            };
+
+
             virtual bool test()
             {
 
@@ -283,6 +302,11 @@ namespace brain
                 res &= instance.an_int() + 1 == default_v<int> + 1;
                 res &= (instance.an_int() += 1) == default_v<int> - 1;
                 res &= instance.an_int() == default_v<int> + 1;
+                
+                another_type instance2;
+                res &= instance2.an_int() == default_v<int>;
+                instance2.an_int(12);
+                res &= instance2.an_int() == 12;
                 return res;
             }
         };

@@ -313,6 +313,22 @@ namespace brain
     namespace pattag
     {
         /// Tag identifying
+        /// politic pattern
+        struct politic {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// politic pattern
+    template<typename type_t>
+    using implements_politic_t =
+        implements_pattern_t<pattag::politic, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
         /// prototype pattern
         struct prototype {};
     }
@@ -411,6 +427,53 @@ namespace brain
     /// ///////////////////////// ///
 
 
+    /// Base class for
+    /// a politic class
+    template<typename type_t>
+    struct politic:
+            pattag::politic
+    {
+        virtual bool operator()(
+            const type_t& value) = 0;
+    };
+
+
+    ///
+    template < typename type_t,
+             typename ... politics_t >
+    struct merge_politics:
+            pattag::politic
+    {
+            ///
+            struct invalid_data:
+                public std::exception
+            {
+            };
+
+
+            ///
+            const type_t& operator()(const type_t& value)
+            {
+                bool res = true;
+
+                for(const auto & p : politics)
+                    res &= p(value);
+
+                return res ? value : throw invalid_data();
+            }
+
+        private:
+            ///
+            static std::vector<politic<type_t>> politics;
+    };
+
+
+    ///
+    template < typename type_t,
+             typename ... politics_t >
+    std::vector<politic<type_t>>
+                              merge_politics<type_t, politics_t...>
+                              ::politics {politics_t()...};
 
 
     ///
@@ -509,19 +572,26 @@ namespace brain
         std::is_base_of<cloneable<type_t>, type_t>;
 
 
-    /// ////// ///
-    /// Object ///
-    /// ////// ///
-
-
-    /// Fundamental class
-    /// for all class in
-    /// brain-system framework
-    class object
+    /// Marshalling
+    /// Unmarshalling
+    template < typename input_t,
+             typename output_t >
+    struct serializer
     {
-        public:
-            BRAIN_ALL_DEFAULT(object)
+        /// Marshalling
+        /// function
+        virtual void marshall(
+            const input_t& in,
+            output_t& out) = 0;
+
+
+        /// Unmarshalling
+        /// function
+        virtual void unmarshall(
+            const output_t& out,
+            input_t& in) = 0;
     };
+
 
 
     /// ///////////////////////////// ///
@@ -654,10 +724,15 @@ namespace brain
     /// attributes enables to
     /// avoid the use of the
     /// gette / setter.
-    template <typename type_t>
+    /// politics_t is a list<...>
+    /// of politics class that valids
+    /// the data when it's set
+    template < typename type_t,
+             typename ... politics_t >
     class property
     {
-
+            //static_assert(meta::v_<meta::and_t<implements_politic_t<politics_t>...>>,
+            //              "All class politics_t... must be tagged with pattag::politic !");
         public:
             using value_type = type_t;
             using type = property;
@@ -848,6 +923,38 @@ namespace brain
     {
         return os << static_cast<const type_t&>(p);
     }
+
+
+    /// ////// ///
+    /// Object ///
+    /// ////// ///
+
+
+    /// Fundamental class
+    /// for all class in
+    /// brain-system framework
+    class object
+    {
+            /// Static incremental ID
+            static unsigned long long s_id;
+
+
+        public:
+            /// id of the current
+            /// object. It's generated
+            /// with static ID.
+            property<unsigned long long> id {++s_id};
+
+
+            /// All elements of
+            /// object are defaulted
+            BRAIN_ALL_DEFAULT(object)
+    };
+
+
+    /// The value of static ID
+    /// is initialised to 0
+    unsigned long long object::s_id {0};
 
 
 
