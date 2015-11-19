@@ -438,45 +438,67 @@ namespace brain
     };
 
 
-    ///
+    /// Evaluates all politics
+    /// and returns an And result
     template < typename type_t,
              typename ... politics_t >
     struct merge_politics:
             pattag::politic
     {
-            ///
+            /// Emitted when the
+            /// validation of all
+            /// politics are not
+            /// correct
+
             struct invalid_data:
                 public std::exception
             {
+                invalid_data() = default;
+                invalid_data(const invalid_data&) = default;
+                virtual ~invalid_data() = default;
+
+                virtual const char* what() const noexcept
+                {
+                    return "Invalid value for politic";
+                }
             };
 
 
-            ///
-            const type_t& operator()(const type_t& value)
+            /// Check if each politic
+            /// are correct with value.
+            /// If not, invalid_data
+            /// is thrown
+            static const type_t& check(
+                const type_t& value)
             {
                 bool res = true;
 
                 for(const auto & p : politics)
-                    res &= p(value);
+                    res &= p(value) ?
+                           true :
+                           throw invalid_data();
 
-                return res ? value : throw invalid_data();
+                return value;
             }
 
         private:
-            ///
-            static std::vector<politic<type_t>> politics;
+            /// List of all politics
+            static std::vector<std::unique_ptr<brain::politic<type_t>>> politics;
     };
 
 
-    ///
+    /// Initialization of
+    /// all politics
     template < typename type_t,
              typename ... politics_t >
-    std::vector<politic<type_t>>
-                              merge_politics<type_t, politics_t...>
-                              ::politics {politics_t()...};
+    std::vector<std::unique_ptr<politic<type_t>>> merge_politics<type_t, politics_t...>::politics 
+    { std::unique_ptr<brain::politic<type_t>>(new politics_t())... };
 
 
-    ///
+    /// Declare that an
+    /// object can be
+    /// transformed into
+    /// a string_t
     template<typename string_t>
     struct basic_stringable
     {
@@ -731,8 +753,13 @@ namespace brain
              typename ... politics_t >
     class property
     {
-            //static_assert(meta::v_<meta::and_t<implements_politic_t<politics_t>...>>,
-            //              "All class politics_t... must be tagged with pattag::politic !");
+
+        private:
+            static const type_t& check(const type_t& value)
+            {
+                return merge_politics<type_t, politics_t...>::check(value);
+            }
+            
         public:
             using value_type = type_t;
             using type = property;
@@ -746,7 +773,7 @@ namespace brain
         public:
             /// Build a default
             constexpr property()
-                : m_prop(value_type())
+                : m_prop(check(value_type()))
             {
             }
 
@@ -754,7 +781,7 @@ namespace brain
             /// Build with copy value
             property(
                 const value_type& value)
-                : m_prop(value)
+                : m_prop(check(value))
             {
             }
 
@@ -762,7 +789,7 @@ namespace brain
             /// Build with move value
             property(
                 value_type && value)
-                : m_prop(value)
+                : m_prop(check(value))
             {
             }
 
@@ -772,7 +799,7 @@ namespace brain
             template<typename other_t>
             property(
                 other_t && value)
-                : m_prop(value)
+                : m_prop(check(value))
             {
             }
 
@@ -783,7 +810,7 @@ namespace brain
             template<typename other_t>
             property(
                 property<other_t> && value)
-                : m_prop(std::move(*value))
+                : m_prop(std::move(check(*value)))
             {
             }
 
@@ -794,7 +821,7 @@ namespace brain
             template<typename other_t>
             property(
                 const property<other_t>& value)
-                : m_prop(*value) {}
+                : m_prop(check(*value)) {}
 
 
         public:
@@ -802,7 +829,7 @@ namespace brain
             property& operator=(
                 const value_type& value)
             {
-                m_prop = value;
+                m_prop = check(value);
                 return *this;
             }
 
@@ -811,7 +838,7 @@ namespace brain
             property& operator=(
                 value_type && value)
             {
-                m_prop = value;
+                m_prop = check(value);
                 return *this;
             }
 
@@ -822,7 +849,7 @@ namespace brain
             property& operator=(
                 other_t && value)
             {
-                m_prop = value;
+                m_prop =  check(value);
                 return *this;
             }
 
@@ -833,7 +860,7 @@ namespace brain
             property& operator=(
                 property<other_t> && value)
             {
-                m_prop =  std::move(*value);
+                m_prop =  std::move(check(*value));
                 return *this;
             }
 
@@ -844,7 +871,7 @@ namespace brain
             property& operator=(
                 const property<other_t>& value)
             {
-                m_prop = *value;
+                m_prop = check(*value);
                 return *this;
             }
 
@@ -899,7 +926,7 @@ namespace brain
             void operator()(
                 const value_type& value)
             {
-                m_prop = value;
+                m_prop = check(*value);
             }
 
 
@@ -907,7 +934,7 @@ namespace brain
             void operator()(
                 value_type && value)
             {
-                m_prop = value;
+                m_prop = check(value);
             }
     };
 

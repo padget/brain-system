@@ -270,45 +270,47 @@ namespace brain
         struct property_test :
             public basic_test
         {
-            struct a_type
-            {
-                property<int> an_int = default_v<int>;
-            };
-
-
-            template<int _max>
-            struct less_politic
-            {
-                bool operator()(int value)
+                struct a_type
                 {
-                    return value < _max;
-                }
-            };
-            
-            template<int _max>
-            using less_p = less_politic<_max>;
-            
-            struct another_type
-            {
+                    property<int> an_int = default_v<int>;
+                };
+
+
+                template<int _max>
+                struct less_politic:
+                    public brain::politic<int>
+                {
+                    virtual bool operator()(
+                        const int& value)
+                    {
+                        return value < _max;
+                    }
+                };
+
+                template<int _max>
+                using less_p = less_politic<_max>;
+
+                struct another_type
+                {
                     property<int, less_p<12>> an_int = default_v<int>;
-            };
+                };
 
 
-            virtual bool test()
-            {
+                virtual bool test()
+                {
 
-                a_type instance;
-                auto res = instance.an_int() == default_v<int>;
-                res &= instance.an_int() + 1 == default_v<int> + 1;
-                res &= (instance.an_int() += 1) == default_v<int> - 1;
-                res &= instance.an_int() == default_v<int> + 1;
-                
-                another_type instance2;
-                res &= instance2.an_int() == default_v<int>;
-                instance2.an_int(12);
-                res &= instance2.an_int() == 12;
-                return res;
-            }
+                    a_type instance;
+                    auto res = instance.an_int() == default_v<int>;
+                    res &= instance.an_int() + 1 == default_v<int> + 1;
+                    res &= (instance.an_int() += 1) == default_v<int> - 1;
+                    res &= instance.an_int() == default_v<int> + 1;
+
+                    another_type instance2;
+                    res &= instance2.an_int() == default_v<int>;
+                    instance2.an_int(13);
+                    res &= instance2.an_int() == 12;
+                    return res;
+                }
         };
 
     }
