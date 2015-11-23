@@ -433,66 +433,15 @@ namespace brain
     struct politic:
             pattag::politic
     {
+        virtual ~politic() = default;
+
         virtual bool operator()(
             const type_t& value) = 0;
+
+        virtual bool operator()(
+            type_t&& value) = 0;
+
     };
-
-
-    /// Evaluates all politics
-    /// and returns an And result
-    template < typename type_t,
-             typename ... politics_t >
-    struct merge_politics:
-            pattag::politic
-    {
-            /// Emitted when the
-            /// validation of all
-            /// politics are not
-            /// correct
-
-            struct invalid_data:
-                public std::exception
-            {
-                invalid_data() = default;
-                invalid_data(const invalid_data&) = default;
-                virtual ~invalid_data() = default;
-
-                virtual const char* what() const noexcept
-                {
-                    return "Invalid value for politic";
-                }
-            };
-
-
-            /// Check if each politic
-            /// are correct with value.
-            /// If not, invalid_data
-            /// is thrown
-            static const type_t& check(
-                const type_t& value)
-            {
-                bool res = true;
-
-                for(const auto & p : politics)
-                    res &= p(value) ?
-                           true :
-                           throw invalid_data();
-
-                return value;
-            }
-
-        private:
-            /// List of all politics
-            static std::vector<std::unique_ptr<brain::politic<type_t>>> politics;
-    };
-
-
-    /// Initialization of
-    /// all politics
-    template < typename type_t,
-             typename ... politics_t >
-    std::vector<std::unique_ptr<politic<type_t>>> merge_politics<type_t, politics_t...>::politics 
-    { std::unique_ptr<brain::politic<type_t>>(new politics_t())... };
 
 
     /// Declare that an
@@ -738,6 +687,27 @@ namespace brain
     /// Property ///
     /// //////// ///
 
+    struct invalid_data:
+        public std::exception
+    {
+    };
+
+    template<typename type_t>
+    struct no_effect :
+        public politic<type_t>
+    {
+        virtual bool operator()(
+            const type_t& value)
+        {
+            return meta::v_<std::true_type>;
+        };
+        
+        virtual bool operator()(
+            type_t&& value)
+        {
+            return meta::v_<std::true_type>;
+        };
+    };
 
     /// A property represents
     /// an class attribute.
@@ -750,19 +720,13 @@ namespace brain
     /// of politics class that valids
     /// the data when it's set
     template < typename type_t,
-             typename ... politics_t >
+             typename politic_t = no_effect<type_t >>
     class property
     {
-
-        private:
-            static const type_t& check(const type_t& value)
-            {
-                return merge_politics<type_t, politics_t...>::check(value);
-            }
-            
         public:
             using value_type = type_t;
             using type = property;
+            static politic_t s_politic;
 
         private:
             /// Private value of
@@ -773,7 +737,7 @@ namespace brain
         public:
             /// Build a default
             constexpr property()
-                : m_prop(check(value_type()))
+                : m_prop(s_politic(value_type()))
             {
             }
 
@@ -781,7 +745,7 @@ namespace brain
             /// Build with copy value
             property(
                 const value_type& value)
-                : m_prop(check(value))
+                : m_prop((s_politic(value), value))
             {
             }
 
@@ -789,7 +753,7 @@ namespace brain
             /// Build with move value
             property(
                 value_type && value)
-                : m_prop(check(value))
+                : m_prop((s_politic(value), value))
             {
             }
 
@@ -799,7 +763,7 @@ namespace brain
             template<typename other_t>
             property(
                 other_t && value)
-                : m_prop(check(value))
+                : m_prop((s_politic(value), value))
             {
             }
 
@@ -807,10 +771,11 @@ namespace brain
             /// Build with move
             /// polymorphic
             /// property value
-            template<typename other_t>
+            template < typename other_t,
+                     typename other_politic_t >
             property(
-                property<other_t> && value)
-                : m_prop(std::move(check(*value)))
+                property<other_t, other_politic_t> && value)
+                : m_prop((s_politic(*value), std::move(*value)))
             {
             }
 
@@ -818,10 +783,11 @@ namespace brain
             /// Build with copy
             /// polymorphic
             /// property value
-            template<typename other_t>
+            template < typename other_t,
+                     typename other_politic_t >
             property(
-                const property<other_t>& value)
-                : m_prop(check(*value)) {}
+                const property<other_t, other_politic_t>& value)
+                : m_prop((s_politic(*value), *value)) {}
 
 
         public:
@@ -829,7 +795,7 @@ namespace brain
             property& operator=(
                 const value_type& value)
             {
-                m_prop = check(value);
+                m_prop = (s_politic(value), value);
                 return *this;
             }
 
@@ -838,7 +804,7 @@ namespace brain
             property& operator=(
                 value_type && value)
             {
-                m_prop = check(value);
+                m_prop = (s_politic(value), value);
                 return *this;
             }
 
@@ -849,29 +815,31 @@ namespace brain
             property& operator=(
                 other_t && value)
             {
-                m_prop =  check(value);
+                m_prop = (s_politic(value), value);
                 return *this;
             }
 
 
             /// Polymorphic move
             /// assignement
-            template<typename other_t>
+            template < typename other_t,
+                     typename other_politic_t >
             property& operator=(
-                property<other_t> && value)
+                property<other_t, other_politic_t> && value)
             {
-                m_prop =  std::move(check(*value));
+                m_prop = (s_politic(*value), std::move(*value));
                 return *this;
             }
 
 
             /// Polymorphic copy
             /// assignement
-            template<typename other_t>
+            template < typename other_t,
+                     typename other_politic_t >
             property& operator=(
-                const property<other_t>& value)
+                const property<other_t, other_politic_t>& value)
             {
-                m_prop = check(*value);
+                m_prop = (s_politic(*value), *value);
                 return *this;
             }
 
@@ -926,7 +894,7 @@ namespace brain
             void operator()(
                 const value_type& value)
             {
-                m_prop = check(*value);
+                m_prop = (s_politic(value), value);
             }
 
 
@@ -934,19 +902,23 @@ namespace brain
             void operator()(
                 value_type && value)
             {
-                m_prop = check(value);
+                m_prop = (s_politic(value), value);
             }
     };
+
+    template < typename type_t,
+             typename politic_t >
+    politic_t property<type_t, politic_t>::s_politic {};
 
 
     /// Overload of << operator
     /// for property<type_t>.
     /// Simple indirection of
     /// type_t::operator<<()
-    template <class type_t>
+    template <class type_t, typename other_politic_t>
     std::ostream& operator<<(
         std::ostream& os,
-        const property<type_t>& p)
+        const property<type_t, other_politic_t>& p)
     {
         return os << static_cast<const type_t&>(p);
     }
@@ -1737,7 +1709,7 @@ namespace brain
          * from a system (emetor) to another system (more
          * precisly to an event_receiptor).
          */
-        class event
+        /*class event
         {
             public:
                 nat::client_property<system> source;
@@ -1754,7 +1726,7 @@ namespace brain
             public:
                 event& operator=(const event&) noexcept = default;
                 event& operator=(event &&) noexcept = default;
-        };
+        };*/
 
         /**
          * @class event_receiptor
@@ -1763,16 +1735,16 @@ namespace brain
          * @file core.hpp
          * @brief Functor that receives the events from systems
          */
-        class event_receiptor
-        {
-                virtual void receipt(system&, event&) const = 0 ;
+        /* class event_receiptor
+         {
+                 virtual void receipt(system&, event&) const = 0 ;
 
-            public:
-                virtual void operator()(system& s, event& e) const
-                { receipt(s, e); }
-        };
+             public:
+                 virtual void operator()(system& s, event& e) const
+                 { receipt(s, e); }
+         };
 
-        using event_receiptor_u = std::unique_ptr<event_receiptor> ;
+         using event_receiptor_u = std::unique_ptr<event_receiptor> ;*/
 
         /**
          * @class basic_receiptor
@@ -1783,27 +1755,27 @@ namespace brain
          * receiptor that's specific to the event_t and to
          * system_t.
          */
-        template < typename event_t,
-                 typename system_t >
-        class basic_receiptor:
-            public event_receiptor
-        {
-            public:
-                virtual void act(system_t&, event_t&) const = 0;
+        /*     template < typename event_t,
+                      typename system_t >
+             class basic_receiptor:
+                 public event_receiptor
+             {
+                 public:
+                     virtual void act(system_t&, event_t&) const = 0;
 
-                virtual void receipt(system& s, event& e) const
-                {
-                    if(fct::logic_and(fct::equals(typeid(e),
-                                                  typeid(event_t)),
-                                      fct::equals(typeid(s),
-                                                  typeid(system_t))))
-                    {
-                        event_t& trs_e = dynamic_cast<event_t&>(e);
-                        system_t& trs_s = dynamic_cast<system_t&>(s);
-                        act(trs_s, trs_e);
-                    }
-                }
-        };
+                     virtual void receipt(system& s, event& e) const
+                     {
+                         if(fct::logic_and(fct::equals(typeid(e),
+                                                       typeid(event_t)),
+                                           fct::equals(typeid(s),
+                                                       typeid(system_t))))
+                         {
+                             event_t& trs_e = dynamic_cast<event_t&>(e);
+                             system_t& trs_s = dynamic_cast<system_t&>(s);
+                             act(trs_s, trs_e);
+                         }
+                     }
+             };*/
 
         /**
          * @class system
@@ -1813,59 +1785,59 @@ namespace brain
          * @brief A system is a component that can receive
          * and send events.
          */
-        class system:
-            public object
-        {
-                using system_clt = ptr::client_ptr<system>;
-                using systems_clt = std::vector<system_clt>;
-                using event_receiptors_u = std::vector<event_receiptor_u>;
+        /*    class system:
+                public object
+            {
+                    using system_clt = ptr::client_ptr<system>;
+                    using systems_clt = std::vector<system_clt>;
+                    using event_receiptors_u = std::vector<event_receiptor_u>;
 
-            public:
-                property<bool> autoconnected {default_v<bool>};
-                property<event_receiptors_u> receiptors;
-                property<systems_clt> systems;
+                public:
+                    property<bool> autoconnected {default_v<bool>};
+                    property<event_receiptors_u> receiptors;
+                    property<systems_clt> systems;
 
-            public:
-                BRAIN_ALL_DEFAULT(system)
+                public:
+                    BRAIN_ALL_DEFAULT(system)
 
-            public:
-                inline void addReceiver(const system_clt& receiver)
-                {
-                    if(receiver)
-                        systems().push_back(receiver);
-                }
-
-                inline void addReceiver(system_clt && receiver)
-                {
-                    if(receiver)
-                        systems().push_back(receiver);
-                }
-
-            public:
-                inline void receive(event& e)
-                {
-                    fct::for_each(receiptors(), [&](auto & receiptor)
-                    { (*receiptor)(*this, e); });
-                }
-
-                inline void send(event& e)
-                {
-                    if(autoconnected) this->receive(e);
-
-                    fct::for_each(systems(), [&e](auto & system)
-                    { if(system) system->receive(e); });
-                }
-
-            public:
-                /*inline void bilink(std::initializer_list<system_clt> && _systems)
-                {
-                    fct::for_each(_systems, [this](auto & system)
+                public:
+                    inline void addReceiver(const system_clt& receiver)
                     {
-                        this->addReceiver(system);
-                        system->addReceiver(this);
-                    });
-                }*/
-        };
+                        if(receiver)
+                            systems().push_back(receiver);
+                    }
+
+                    inline void addReceiver(system_clt && receiver)
+                    {
+                        if(receiver)
+                            systems().push_back(receiver);
+                    }
+
+                public:
+                    inline void receive(event& e)
+                    {
+                        fct::for_each(receiptors(), [&](auto & receiptor)
+                        { (*receiptor)(*this, e); });
+                    }
+
+                    inline void send(event& e)
+                    {
+                        if(autoconnected) this->receive(e);
+
+                        fct::for_each(systems(), [&e](auto & system)
+                        { if(system) system->receive(e); });
+                    }
+
+                public:
+                    /*inline void bilink(std::initializer_list<system_clt> && _systems)
+                    {
+                        fct::for_each(_systems, [this](auto & system)
+                        {
+                            this->addReceiver(system);
+                            system->addReceiver(this);
+                        });
+                    }*/
+        /* };*/
 
         /**
          * @class system_with_receiptors
@@ -1875,40 +1847,40 @@ namespace brain
          * @brief Enable to generate a system_t with
          * receiptors_t as receiptors.
          */
-        template < typename system_t,
-                 typename ... receiptors_t >
-        struct system_with_receiptors
-        {
-            auto operator()()
-            {
-                ptr::server_ptr<sys::system> s(new system_t());
-                receiptors_builder<receiptors_t...>()(s->receiptors());
-                return s;
-            };
+        /*   template < typename system_t,
+                    typename ... receiptors_t >
+           struct system_with_receiptors
+           {
+               auto operator()()
+               {
+                   ptr::server_ptr<sys::system> s(new system_t());
+                   receiptors_builder<receiptors_t...>()(s->receiptors());
+                   return s;
+               };
 
-            template<typename ... receips_t>
-            struct receiptors_builder;
+               template<typename ... receips_t>
+               struct receiptors_builder;
 
-            template < typename receiptor_t,
-                     typename next_t,
-                     typename ... other_t >
-            struct receiptors_builder<receiptor_t, next_t, other_t...>
-            {
-                void operator()(std::vector<event_receiptor_u>& receiptors)
-                {
-                    receiptors.push_back(fct::unique<receiptor_t>());
-                    receiptors_builder<next_t, other_t...>()(receiptors);
-                }
-            };
+               template < typename receiptor_t,
+                        typename next_t,
+                        typename ... other_t >
+               struct receiptors_builder<receiptor_t, next_t, other_t...>
+               {
+                   void operator()(std::vector<event_receiptor_u>& receiptors)
+                   {
+                       receiptors.push_back(fct::unique<receiptor_t>());
+                       receiptors_builder<next_t, other_t...>()(receiptors);
+                   }
+               };
 
-            template <typename receiptor_t>
-            struct receiptors_builder<receiptor_t>
-            {
-                void operator()(std::vector<event_receiptor_u>& receiptors)
-                { receiptors.push_back(fct::unique<receiptor_t>()); }
-            };
+               template <typename receiptor_t>
+               struct receiptors_builder<receiptor_t>
+               {
+                   void operator()(std::vector<event_receiptor_u>& receiptors)
+                   { receiptors.push_back(fct::unique<receiptor_t>()); }
+               };
 
-        };
+           };*/
 
         /**
          * @class compound_system
@@ -1918,7 +1890,7 @@ namespace brain
          * @brief A compound_system is a component that can receive
          * and send events to subsystems.
          */
-        class compound_system :
+        /*class compound_system :
             public system
         {
                 using system_clt = ptr::client_ptr<system>;
@@ -1945,7 +1917,7 @@ namespace brain
                          system->addReceiver(this);
                      });
                  }*/
-        };
+        /*};*/
     }
 
 
