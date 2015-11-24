@@ -433,14 +433,18 @@ namespace brain
     struct politic:
             pattag::politic
     {
+        /// Default destructor
         virtual ~politic() = default;
 
+
+        /// TODO Doc
         virtual bool operator()(
             const type_t& value) = 0;
 
-        virtual bool operator()(
-            type_t&& value) = 0;
 
+        /// TODO Doc
+        virtual bool operator()(
+            type_t && value) = 0;
     };
 
 
@@ -562,7 +566,6 @@ namespace brain
             const output_t& out,
             input_t& in) = 0;
     };
-
 
 
     /// ///////////////////////////// ///
@@ -687,25 +690,70 @@ namespace brain
     /// Property ///
     /// //////// ///
 
+
+    /// Exception that must
+    /// be used when the data
+    /// is not validated by
+    /// a politic
     struct invalid_data:
         public std::exception
     {
+            /// Default constructor
+            /// Initialises m_message
+            /// with the default message
+            invalid_data():
+                m_message("brain::invalid_data")
+            {
+            }
+
+
+            /// Construct that initialises
+            /// the default message with
+            /// the cause of invalid data
+            invalid_data(const std::string& cause):
+                m_message(std::string("brain::invalid_data : ") += cause)
+            {
+            }
+
+
+            /// Default destructor
+            virtual ~invalid_data() = default;
+
+
+            /// Returns m_message
+            virtual const char* what() const noexcept
+            {
+                return m_message.c_str();
+            }
+
+        private:
+            std::string m_message;
+
     };
 
+
+    /// Politic that has
+    /// no effect on the
+    /// value of type_t
     template<typename type_t>
     struct no_effect :
         public politic<type_t>
     {
+        /// Returns true
         virtual bool operator()(
             const type_t& value)
         {
-            return meta::v_<std::true_type>;
+            return meta::v_ <
+                   std::true_type >;
         };
-        
+
+
+        /// Returns true
         virtual bool operator()(
-            type_t&& value)
+            type_t && value)
         {
-            return meta::v_<std::true_type>;
+            return meta::v_ <
+                   std::true_type >;
         };
     };
 
@@ -906,6 +954,9 @@ namespace brain
             }
     };
 
+
+    /// Static initialisation
+    /// of property::s_politic
     template < typename type_t,
              typename politic_t >
     politic_t property<type_t, politic_t>::s_politic {};
@@ -922,6 +973,106 @@ namespace brain
     {
         return os << static_cast<const type_t&>(p);
     }
+
+
+    /// ////
+    ///
+    /// ////
+
+
+    struct observer;
+    struct observable;
+
+
+    /// TODO Doc
+    struct observable
+    {
+        /// Default destructor
+        virtual ~observable() = default;
+
+        virtual void notify() = 0;
+
+        virtual void add_observer(
+            observer& o) = 0;
+
+        virtual void remove_observer(
+            observer& o) = 0;
+    };
+
+
+    /// TODO Doc
+    struct observer
+    {
+        /// The observer subscribes
+        /// to the observable obs
+        void subscribe(
+            observable& obs)
+        {
+            obs.add_observer(*this);
+        }
+
+
+        /// The observer unsubscribes
+        /// to the observable obs
+        void unsubscribe(
+            observable& obs)
+        {
+            obs.remove_observer(*this);
+        }
+
+
+        /// Virtual function update
+        /// that must be overriden
+        /// to receipt the notification
+        /// of the observables object
+        virtual void update(
+            const observable& obs) = 0;
+    };
+
+
+    /// TODO Doc
+    struct subject:
+        public observable
+    {
+            /// Default destructor
+            virtual ~subject() = default;
+
+
+            /// Notifies all observers
+            /// that this has changed
+            /// and updates them
+            virtual void notify()
+            {
+                for(observer * o : m_observers)
+                    o->update(*this);
+            }
+
+
+            /// Adds an observer in
+            /// the set of observers
+            virtual void add_observer(
+                observer& o)
+            {
+                m_observers.insert(&o);
+            }
+
+
+            /// Removes an observer in
+            /// the set of observers
+            virtual void remove_observer(
+                observer& o)
+            {
+                m_observers.erase(&o);
+            }
+
+        private:
+            /// Set of observers
+            /// that will be
+            /// notified when this
+            /// will be changed
+            std::set<observer*> m_observers;
+
+    };
 
 
     /// ////// ///
@@ -953,9 +1104,36 @@ namespace brain
 
     /// The value of static ID
     /// is initialised to 0
-    unsigned long long object::s_id {0};
+    unsigned long long object::s_id {default_v<unsigned long long>};
 
 
+    /// TODO Doc
+    template<>
+    struct serializer<object, std::string>
+    {
+        /// Marshalling
+        /// function
+        virtual void marshall(
+            const object& in,
+            std::string& out)
+        {
+            std::stringstream ss;
+            ss << " { id : " << in.id() << " }";
+            out = ss.str();
+        }
+
+
+        /// Unmarshalling
+        /// function
+        virtual void unmarshall(
+            const std::string& out,
+            object& in)
+        {
+            std::stringstream ss;
+            ss << out;
+            ss >> in.id();
+        };
+    };
 
     /// //////////////////////////// ///
     /// Unsorted // TODO : Sort Them ///

@@ -285,7 +285,7 @@ namespace brain
                     {
                         return value < _max ?
                                true :
-                               throw invalid_data();
+                               throw invalid_data("less politic");
                     }
 
                     virtual bool operator()(
@@ -293,7 +293,7 @@ namespace brain
                     {
                         return value < _max ?
                                true :
-                               throw invalid_data();
+                               throw invalid_data("less politic");
                     }
                 };
 
@@ -308,7 +308,6 @@ namespace brain
 
                 virtual bool test()
                 {
-
                     auto res = true;
 
                     try
@@ -321,7 +320,7 @@ namespace brain
 
                         another_type instance2;
                         res &= instance2.an_int() == default_v<int>;
-                        int an = 11;
+                        int an = 13;
                         instance2.an_int(an);
                         res &= instance2.an_int() == 11;
                     }
@@ -329,7 +328,13 @@ namespace brain
                     catch(std::exception& ex)
                     {
                         std::cout << ex.what() << std::endl;
+                        res = meta::v_<std::false_type>;
                     }
+
+                    brain::object o;
+                    std::string str;
+                    serializer<object, std::string>().marshall(o, str);
+                    std::cout << str << std::endl;
 
                     return res;
                 }
