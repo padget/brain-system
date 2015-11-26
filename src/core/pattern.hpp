@@ -3,103 +3,372 @@
 
 namespace brain
 {
-    namespace pattern
+    /// /////////////////////////// ///
+    /// Pattern Tags Identification ///
+    /// /////////////////////////// ///
+
+
+    /// Returns true if
+    /// type_t implements
+    /// a specific pattern
+    /// pattern_tag_t
+    template < typename pattern_tag_t,
+             typename type_t >
+    using implements_pattern_t =
+        std::is_base_of<pattern_tag_t, type_t>;
+
+
+    namespace pattag
     {
-        /**
-         * @class stringable
-         * @author bmathieu
-         * @date 18/09/2015
-         * @file pattern.hpp
-         * @brief Enable to a class to be convertible to std::string
-         */
-        class stringable
-        {
-            public:
-                virtual ~stringable() noexcept = default;
-                virtual operator std::string() noexcept = 0;
-        };
-
-        template <typename t>
-        inline std::ostream& append(std::ostream& out, t && o) noexcept
-        { return out << o; }
-
-        template <typename t, typename ... T>
-        inline std::ostream& append(std::ostream& out, t && o, T && ... os) noexcept
-        {
-            out << o;
-            return append(out, os...);
-        }
-
-        template <typename str>
-        std::string concat(str && ch1)
-        {
-            std::stringstream stream;
-            stream << ch1;
-            return stream.str();
-        }
-
-        template <typename str1, typename ... str2>
-        std::string concat(str1 && ch1, str2 && ... ch2)
-        { return concat(ch1) + concat(ch2...); }
-
-
-
-        /**
-         * @class singleton
-         * @author bmathieu
-         * @date 18/09/2015
-         * @file pattern.hpp
-         * @brief Enable to generate a singleton.
-         *
-         * Warning : Don't forbidden to instanciate
-         * other than the singleton.
-         */
-        template <typename T>
-        class singleton
-        {
-            public:
-                static T& single() noexcept
-                {
-                    static T obj;
-                    return obj;
-                }
-        };
-
-        template<typename type_t>
-        class is_singleton :
-            public std::integral_constant < bool,
-            std::is_base_of<pattern::singleton<type_t>, type_t>::value >
-        {
-        };
-
-        template<typename single_t>
-        const auto& single = single_t::single();
-
-        /**
-         * @class cloneable
-         * @author bmathieu
-         * @date 18/09/2015
-         * @file pattern.hpp
-         * @brief Enable the clone method for a class
-         */
-        template<typename type_t>
-        class cloneable
-        {
-                using type_ptr = std::unique_ptr<type_t>;
-            public:
-                virtual type_ptr clone() = 0;
-        };
-
-        template<typename type_t>
-        using prototype = cloneable<type_t>;
-
-        template<typename type_t>
-        class is_clonable :
-            public std::integral_constant < bool,
-            std::is_base_of<pattern::cloneable<type_t>, type_t>::value >
-        {
-        };
-
+        /// Tag identifying
+        /// factory pattern
+        struct factory {};
     }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// factory pattern
+    template<typename type_t>
+    using implements_factory_t =
+        implements_pattern_t<pattag::factory, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// abstract_factory pattern
+        struct abstract_factory {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// abstract_factory pattern
+    template<typename type_t>
+    using implements_abstract_factory_t =
+        implements_pattern_t<pattag::abstract_factory, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// adapter pattern
+        struct adapter {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// adapter pattern
+    template<typename type_t>
+    using implements_adapter_t =
+        implements_pattern_t<pattag::adapter, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// bridge pattern
+        struct bridge {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// bridge pattern
+    template<typename type_t>
+    using implements_bridge_t =
+        implements_pattern_t<pattag::bridge, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// chain of responsability
+        /// pattern
+        struct chain_of_resp {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// chain_of_resp pattern
+    template<typename type_t>
+    using implements_chain_of_resp_t =
+        implements_pattern_t<pattag::chain_of_resp, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// command pattern
+        struct command {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// command pattern
+    template<typename type_t>
+    using implements_command_t =
+        implements_pattern_t<pattag::command, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// composite pattern
+        struct composite {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// composite pattern
+    template<typename type_t>
+    using implements_composite_t =
+        implements_pattern_t<pattag::composite, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// decorator pattern
+        struct decorator {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// decorator pattern
+    template<typename type_t>
+    using implements_decorator_t =
+        implements_pattern_t<pattag::decorator, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// facade pattern
+        struct facade {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// facade pattern
+    template<typename type_t>
+    using implements_facade_t =
+        implements_pattern_t<pattag::facade, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// flyweight pattern
+        struct flyweight {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// flyweight pattern
+    template<typename type_t>
+    using implements_flyweight_t =
+        implements_pattern_t<pattag::flyweight, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// interpreter pattern
+        struct interpreter {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// interpreter pattern
+    template<typename type_t>
+    using implements_interpreter_t =
+        implements_pattern_t<pattag::interpreter, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// iterator pattern
+        struct iterator {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// iterator pattern
+    template<typename type_t>
+    using implements_iterator_t =
+        implements_pattern_t<pattag::iterator, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// mediator pattern
+        struct mediator {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// mediator pattern
+    template<typename type_t>
+    using implements_mediator_t =
+        implements_pattern_t<pattag::mediator, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// memento pattern
+        struct memento {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// memento pattern
+    template<typename type_t>
+    using implements_memento_t =
+        implements_pattern_t<pattag::memento, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// observer pattern
+        struct observer {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// observer pattern
+    template<typename type_t>
+    using implements_observer_t =
+        implements_pattern_t<pattag::observer, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// politic pattern
+        struct politic {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// politic pattern
+    template<typename type_t>
+    using implements_politic_t =
+        implements_pattern_t<pattag::politic, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// prototype pattern
+        struct prototype {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// prototype pattern
+    template<typename type_t>
+    using implements_prototype_t =
+        implements_pattern_t<pattag::prototype, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// proxy pattern
+        struct proxy {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// proxy pattern
+    template<typename type_t>
+    using implements_proxy_t =
+        implements_pattern_t<pattag::proxy, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// singleton pattern
+        struct singleton {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// singleton pattern
+    template<typename type_t>
+    using implements_singleton_t =
+        implements_pattern_t<pattag::singleton, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// state pattern
+        struct state {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// state pattern
+    template<typename type_t>
+    using implements_state_t =
+        implements_pattern_t<pattag::state, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// strategy pattern
+        struct strategy {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// strategy pattern
+    template<typename type_t>
+    using implements_strategy_t =
+        implements_pattern_t<pattag::strategy, type_t>;
+
+
+    namespace pattag
+    {
+        /// Tag identifying
+        /// visitor pattern
+        struct visitor {};
+    }
+
+
+    /// Returns true if
+    /// type_t implements
+    /// visitor pattern
+    template<typename type_t>
+    using implements_visitor_t =
+        implements_pattern_t<pattag::visitor, type_t>;
+
 }
 #endif

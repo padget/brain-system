@@ -13,10 +13,13 @@
 using namespace brain;
 using namespace std;
 
+
 /// Main function for
 /// C++ compiler.
 int main()
-{
+{ 
+    
+    std::cout << "Coucou" << std::endl;
     test::test_suite < meta::test::member_test,
          meta::test::literal_test,
          meta::test::constkw_test,

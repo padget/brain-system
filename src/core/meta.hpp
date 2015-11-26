@@ -1766,6 +1766,11 @@ namespace brain
         using replace_t =
             defer_t<replace_t_, list_t, old_t, new_t>;
 
+
+        template<typename ... types_t>
+        struct inherit:
+            public types_t ...
+        {};
     }
 }
 

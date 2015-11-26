@@ -281,7 +281,7 @@ namespace brain
                     public brain::politic<int>
                 {
                     virtual bool operator()(
-                        const int& value)
+                        const int& value) const
                     {
                         return value < _max ?
                                true :
@@ -289,7 +289,7 @@ namespace brain
                     }
 
                     virtual bool operator()(
-                        int && value)
+                        int && value) const
                     {
                         return value < _max ?
                                true :
@@ -305,6 +305,11 @@ namespace brain
                     property<int, less_p<12>> an_int = default_v<int>;
                 };
 
+                struct another_type2
+                {
+                    property<std::shared_ptr<int>> an_int = std::make_shared<int>(default_v<int>);
+                };
+
 
                 virtual bool test()
                 {
@@ -313,16 +318,23 @@ namespace brain
                     try
                     {
                         a_type instance;
-                        res &= instance.an_int() == default_v<int>;
-                        res &= instance.an_int() + 1 == default_v<int> + 1;
-                        res &= (instance.an_int() += 1) == default_v<int> + 1;
-                        res &= instance.an_int() == default_v<int> + 1;
+                        res &= instance.an_int == default_v<int>;
+                        res &= instance.an_int + 1 == default_v<int> + 1;
+                        res &= (instance.an_int += 1) == default_v<int> + 1;
+                        res &= instance.an_int == default_v<int> + 1;
 
                         another_type instance2;
-                        res &= instance2.an_int() == default_v<int>;
-                        int an = 13;
-                        instance2.an_int(an);
-                        res &= instance2.an_int() == 11;
+                        res &= instance2.an_int == default_v<int>;
+                        int an = 11;
+                        instance2.an_int = (long)an;
+                        res &= instance2.an_int == 11;
+                        res &= instance2.an_int + instance2.an_int == 22;
+                        res &= (instance.an_int = instance2.an_int) == 11;
+                        res &= instance.an_int == 11;
+                        std::cout << static_cast<int>(instance2.an_int) << std::endl;
+
+                        another_type2 instance3;
+                        std::cout << instance3.an_int << std::endl;
                     }
 
                     catch(std::exception& ex)
@@ -331,10 +343,52 @@ namespace brain
                         res = meta::v_<std::false_type>;
                     }
 
-                    brain::object o;
-                    std::string str;
-                    serializer<object, std::string>().marshall(o, str);
-                    std::cout << str << std::endl;
+
+                    {
+                        int i = 13;
+                        reference<int> a_ref;
+                        a_ref = i;
+                    } /// must display the log of destructor
+
+                    {
+
+                        int i = 12;
+                        reference<int> a_ref, a_ref2 {i};
+                        std::cout << a_ref2 << std::endl;
+
+                        a_ref = i;
+                        std::cout << a_ref << std::endl;
+                        int i2 = 25;
+                        a_ref2 = i2;
+                        std::cout << a_ref2 << std::endl;
+                        a_ref = a_ref2;
+                        std::cout << a_ref << std::endl;
+                        a_ref = 4;
+                        std::cout << a_ref << std::endl;
+
+
+
+
+                        using object_derived =
+                            meta::inherit<object>;
+
+                        object_derived d;
+
+                        reference<object> a_ref3 = d;
+                        std::cout << a_ref3.get().id
+                                  << std::endl;
+
+                        reference<object> a_ref4;
+
+                        object_derived d2;
+                        a_ref4 = d2;
+                        std::cout << a_ref4.get().id
+                                  << std::endl;
+
+                        a_ref3 = a_ref4;
+                        std::cout << a_ref3.get().id
+                                  << std::endl;
+                    }
 
                     return res;
                 }
