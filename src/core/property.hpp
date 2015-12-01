@@ -5,37 +5,6 @@
 
 namespace brain
 {
-    /// //////// ///
-    /// Property ///
-    /// //////// ///
-
-
-    template<typename property_t>
-    const auto& get(
-        const property_t& p)
-    {
-        return p.get();
-    }
-
-
-    template < typename property_t,
-             typename type_t >
-    void set(
-        property_t& p,
-        type_t& value)
-    {
-        p.set(value);
-    }
-
-
-    template < typename property_t,
-             typename type_t >
-    void set(
-        property_t& p,
-        type_t && value)
-    {
-        p.set(value);
-    }
 
 
     /// Base class for
@@ -132,6 +101,74 @@ namespace brain
         };
     };
 
+    /// ////////////////////////// ///
+    /// General property interface ///
+    /// ////////////////////////// ///
+
+    /// Generic property interface
+    /// that defines the accessor/
+    /// mutators
+    template<typename type_t>
+    class iproperty
+    {
+        public:
+            /// General constness getter 
+            virtual const type_t& get() const = 0;
+            
+            
+            /// General lvalue setter
+            virtual void set(
+                type_t& value) = 0;
+                
+            
+            /// General rvalue setter
+            virtual void set(
+                type_t && value) = 0;
+    };
+
+
+    /// General getter
+    /// for property
+    /// interface
+    template<typename property_t>
+    const auto& get(
+        const property_t& p)
+    {
+        return p.get();
+    }
+
+
+    /// General setter
+    /// for property
+    /// interface
+    template < typename property_t,
+             typename type_t >
+    void set(
+        property_t& p,
+        type_t& value)
+    {
+        p.set(value);
+    }
+
+
+    /// General setter
+    /// for property
+    /// interface
+    template < typename property_t,
+             typename type_t >
+    void set(
+        property_t& p,
+        type_t && value)
+    {
+        p.set(value);
+    }
+
+
+    /// //////// ///
+    /// Property ///
+    /// //////// ///
+
+
     /// A property represents
     /// an class attribute.
     /// The using of a property
@@ -145,11 +182,11 @@ namespace brain
     template < typename type_t,
              typename politic_t =
              no_effect<type_t >>
-    class property
+    class monomorphe
     {
 
         public:
-            using type = property;
+            using type = monomorphe;
             using value_type = type_t;
             /// Politic used to
             /// validate the value
@@ -163,13 +200,13 @@ namespace brain
 
         public:
             /// Build a default
-            constexpr property()
+            constexpr monomorphe()
             {
             }
 
 
             /// Build with copy value
-            property(
+            monomorphe(
                 const type_t& value)
                 : m_prop((s_politic(value), value))
             {
@@ -177,7 +214,7 @@ namespace brain
 
 
             /// Build with move value
-            property(
+            monomorphe(
                 type_t && value)
                 : m_prop((s_politic(value), value))
             {
@@ -187,17 +224,17 @@ namespace brain
             /// Build with copy
             /// polymorphic value
             template<typename other_t>
-            property(
+            monomorphe(
                 const other_t & value)
                 : m_prop((s_politic(value), value))
             {
             }
-
+ 
 
             /// Build with move
             /// polymorphic value
             template<typename other_t>
-            property(
+            monomorphe(
                 other_t && value)
                 : m_prop((s_politic(value), value))
             {
@@ -206,7 +243,7 @@ namespace brain
 
         public:
             /// Copy assignement
-            property& operator=(
+            monomorphe& operator=(
                 const type_t& value)
             {
                 m_prop = (s_politic(value), value);
@@ -215,7 +252,7 @@ namespace brain
 
 
             /// Move assignement
-            property& operator=(
+            monomorphe& operator=(
                 type_t && value)
             {
                 m_prop = (s_politic(value), value);
@@ -226,7 +263,7 @@ namespace brain
             /// Polymorphic move
             /// assignement
             template<typename other_t>
-            property& operator=(
+            monomorphe& operator=(
                 const other_t& value)
             {
                 m_prop = (s_politic(value), value);
@@ -237,7 +274,7 @@ namespace brain
             /// Polymorphic move
             /// assignement
             template<typename other_t>
-            property& operator=(
+            monomorphe& operator=(
                 other_t && value)
             {
                 m_prop = (s_politic(value), value);
@@ -265,7 +302,7 @@ namespace brain
     /// of property::s_politic
     template < typename type_t,
              typename politic_t >
-    politic_t property<type_t, politic_t>::s_politic {};
+    politic_t monomorphe<type_t, politic_t>::s_politic {};
 
 
     /// Overload of << operator
@@ -275,19 +312,18 @@ namespace brain
     template <class type_t, typename other_politic_t>
     std::ostream& operator<<(
         std::ostream& os,
-        const property<type_t, other_politic_t>& p)
+        const monomorphe<type_t, other_politic_t>& p)
     {
         return os << static_cast<const type_t&>(p);
     }
 
 
     /// A reference is wrapper
-    /// for c++ reference. A
-    /// reference must be initialised
-    /// at construction.
+    /// for c++ reference.
     template < typename type_t,
              typename politic_t = no_effect<type_t >>
-    class reference
+    class reference:
+        public iproperty<type_t>
     {
         public:
             using type = reference;
@@ -299,7 +335,13 @@ namespace brain
 
 
         private:
+            /// Embedded pointer
+            /// on value
             pointer_type m_value {nullptr};
+
+
+            /// politic checked before
+            /// each change of m_value
             static const politic_t s_politic;
 
 
@@ -307,6 +349,7 @@ namespace brain
             /// Default trivial
             /// constructor
             reference() = default;
+
 
             ///
             reference(
@@ -317,10 +360,12 @@ namespace brain
             }
 
 
+            ///
             reference(
                 uref_type) = delete;
 
 
+            ///
             reference(
                 const reference&) = default;
 
@@ -352,6 +397,8 @@ namespace brain
                 return *this;
             }
 
+
+            ///
             reference& operator=(
                 uref_type value)
             {
@@ -363,6 +410,17 @@ namespace brain
             }
 
         public:
+            /// In test case
+            /// returns true if
+            /// the reference
+            /// is initialized
+            operator bool()
+            {
+                return m_value != nullptr;
+            }
+
+
+        public:
             /// Read only getter on
             /// the stored reference.
             /// Must be initialized
@@ -372,18 +430,24 @@ namespace brain
                 return *m_value;
             }
 
-            cref_type get() const
+
+            ///
+            virtual cref_type get() const
             {
                 return *m_value;
             }
 
-            void set(
+
+            ///
+            virtual void set(
                 uref_type value)
             {
                 this->operator =(value);
             }
 
-            void set(
+
+            ///
+            virtual void set(
                 ref_type value)
             {
                 this->operator =(value);
@@ -396,8 +460,15 @@ namespace brain
     const politic_t reference<type_t, politic_t>::s_politic {};
 
 
-    template<typename type_t>
-    class component
+
+    /// Enable to modelise
+    /// a component (strength
+    /// aggregation) in modele
+    /// design
+    template < typename type_t,
+             typename politic_t = no_effect<type_t >>
+    class component:
+        public iproperty<type_t>
     {
         public:
             using type = component;
@@ -407,8 +478,182 @@ namespace brain
             using cref_type = const value_type&;
             using uref_type = value_type &&;
         private:
-            pointer_type m_value;
+
+            /// Embedded pointer
+            /// on value
+            pointer_type m_value {nullptr};
         public:
+
+            /// Default trivial
+            /// constructor
+            component() = default;
+
+
+            /// Reference constructor.
+            /// Copy the given data.
+            component(
+                ref_type value):
+                m_value(new value_type(value))
+            {
+            }
+
+
+            /// Constant reference
+            /// constructor. Copy
+            /// the given data.
+            component(
+                cref_type value):
+                m_value(new value_type(value))
+            {
+            }
+
+
+            /// Universal Reference
+            /// constructor. Move
+            /// the given data.
+            component(
+                uref_type value):
+                m_value(new value_type(value))
+            {
+            }
+
+
+            /// A the destruction
+            /// of the component,
+            /// the value is also
+            /// destroyed
+            ~component()
+            {
+                delete m_value;
+            }
+
+
+        public:
+            /// Copy assignement that
+            /// delete old m_value and
+            /// copy the new value into
+            /// a new copy of value
+            component& operator=(
+                ref_type value)
+            {
+                auto* tmp = m_value;
+                delete tmp;
+                m_value = new value_type(value);
+
+                return *this;
+            }
+
+
+            /// Copy assignement that
+            /// delete old m_value and
+            /// copy the new value into
+            /// a new copy of value
+            component& operator=(
+                cref_type value)
+            {
+                auto* tmp = m_value;
+                delete tmp;
+                m_value = new value_type(value);
+
+                return *this;
+            }
+
+
+            /// Move assignement that
+            /// delete old m_value and
+            /// copy the new value into
+            /// a new copy of value
+            component& operator=(
+                uref_type value)
+            {
+                auto* tmp = m_value;
+                delete tmp;
+                m_value = new value_type(value);
+
+                return *this;
+            }
+
+
+            /// Move assignement
+            /// Deletes this m_value
+            /// and move other.m_value
+            /// into this.m_value.
+            component& operator=(
+                component && other)
+            {
+                if(this != &other)
+                {
+                    auto* tmp = m_value;
+                    delete tmp;
+                    m_value = other.m_value;
+                    delete other.m_value;
+                    other.m_value = nullptr;
+                }
+
+                return *this;
+            }
+
+
+            /// Copy assignement
+            /// Deletes old pointer
+            /// and copy other pointer
+            /// without destroy other
+            /// pointer
+            component& operator=(
+                const component& other)
+            {
+                if(this != &other)
+                {
+                    auto* tmp {m_value};
+                    delete tmp;
+                    m_value = new value_type(*other.m_value);
+                }
+
+                return *this;
+            }
+
+
+        public:
+            /// In test case
+            /// returns true if
+            /// the reference
+            /// is initialized
+            operator bool()
+            {
+                return m_value != nullptr;
+            }
+
+
+        public:
+            /// Read only getter on
+            /// the stored component.
+            /// Must be initialized
+            /// before use this.
+            operator cref_type() const
+            {
+                return *m_value;
+            }
+
+
+        public:
+
+            virtual cref_type get() const
+            {
+                return *m_value;
+            }
+
+
+            virtual void set(
+                uref_type value)
+            {
+                this->operator =(value);
+            }
+
+            virtual void set(
+                ref_type value)
+            {
+                this->operator =(value);
+            }
     };
 }
 

@@ -267,12 +267,105 @@ namespace brain
 
     namespace test
     {
+        struct object_test:
+            public basic_test
+        {
+            bool virtual test()
+            {
+                bool res = true;
+
+                object o1;
+                object o2 {o1};
+
+                /// o1.id and o2.id must
+                /// be different because
+                /// automatic increment
+                /// of object::s_id on
+                /// copy constructor
+                res &= (o1.id != o2.id);
+
+                object o3;
+
+                /// o3.id must be different
+                /// from the other ox.id due
+                /// to the auto increment of
+                /// s_id in default constructor
+                res &= (o1.id != o3.id && o2.id != o3.id);
+
+                o3 = o1;
+
+                /// o1.id and o3.id must
+                /// must be different
+                /// because of auto increment
+                /// into copy assignement
+                res &= (o1.id != o3.id);
+
+                object o5;
+                auto o5_id = o5.id;
+
+                object o6 {std::move(o5)};
+
+                /// o5.id must be equal to
+                /// o6.id because of the
+                /// copy of id in move
+                /// assignement
+                res &= o5_id == o6.id;
+
+
+                auto o6_id = o6.id;
+                object o7 {std::move(o6)};
+
+                /// o7.id must be equal to
+                /// o6_id because of the
+                /// copy of id in move
+                /// constructor
+                res &= o7.id == o6_id;
+
+                return res;
+            }
+        };
+        
+
+        struct reference_test :
+            public basic_test
+        {
+            virtual bool test()
+            {
+                bool res = true;
+
+                object o1;
+                reference<object> ro1 {o1};
+                
+                /// The both id must be
+                /// equal because of 
+                /// the reference ro1 is
+                /// on o1 (no copy).
+                res &= (brain::get(ro1).id == o1.id);
+                
+                object o2;
+                brain::set(ro1, o2);
+                
+                /// 
+                res &= (brain::get(ro1).id == o2.id);
+                
+                object o3;
+                brain::set(ro1, std::move(o3));
+                
+                /// 
+                res &= (brain::get(ro1).id == o3.id);
+                
+                
+                return res;
+            }
+        };
+
+
         struct property_test :
             public basic_test
         {
                 struct a_type
                 {
-                    property<int> an_int = default_v<int>;
+                    monomorphe<int> an_int = default_v<int>;
                 };
 
 
@@ -302,12 +395,12 @@ namespace brain
 
                 struct another_type
                 {
-                    property<int, less_p<12>> an_int = default_v<int>;
+                    monomorphe<int, less_p<12>> an_int = default_v<int>;
                 };
 
                 struct another_type2
                 {
-                    property<std::shared_ptr<int>> an_int = std::make_shared<int>(default_v<int>);
+                    monomorphe<std::shared_ptr<int>> an_int = std::make_shared<int>(default_v<int>);
                 };
 
 
@@ -366,9 +459,6 @@ namespace brain
                         a_ref = 4;
                         std::cout << a_ref << std::endl;
 
-
-
-
                         using object_derived =
                             meta::inherit<object>;
 
@@ -388,6 +478,20 @@ namespace brain
                         a_ref3 = a_ref4;
                         std::cout << a_ref3.get().id
                                   << std::endl;
+                    }
+
+                    {
+                        object obj1;
+                        std::cout << "obj1 "
+                                  << obj1.id
+                                  << std::endl;
+
+                        component<object> a_comp(obj1);
+
+                        std::cout << "a_comp "
+                                  << a_comp.get().id
+                                  << std::endl;
+
                     }
 
                     return res;

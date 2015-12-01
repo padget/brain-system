@@ -14,7 +14,7 @@ namespace brain
         enum class properties
         {
             properties,//0
-            property,//1
+            monomorphe,//1
             key,//2
             value,//3
             equals,//4
@@ -35,10 +35,10 @@ namespace brain
         using props_equals_t       = properties_sc::declare_ti<properties::equals, props_equals_reg>;
         using props_key_t          = properties_sc::declare_tni<properties::key, props_key_reg>;
         using props_value_t        = properties_sc::declare_tni<properties::value, props_value_reg>;
-        using props_property_nt    = properties_sc::declare_ntni<properties::property>;
+        using props_property_nt    = properties_sc::declare_ntni<properties::monomorphe>;
         using props_properties_nt  = properties_sc::declare_ntni<properties::properties>;
 
-        using props_property_rule       = properties_sc::and_rule<properties::property, props_key_t, props_equals_t, props_value_t>;
+        using props_property_rule       = properties_sc::and_rule<properties::monomorphe, props_key_t, props_equals_t, props_value_t>;
         using props_properties_rule     = properties_sc::list_rule<properties::properties, props_property_nt>;
 
         using props_root_rule = properties_sc::root_rule<props_properties_rule>;
@@ -50,13 +50,13 @@ namespace brain
                               props_properties_rule
                               >;
 
-        class property :
+        class monomorphe :
             public cpl::semantic_object,
             public with_key<cpl::string>,
             public with_value<cpl::string>
         {
             public:
-                BRAIN_ALL_DEFAULT(property)
+                BRAIN_ALL_DEFAULT(monomorphe)
             public:
                 virtual void init(std::vector<cpl::semobject_sptr>& args)
                 {
@@ -71,7 +71,7 @@ namespace brain
                 { return concat(key().value(), "=", value().value()); }
         };
 
-        using property_sptr = std::shared_ptr<property>;
+        using property_sptr = std::shared_ptr<monomorphe>;
 
         WITH_T(props)
 
@@ -85,7 +85,7 @@ namespace brain
                 virtual void init(std::vector<cpl::semobject_sptr>& args)
                 {
                     for(auto & prop : args)
-                        props().push_back(shared_conv<property>(prop));
+                        props().push_back(shared_conv<monomorphe>(prop));
                 }
         };
 
@@ -112,7 +112,7 @@ namespace brain
 
 
         using props_binds = properties_sc::binds <
-                            properties_sc::bind<props_property_nt, property>,
+                            properties_sc::bind<props_property_nt, monomorphe>,
                             properties_sc::bind<props_properties_nt, properties_list>
                             >;
 

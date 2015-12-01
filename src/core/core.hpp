@@ -56,7 +56,7 @@ typedef struct sockaddr SOCKADDR;
 /// Brain - System
 namespace brain
 {
-    
+
     /// ///////////////////////// ///
     /// Basic Concepts / Patterns ///
     /// ///////////////////////// ///
@@ -305,14 +305,14 @@ namespace brain
     /// //////////////// ///
 
 
+    /// TODO Doc
     template<typename type_t>
     struct observer
     {
-        virtual void update(const type_t& observed) = 0;
+        virtual void update(
+            const type_t& observed) = 0;
     };
 
-
-    
 
     /// ////// ///
     /// Object ///
@@ -332,12 +332,48 @@ namespace brain
             /// id of the current
             /// object. It's generated
             /// with static ID.
-            property<unsigned long long> id {++s_id};
+            monomorphe<unsigned long long> id {++s_id};
 
 
-            /// All elements of
-            /// object are defaulted
-            BRAIN_ALL_DEFAULT(object)
+            /// Default constructor
+            /// Increment s_id;
+            object() = default;
+
+
+            /// Copy constructor
+            /// Increments s_id.
+            object(
+                const object& other):
+                id(++s_id)
+            {
+            }
+
+
+            /// Move constructor
+            object(
+                object &&) = default;
+
+
+            /// Destructor
+            ~object() = default;
+
+
+        public:
+            /// Copy assignement
+            /// Increments s_id
+            object& operator=(
+                const object& other)
+            {
+                if(this != &other)
+                    id = ++s_id;
+
+                return *this;
+            }
+
+
+            /// Move assignement
+            object& operator=(
+                object &&) = default;
     };
 
 
@@ -684,10 +720,10 @@ namespace brain
 
 
         template<typename type_t>
-        using client_property = property<ptr::client_ptr<type_t>>;
+        using client_property = monomorphe<ptr::client_ptr<type_t>>;
 
         template<typename type_t>
-        using server_property = property<ptr::server_ptr<type_t>>;
+        using server_property = monomorphe<ptr::server_ptr<type_t>>;
 
 
         /**
