@@ -109,21 +109,35 @@ namespace brain
     /// that defines the accessor/
     /// mutators
     template<typename type_t>
-    class iproperty
+    class property
     {
+        protected:
+            using type = property;
+            using value_type = type_t;
+            using pointer_type = value_type*;
+            using ref_type = value_type&;
+            using cref_type = const value_type&;
+            using uref_type = value_type &&;
+
         public:
-            /// General constness getter 
+            /// General constness getter
             virtual const type_t& get() const = 0;
-            
-            
+
+
             /// General lvalue setter
             virtual void set(
                 type_t& value) = 0;
-                
-            
+
+
             /// General rvalue setter
             virtual void set(
                 type_t && value) = 0;
+
+
+            /// Returns true if
+            /// the property contains
+            /// a value, else false.
+            virtual bool valid() const = 0;
     };
 
 
@@ -164,6 +178,17 @@ namespace brain
     }
 
 
+    /// General validator
+    /// for property
+    /// interface
+    template<typename property_t>
+    auto valid(
+        const property_t& p)
+    {
+        return p.valid();
+    }
+
+
     /// //////// ///
     /// Property ///
     /// //////// ///
@@ -184,10 +209,14 @@ namespace brain
              no_effect<type_t >>
     class monomorphe
     {
-
         public:
             using type = monomorphe;
             using value_type = type_t;
+            using pointer_type = value_type*;
+            using ref_type = value_type&;
+            using cref_type = const value_type&;
+            using uref_type = value_type &&;
+
             /// Politic used to
             /// validate the value
             /// of the property
@@ -196,27 +225,25 @@ namespace brain
         private:
             /// Private value of
             /// of the attribute
-            value_type m_prop;
+            value_type m_value;
 
         public:
             /// Build a default
-            constexpr monomorphe()
-            {
-            }
+            constexpr monomorphe() = default;
 
 
             /// Build with copy value
             monomorphe(
-                const type_t& value)
-                : m_prop((s_politic(value), value))
+                cref_type value)
+                : m_value((s_politic(value), value))
             {
             }
 
 
             /// Build with move value
             monomorphe(
-                type_t && value)
-                : m_prop((s_politic(value), value))
+                uref_type value)
+                : m_value((s_politic(value), value))
             {
             }
 
@@ -226,17 +253,17 @@ namespace brain
             template<typename other_t>
             monomorphe(
                 const other_t & value)
-                : m_prop((s_politic(value), value))
+                : m_value((s_politic(value), value))
             {
             }
- 
+
 
             /// Build with move
             /// polymorphic value
             template<typename other_t>
             monomorphe(
                 other_t && value)
-                : m_prop((s_politic(value), value))
+                : m_value((s_politic(value), value))
             {
             }
 
@@ -244,18 +271,18 @@ namespace brain
         public:
             /// Copy assignement
             monomorphe& operator=(
-                const type_t& value)
+                cref_type value)
             {
-                m_prop = (s_politic(value), value);
+                m_value = (s_politic(value), value);
                 return *this;
             }
 
 
             /// Move assignement
             monomorphe& operator=(
-                type_t && value)
+                uref_type value)
             {
-                m_prop = (s_politic(value), value);
+                m_value = (s_politic(value), value);
                 return *this;
             }
 
@@ -266,7 +293,7 @@ namespace brain
             monomorphe& operator=(
                 const other_t& value)
             {
-                m_prop = (s_politic(value), value);
+                m_value = (s_politic(value), value);
                 return *this;
             }
 
@@ -277,23 +304,55 @@ namespace brain
             monomorphe& operator=(
                 other_t && value)
             {
-                m_prop = (s_politic(value), value);
+                m_value = (s_politic(value), value);
                 return *this;
             }
 
         public:
             /// Value type caster
-            operator value_type&()
+            operator ref_type()
             {
-                return m_prop;
+                return m_value;
             }
 
 
             /// Const value type
             /// caster
-            operator const value_type&() const
+            operator cref_type() const
             {
-                return m_prop;
+                return m_value;
+            }
+
+
+        public:
+            ///
+            virtual cref_type get() const
+            {
+                return m_value;
+            }
+
+
+            ///
+            virtual void set(
+                uref_type value)
+            {
+                this->operator =(value);
+            }
+
+
+            ///
+            virtual void set(
+                ref_type value)
+            {
+                this->operator =(value);
+            }
+
+
+            /// Always contains a
+            /// value
+            virtual bool valid() const
+            {
+                return true;
             }
     };
 
@@ -320,10 +379,12 @@ namespace brain
 
     /// A reference is wrapper
     /// for c++ reference.
+    /// Doesn't support temporary
+    /// reference
     template < typename type_t,
              typename politic_t = no_effect<type_t >>
     class reference:
-        public iproperty<type_t>
+        public property<type_t>
     {
         public:
             using type = reference;
@@ -337,7 +398,7 @@ namespace brain
         private:
             /// Embedded pointer
             /// on value
-            pointer_type m_value {nullptr};
+            pointer_type m_value;
 
 
             /// politic checked before
@@ -360,7 +421,10 @@ namespace brain
             }
 
 
-            ///
+            /// Non move construction
+            /// possible. Indeed, the
+            /// reference must not be
+            /// temporary
             reference(
                 uref_type) = delete;
 
@@ -400,24 +464,7 @@ namespace brain
 
             ///
             reference& operator=(
-                uref_type value)
-            {
-                *m_value =
-                    (s_politic(value),
-                     value);
-
-                return *this;
-            }
-
-        public:
-            /// In test case
-            /// returns true if
-            /// the reference
-            /// is initialized
-            operator bool()
-            {
-                return m_value != nullptr;
-            }
+                uref_type value) = delete;
 
 
         public:
@@ -452,6 +499,13 @@ namespace brain
             {
                 this->operator =(value);
             }
+
+
+            ///
+            virtual bool valid() const
+            {
+                return m_value != nullptr;
+            }
     };
 
 
@@ -468,7 +522,7 @@ namespace brain
     template < typename type_t,
              typename politic_t = no_effect<type_t >>
     class component:
-        public iproperty<type_t>
+        public property<type_t>
     {
         public:
             using type = component;
@@ -481,7 +535,8 @@ namespace brain
 
             /// Embedded pointer
             /// on value
-            pointer_type m_value {nullptr};
+            std::unique_ptr<value_type> m_value;
+
         public:
 
             /// Default trivial
@@ -489,8 +544,11 @@ namespace brain
             component() = default;
 
 
-            /// Reference constructor.
-            /// Copy the given data.
+            /// Universal constructor
+            /// of value_type based on
+            /// args transmitted to the
+            /// right constructor of
+            /// value_type
             component(
                 ref_type value):
                 m_value(new value_type(value))
@@ -498,19 +556,6 @@ namespace brain
             }
 
 
-            /// Constant reference
-            /// constructor. Copy
-            /// the given data.
-            component(
-                cref_type value):
-                m_value(new value_type(value))
-            {
-            }
-
-
-            /// Universal Reference
-            /// constructor. Move
-            /// the given data.
             component(
                 uref_type value):
                 m_value(new value_type(value))
@@ -518,14 +563,54 @@ namespace brain
             }
 
 
+            component(
+                cref_type value):
+                m_value(new value_type(value))
+            {
+            }
+
+            template<typename derived_t>
+            component(
+                derived_t && value):
+                m_value(new derived_t(value))
+            {
+                
+                std::cout << "polymorphic ref cst" << std::endl;
+            }
+
+
+            /// If the argument is
+            /// pointer_type, so
+            /// this pointer is directly
+            /// injected in the pointer
+            component(
+                pointer_type value):
+                m_value(value)
+            {
+            }
+            
+            
+            template<typename derived_t>
+            component(
+                derived_t* value):
+                m_value(value)
+            {
+                
+                std::cout << "polymorphic pointer cst" << std::endl;
+            }
+
+
+            /// Default move
+            /// constructor
+            component(
+                component &&) = default;
+
+
             /// A the destruction
             /// of the component,
             /// the value is also
             /// destroyed
-            ~component()
-            {
-                delete m_value;
-            }
+            ~component() = default;
 
 
         public:
@@ -536,9 +621,7 @@ namespace brain
             component& operator=(
                 ref_type value)
             {
-                auto* tmp = m_value;
-                delete tmp;
-                m_value = new value_type(value);
+                m_value.reset(new value_type(value));
 
                 return *this;
             }
@@ -551,9 +634,7 @@ namespace brain
             component& operator=(
                 cref_type value)
             {
-                auto* tmp = m_value;
-                delete tmp;
-                m_value = new value_type(value);
+                m_value.reset(new value_type(value));
 
                 return *this;
             }
@@ -566,63 +647,43 @@ namespace brain
             component& operator=(
                 uref_type value)
             {
-                auto* tmp = m_value;
-                delete tmp;
-                m_value = new value_type(value);
+                m_value.reset(new value_type(value));
 
                 return *this;
             }
-
-
-            /// Move assignement
-            /// Deletes this m_value
-            /// and move other.m_value
-            /// into this.m_value.
+            
+            template<typename derived_t>
             component& operator=(
-                component && other)
+                derived_t&& value)
             {
-                if(this != &other)
-                {
-                    auto* tmp = m_value;
-                    delete tmp;
-                    m_value = other.m_value;
-                    delete other.m_value;
-                    other.m_value = nullptr;
-                }
+                std::cout << "polymorphic ref ass" << std::endl;
+                m_value.reset(new derived_t(value));
 
                 return *this;
             }
 
 
-            /// Copy assignement
-            /// Deletes old pointer
-            /// and copy other pointer
-            /// without destroy other
-            /// pointer
+            /// Assignement by
+            /// injection of a
+            /// new pointer
             component& operator=(
-                const component& other)
+                pointer_type value)
             {
-                if(this != &other)
-                {
-                    auto* tmp {m_value};
-                    delete tmp;
-                    m_value = new value_type(*other.m_value);
-                }
+                m_value.reset(value);
 
                 return *this;
             }
-
-
-        public:
-            /// In test case
-            /// returns true if
-            /// the reference
-            /// is initialized
-            operator bool()
+            
+            template<typename derived_t>
+            component& operator=(
+                derived_t* value)
             {
-                return m_value != nullptr;
-            }
+                
+                std::cout << "polymorphic pointer ass" << std::endl;
+                m_value.reset(value);
 
+                return *this;
+            }
 
         public:
             /// Read only getter on
@@ -636,7 +697,7 @@ namespace brain
 
 
         public:
-
+            ///
             virtual cref_type get() const
             {
                 return *m_value;
@@ -653,6 +714,12 @@ namespace brain
                 ref_type value)
             {
                 this->operator =(value);
+            }
+
+            ///
+            virtual bool valid() const
+            {
+                return static_cast<bool>(m_value);
             }
     };
 }

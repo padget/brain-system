@@ -31,7 +31,7 @@ namespace brain
 
                 struct another_type {};
 
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<std::is_same<t_<a_type>, a_type>>, "");
                     static_assert(v_<a_type> == 1, "");
@@ -39,8 +39,6 @@ namespace brain
                     static_assert(size_<a_type> == 12, "");
                     static_assert(v_<std::is_same<return_<a_type, int>, a_type>>, "");
                     static_assert(v_<std::is_same<r_<a_type, int>, a_type>>, "");
-
-                    return v_<std::true_type>;
                 }
             };
 
@@ -50,7 +48,7 @@ namespace brain
             struct literal_test:
                 public brain::test::basic_test
             {
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<bool_t_<true>> == true, "");
                     static_assert(v_<short_t_<1>> == 1, "");
@@ -63,8 +61,6 @@ namespace brain
                     static_assert(v_<unsignedl_t_<1>> == 1, "");
                     static_assert(v_<unsignedll_t_<1>> == 1, "");
                     static_assert(v_<size_t_<1>> == 1, "");
-
-                    return v_<std::true_type>;
                 }
             };
 
@@ -75,12 +71,11 @@ namespace brain
             struct constkw_test:
                 public brain::test::basic_test
             {
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<sizeof_t_<int>> == sizeof(int), "");
                     static_assert(v_<sizeof_pack_t_<int, double, int>> == 3, "");
                     static_assert(v_<alignof_t_<int>> == alignof(int), "");
-                    return v_<std::true_type>;
                 }
             };
 
@@ -92,7 +87,7 @@ namespace brain
             {
                 using a_list = list<int, float, double>;
 
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(size_<a_list> == v_<sizeof_pack_t_<int, float, double>>, "");
                     static_assert(v_<std::is_same<t_<a_list>, a_list>>, "");
@@ -102,7 +97,6 @@ namespace brain
                     static_assert(v_<std::is_same<at_t<unsigned_t<2>, a_list>, double>>, "");
                     static_assert(v_<std::is_same<repeat_t<unsigned_t<3>, int>, list<int, int, int>>>, "");
                     static_assert(v_<std::is_same<to_list_t<std::tuple<int, int>>, list<int, int>>>, "");
-                    return v_<std::true_type>;
                 }
             };
 
@@ -127,7 +121,7 @@ namespace brain
                 using a_list = list<int, double>;
                 using a_second_list = list<int>;
 
-                virtual bool test()
+                virtual void test()
                 {
                     /// TODO Unitary for compose
                     static_assert(v_<std::is_same<always_r<void>, void>> , "");
@@ -145,8 +139,6 @@ namespace brain
                     static_assert(v_<std::is_same<push_front_t<float, a_list>, list<float, int, double>>>, "");
                     static_assert(v_<std::is_same<pop_back_t<a_list>, list<int>>>, "");
                     static_assert(v_<std::is_same<pop_front_t<a_list>, list<double>>>, "");
-
-                    return v_<std::true_type>;
                 }
             };
 
@@ -162,7 +154,7 @@ namespace brain
                     using type = void;
                 };
 
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<std::is_same<t_<defer<a_type, int, double>>, void>>, "");
                     return v_<std::true_type>;
@@ -179,10 +171,9 @@ namespace brain
                 struct a_type
                 {};
 
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<std::is_same<r_<quote_r_<a_type>, int, float, double>, a_type<int, float, double>>> , "");
-                    return v_<std::true_type>;
                 }
             };
 
@@ -192,7 +183,7 @@ namespace brain
             struct math_test:
                 public brain::test::basic_test
             {
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<inc_t_<unsigned_t_<0>>> == 1, "");
                     static_assert(v_<dec_t_<unsigned_t_<1>>> == 0, "");
@@ -211,9 +202,6 @@ namespace brain
                     static_assert(v_<less_equal_t_<int_t_<1>, int_t_<2>>>, "");
                     static_assert(v_<greater_equal_t_<int_t_<1>, int_t_<1>>>, "");
                     static_assert(v_<less_equal_t_<int_t_<1>, int_t_<1>>>, "");
-
-                    /// TODO Unitary test for bit operators
-                    return v_<std::true_type>;
                 }
             };
 
@@ -222,7 +210,7 @@ namespace brain
             struct conditional_test:
                 public brain::test::basic_test
             {
-                virtual bool test()
+                virtual void test()
                 {
                     static_assert(v_<std::is_same<if_c<true, int, double>, int>>, "");
                     static_assert(v_<std::is_same<if_c<false, int, double>, double>>, "");
@@ -237,7 +225,6 @@ namespace brain
                     static_assert(v_<std::is_same<std::true_type, or_t<bool_t_<false>, bool_t_<true>>>>, "");
                     static_assert(v_<std::is_same<std::false_type, or_t<bool_t_<false>, bool_t_<false>>>>, "");
                     static_assert(!v_<not_t<bool_t_<true>>>, "");
-                    return v_<std::true_type>;
                 }
             };
 
@@ -254,11 +241,10 @@ namespace brain
 
                 using a_list = list<int, double, float, int>;
 
-                virtual bool test()
+                virtual void test()
                 {
 
                     static_assert(v_<std::is_same<filter_t<a_list, is_int>, list<int, int>>>, "");
-                    return v_<std::true_type>;
                 }
             };
         }
@@ -270,233 +256,162 @@ namespace brain
         struct object_test:
             public basic_test
         {
-            bool virtual test()
+            virtual void test()
+            {
+                object o1;
+                object o2 {o1};
+                add_step(o1.id != o2.id,
+                         "test of constructor by copy");
+                object o3;
+                add_step(o1.id != o3.id && o2.id != o3.id,
+                         "test of default constructor");
+                o3 = o1;
+                add_step(o1.id != o3.id,
+                         "test of copy assignement");
+                object o5;
+                auto o5_id = o5.id;
+                object o6 {std::move(o5)};
+                add_step(o5_id == o6.id,
+                         "test of move assignement");
+                auto o6_id = o6.id;
+                object o7 {std::move(o6)};
+                add_step(o7.id == o6_id,
+                         "test of move constructor");
+            }
+        };
+
+
+        struct component_test:
+            public basic_test
+        {
+            virtual void test()
             {
                 bool res = true;
 
                 object o1;
-                object o2 {o1};
+                component<object> co1;
+                component<int> ci1;
+                component<int> ci2 {2};
+                component<int> ci3 {new int(3)};
+                add_step(!brain::valid(ci1),
+                         "test of default constructor");
+                add_step(2 == ci2,
+                         "test of generic constructor with rvalue");
+                add_step(3 == ci3,
+                         "test of pointer based constructor");
+                component<int> ci4 {std::move(ci3)};
+                add_step(brain::valid(ci4)
+                         && !brain::valid(ci3)
+                         && ci4 == 3,
+                         "test of move constructor");
+                component<int> ci5;
+                int i5 = 5;
+                ci5 = i5;
+                add_step(ci5 == 5,
+                         "test of ref_type assignement");
+                ci5 = 6;
+                add_step(ci5 == 6,
+                         "test of uref_type assignement");
+                const int i7 = 7;
+                ci5 = i7;
+                add_step(ci5 == 7,
+                         "test of cref_type");
+                ci5 = new int(8);
+                add_step(ci5 == 8,
+                         "test of pointer_ytpe assignement");
 
-                /// o1.id and o2.id must
-                /// be different because
-                /// automatic increment
-                /// of object::s_id on
-                /// copy constructor
-                res &= (o1.id != o2.id);
+                using derived = meta::inherit<object>;
+                component<object> cobase;
+                cobase = derived();
+                add_step(brain::valid(cobase),
+                         "test of polymorphism by reference assignement");
+                component<object> cobase2;
+                cobase2 = new derived();
+                add_step(brain::valid(cobase2),
+                         "test of polymorphism by pointer assignement");
 
-                object o3;
+                component<object> cobase3 {new derived()};
+                add_step(brain::valid(cobase3),
+                         "test of polymorphism by pointer constructor");
 
-                /// o3.id must be different
-                /// from the other ox.id due
-                /// to the auto increment of
-                /// s_id in default constructor
-                res &= (o1.id != o3.id && o2.id != o3.id);
-
-                o3 = o1;
-
-                /// o1.id and o3.id must
-                /// must be different
-                /// because of auto increment
-                /// into copy assignement
-                res &= (o1.id != o3.id);
-
-                object o5;
-                auto o5_id = o5.id;
-
-                object o6 {std::move(o5)};
-
-                /// o5.id must be equal to
-                /// o6.id because of the
-                /// copy of id in move
-                /// assignement
-                res &= o5_id == o6.id;
+                component<object> cobase4 {derived()};
+                add_step(brain::valid(cobase4),
+                         "test of polymorphism by reference constructor");
 
 
-                auto o6_id = o6.id;
-                object o7 {std::move(o6)};
-
-                /// o7.id must be equal to
-                /// o6_id because of the
-                /// copy of id in move
-                /// constructor
-                res &= o7.id == o6_id;
-
-                return res;
             }
         };
-        
 
+        /// TODO To complete
         struct reference_test :
             public basic_test
         {
-            virtual bool test()
+            void foo(reference<object>& ref)
+            {
+                object o;
+                ref = o;
+            }
+
+
+            virtual void test()
             {
                 bool res = true;
 
                 object o1;
                 reference<object> ro1 {o1};
-                
+
                 /// The both id must be
-                /// equal because of 
+                /// equal because of
                 /// the reference ro1 is
                 /// on o1 (no copy).
                 res &= (brain::get(ro1).id == o1.id);
-                
+
                 object o2;
                 brain::set(ro1, o2);
-                
-                /// 
+
+                /// The both must be
+                /// equal because the
+                /// reference ro1 is now
+                /// on o2 object (no copy)
                 res &= (brain::get(ro1).id == o2.id);
-                
+
                 object o3;
-                brain::set(ro1, std::move(o3));
-                
-                /// 
+                brain::set(ro1, o3);
+
+                /// The both must be
+                /// equal because the
+                /// reference ro1 is now
+                /// on o3 object (no copy)
                 res &= (brain::get(ro1).id == o3.id);
-                
-                
-                return res;
+
+                reference<object> ro2 {o3};
+
+                /// The both must be equal
+                res &= (ro2.get().id == o3.id);
+
+                reference<object> ro3 {ro2};
+
+                /// The both must be equal
+                res &= (ro2.get().id == ro3.get().id);
+
+                reference<object> ro4;
+                ro4 = o1;
+
+                res &= (ro4.get().id == o1.id);
+
+                ro4 = ro3;
+
+                res &= (ro4.get().id == ro3.get().id);
+
+                reference<object> ro5;
+                res &= !brain::valid(ro5);
+
+                res &= (ro5 = ro4, brain::valid(ro5));
             }
         };
 
 
-        struct property_test :
-            public basic_test
-        {
-                struct a_type
-                {
-                    monomorphe<int> an_int = default_v<int>;
-                };
 
-
-                template<int _max>
-                struct less_politic:
-                    public brain::politic<int>
-                {
-                    virtual bool operator()(
-                        const int& value) const
-                    {
-                        return value < _max ?
-                               true :
-                               throw invalid_data("less politic");
-                    }
-
-                    virtual bool operator()(
-                        int && value) const
-                    {
-                        return value < _max ?
-                               true :
-                               throw invalid_data("less politic");
-                    }
-                };
-
-                template<int _max>
-                using less_p = less_politic<_max>;
-
-                struct another_type
-                {
-                    monomorphe<int, less_p<12>> an_int = default_v<int>;
-                };
-
-                struct another_type2
-                {
-                    monomorphe<std::shared_ptr<int>> an_int = std::make_shared<int>(default_v<int>);
-                };
-
-
-                virtual bool test()
-                {
-                    auto res = true;
-
-                    try
-                    {
-                        a_type instance;
-                        res &= instance.an_int == default_v<int>;
-                        res &= instance.an_int + 1 == default_v<int> + 1;
-                        res &= (instance.an_int += 1) == default_v<int> + 1;
-                        res &= instance.an_int == default_v<int> + 1;
-
-                        another_type instance2;
-                        res &= instance2.an_int == default_v<int>;
-                        int an = 11;
-                        instance2.an_int = (long)an;
-                        res &= instance2.an_int == 11;
-                        res &= instance2.an_int + instance2.an_int == 22;
-                        res &= (instance.an_int = instance2.an_int) == 11;
-                        res &= instance.an_int == 11;
-                        std::cout << static_cast<int>(instance2.an_int) << std::endl;
-
-                        another_type2 instance3;
-                        std::cout << instance3.an_int << std::endl;
-                    }
-
-                    catch(std::exception& ex)
-                    {
-                        std::cout << ex.what() << std::endl;
-                        res = meta::v_<std::false_type>;
-                    }
-
-
-                    {
-                        int i = 13;
-                        reference<int> a_ref;
-                        a_ref = i;
-                    } /// must display the log of destructor
-
-                    {
-
-                        int i = 12;
-                        reference<int> a_ref, a_ref2 {i};
-                        std::cout << a_ref2 << std::endl;
-
-                        a_ref = i;
-                        std::cout << a_ref << std::endl;
-                        int i2 = 25;
-                        a_ref2 = i2;
-                        std::cout << a_ref2 << std::endl;
-                        a_ref = a_ref2;
-                        std::cout << a_ref << std::endl;
-                        a_ref = 4;
-                        std::cout << a_ref << std::endl;
-
-                        using object_derived =
-                            meta::inherit<object>;
-
-                        object_derived d;
-
-                        reference<object> a_ref3 = d;
-                        std::cout << a_ref3.get().id
-                                  << std::endl;
-
-                        reference<object> a_ref4;
-
-                        object_derived d2;
-                        a_ref4 = d2;
-                        std::cout << a_ref4.get().id
-                                  << std::endl;
-
-                        a_ref3 = a_ref4;
-                        std::cout << a_ref3.get().id
-                                  << std::endl;
-                    }
-
-                    {
-                        object obj1;
-                        std::cout << "obj1 "
-                                  << obj1.id
-                                  << std::endl;
-
-                        component<object> a_comp(obj1);
-
-                        std::cout << "a_comp "
-                                  << a_comp.get().id
-                                  << std::endl;
-
-                    }
-
-                    return res;
-                }
-        };
 
     }
 

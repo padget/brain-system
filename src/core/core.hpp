@@ -1353,18 +1353,38 @@ namespace brain
 
     namespace test
     {
-        struct basic_test
+        class basic_test
         {
-            const std::string name() const
-            {
-                return typeid(*this).name();
-            };
+                /// List of test steps
+                std::list<std::pair<bool, std::string>> m_steps;
+
+            public:
+                /// Return the name
+                /// of the test
+                const std::string name() const
+                {
+                    return typeid(*this).name();
+                };
 
 
-            auto operator()()
-            { return test(); }
+                /// Add a step to the test
+                void add_step(
+                    bool expr,
+                    const std::string description)
+                {
+                    m_steps.push_back(std::make_pair(expr, description));
+                }
 
-            virtual bool test() = 0;
+
+                const auto& steps() const
+                {
+                    return m_steps;
+                }
+
+
+                /// Override to build
+                /// the test steps.
+                virtual void test() = 0;
         };
 
         template <typename ... test_t>
@@ -1373,22 +1393,31 @@ namespace brain
         template <typename test_t>
         struct test_suite<test_t>
         {
-
             inline void operator()()
             {
                 timer<test_t> t;
 
                 auto && test = test_t();
+                test.test();
+                bool res {true};
+
                 logger<test_t>::info("==============================");
                 t.start("==      START == ");
                 logger<test_t>::info("==");
                 logger<test_t>::info("==");
+                
+                for(const auto & step : test.steps())
+                    if((res &= step.first, step.first))
+                        logger<test_t>::info("== -- ", step.second, " : Ok !");
 
-                if(fct::logic_not(test()))
-                    logger<test_t>::error("==      Result : KO /!\\");
+                    else
+                        logger<test_t>::info("== -- ", step.second, " : Ko /!\\");
+
+                if(fct::logic_not(res))
+                    logger<test_t>::error("==      Result : Ko /!\\");
 
                 else
-                    logger<test_t>::info("==      Result : OK !");
+                    logger<test_t>::info("==      Result : Ok !");
 
                 t.stop("==        END == ");
                 logger<test_t>::info("==============================");

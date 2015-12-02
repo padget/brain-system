@@ -17,19 +17,17 @@ using namespace std;
 /// Main function for
 /// C++ compiler.
 int main()
-{ 
-    
-    std::cout << "Coucou" << std::endl;
-    test::test_suite < meta::test::member_test,
+{
+    test::test_suite < /*meta::test::member_test,
          meta::test::literal_test,
          meta::test::constkw_test,
          meta::test::pack_test,
          meta::test::function_test,
          meta::test::math_test,
-         meta::test::conditional_test,
-         test::property_test,
-         test::object_test, 
-         test::reference_test/*,
+         meta::test::conditional_test,*/
+         test::object_test,
+         test::component_test/*,
+         test::reference_test,
          test::system_test,
          test::smart_ptr_test,
          test::scanner_test,
