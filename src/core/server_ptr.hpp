@@ -49,7 +49,8 @@ namespace brain
 
                 /// Build an server_ptr
                 /// with owned
-                server_ptr(pointer owned):
+                server_ptr(
+                    pointer owned):
                     server_pointer_base(),
                     m_owned(owned) {}
 
@@ -58,18 +59,21 @@ namespace brain
                 template < typename other_t,
                          typename = std::_Require < std::is_polymorphic<other_t>,
                          std::is_base_of<type, other_t> >>
-                server_ptr(other_t* owned):
+                server_ptr(
+                    other_t* owned):
                     server_pointer_base(),
                     m_owned(owned) {}
 
 
                 /// Copy a server_ptr
                 /// is forbidden.
-                server_ptr(const server_ptr&) = delete;
+                server_ptr(
+                    const server_ptr&) = delete;
 
 
                 /// Move constructor
-                server_ptr(server_ptr && other) :
+                server_ptr(
+                    server_ptr && other) :
                     server_pointer_base(),
                     m_owned(other.release()),
                     m_clients(std::move(other.clients()))
@@ -95,11 +99,13 @@ namespace brain
 
             public:
                 /// Copy operator= deleted
-                server_ptr& operator= (const server_ptr &) = delete;
+                server_ptr& operator= (
+                    const server_ptr &) = delete;
 
 
                 /// Move operator=
-                server_ptr& operator= (server_ptr && other)
+                server_ptr& operator= (
+                    server_ptr && other)
                 {
                     reset(other.release());
 
@@ -118,7 +124,8 @@ namespace brain
                 /// Replaces the pointer
                 /// m_owned by p and deletes
                 /// old m_owned
-                void reset(pointer p = nullptr)
+                void reset(
+                    pointer p = nullptr)
                 {
                     std::swap(m_owned, p);
 
@@ -157,12 +164,14 @@ namespace brain
 
             public:
                 ///
-                void subscribe(client_ptr<type>* subscriber)
+                void subscribe(
+                    client_ptr<type>* subscriber)
                 { m_clients.push_front(subscriber); }
 
 
                 ///
-                void unsubscribe(client_ptr<type>* subscriber)
+                void unsubscribe(
+                    client_ptr<type>* subscriber)
                 {
                     m_clients.remove_if([subscriber](auto * client)
                     { return subscriber == client; });
@@ -205,8 +214,11 @@ namespace brain
         template < typename type_t,
                  typename base_t,
                  typename ... args_t >
-        auto make_server(args_t && ... args)
-        { return server_ptr<base_t>(new type_t(std::forward<args_t>(args)...)); }
+        auto make_server(
+            args_t && ... args)
+        {
+            return server_ptr<base_t>(new type_t(std::forward<args_t>(args)...));
+        }
 
 
         ///
@@ -227,19 +239,22 @@ namespace brain
 
 
                 ///
-                client_ptr(server_ptr<type>& server = nullptr) :
+                client_ptr(
+                    server_ptr<type>& server = nullptr) :
                     m_server {&server}
                 { subscribe(); }
 
 
                 ///
-                client_ptr(const client_ptr& other):
+                client_ptr(
+                    const client_ptr& other):
                     m_server {other.m_server}
                 { subscribe(); }
 
 
                 ///
-                client_ptr(client_ptr && other):
+                client_ptr(
+                    client_ptr && other):
                     m_server {other.m_server}
                 {
                     if(other.m_server != nullptr)
@@ -256,7 +271,8 @@ namespace brain
 
             public:
                 ///
-                client_ptr& operator=(const client_ptr& other)
+                client_ptr& operator=(
+                    const client_ptr& other)
                 {
                     if(this != &other)
                     {
@@ -270,12 +286,14 @@ namespace brain
 
 
                 ///
-                client_ptr& operator=(client_ptr && other) = delete;
+                client_ptr& operator=(
+                    client_ptr && other) = delete;
 
 
                 ///
                 template<typename other_t>
-                client_ptr<type>& operator=(const client_ptr<other_t>& other)
+                client_ptr<type>& operator=(
+                    const client_ptr<other_t>& other)
                 {
                     if(this != &other)
                     {
@@ -347,7 +365,8 @@ namespace brain
 
 
                 ///
-                void switch_server(server_ptr<type>* s = nullptr)
+                void switch_server(
+                    server_ptr<type>* s = nullptr)
                 { m_server = s; }
 
 

@@ -56,6 +56,15 @@ typedef struct sockaddr SOCKADDR;
 /// Brain - System
 namespace brain
 {
+    /// Launch any functor
+    /// and return its result
+    template < typename func_t,
+             typename ... args_t >
+    auto launch(args_t && ... args)
+    {
+        return func_t()(
+                   std::forward<args_t>(args)...);
+    }
 
     /// ///////////////////////// ///
     /// Basic Concepts / Patterns ///
@@ -354,7 +363,7 @@ namespace brain
                 object &&) = default;
 
 
-            /// Destructor
+            /// Default destructor
             ~object() = default;
 
 
@@ -707,207 +716,87 @@ namespace brain
     }
 
 
-
-    namespace nat
-    {
-        /**
-         * @class property
-         * @author Benjamin
-         * @date 23/09/2015
-         * @file core.hpp
-         * @brief
-         */
-
-
-        template<typename type_t>
-        using client_property = monomorphe<ptr::client_ptr<type_t>>;
-
-        template<typename type_t>
-        using server_property = monomorphe<ptr::server_ptr<type_t>>;
-
-
-        /**
-        * @class plmproperty
-        * @author Benjamin
-        * @date 23/09/2015
-        * @file core.hpp
-        * @brief Enable to encapsulate an class into a property
-        * mainly for class/struct composition.
-        */
-        template < typename type_t,
-                 typename plm_policy = std::unique_ptr<type_t >>
-        class plmproperty
-        {
-            public:
-                using type = type_t;
-                using plmproperty_def = plmproperty<type_t>;
-
-            private:
-                plm_policy m_prop;
-
-            public:
-                constexpr plmproperty()
-                    : m_prop(fct::make_ptr<type_t, plm_policy>()) {}
-
-                plmproperty(const type& value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(value)) {}
-
-                plmproperty(type && value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(value)) {}
-
-                template<typename other_t>
-                plmproperty(other_t && value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(value)) {}
-
-                template<typename other_t>
-                plmproperty(plmproperty<other_t> && value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(value)) {}
-
-                template<typename other_t>
-                plmproperty(const plmproperty<other_t> & value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(value)) {}
-
-                plmproperty(plmproperty_def && value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(*value)) {}
-
-                plmproperty(const plmproperty_def & value)
-                    : m_prop(fct::make_ptr<type_t, plm_policy>(*value)) {}
-
-            public:
-                plmproperty_def& operator=(const type& value)
-                {
-                    fct::assign(*m_prop, value);
-                    return fct::inner(this);
-                }
-
-                template<typename other_t>
-                plmproperty_def& operator=(const plmproperty<other_t>& other)
-                {
-                    fct::assign(*m_prop, *other);
-                    return fct::inner(this);
-                }
-
-                plmproperty_def& operator=(const plmproperty_def& other)
-                {
-                    fct::assign(*m_prop, *other);
-                    return fct::inner(this);
-                }
-
-                plmproperty_def& operator=(type && value)
-                {
-                    fct::assign(*m_prop, *value);
-                    return fct::inner(this);
-                }
-
-            public:
-                operator type&()
-                { return *m_prop; }
-
-                operator const type&() const
-                { return *m_prop; }
-
-                template<typename other_t>
-                operator other_t&()
-                { return static_cast<other_t&>(*m_prop); }
-
-                template<typename other_t>
-                operator const other_t&() const
-                { return static_cast<const other_t&>(*m_prop); }
-
-            public:
-                const type& operator*() const
-                { return *m_prop; }
-
-                type& operator*()
-                { return *m_prop; }
-
-            public:
-                const auto* operator->() const
-                { return m_prop.operator->(); }
-
-                auto* operator->()
-                { return m_prop.operator->(); }
-
-            public:
-                type& operator()() {return *m_prop;}
-                const type& operator()() const {return *m_prop;}
-
-                void operator()(const type& value) { fct::assign(*m_prop, value); }
-                void operator()(type && value) { fct::assign(*m_prop, value); }
-        };
-
-        template <class type_t>
-        std::ostream& operator<<(std::ostream& os, const plmproperty<type_t>& p)
-        { return os << static_cast<const type_t&>(p); }
-
-        template < typename type_t,
-                 typename plm_policy = std::unique_ptr<type_t >>
-        using plm = plmproperty<type_t, plm_policy>;
-
-
-        /**
-         * @class default_value
-         * @author Benjamin
-         * @date 21/09/2015
-         * @file core.hpp
-         * @brief Enable to defined default value for any type.
-         */
-
-    }
-
-
+    /// //////////////// ///
+    /// Logging Features ///
+    /// //////////////// ///
     namespace logging
     {
         struct ROOT {};
 
         enum class Level
-        { TRACE, DEBUG, INFO, WARN, ERROR, FATAL, ALL };
+        {
+            TRACE,
+            DEBUG,
+            INFO,
+            WARN,
+            ERROR,
+            FATAL,
+            ALL
+        };
+
 
         template<Level lvl>
-        inline auto& lvlname()
-        { static std::string name = "UNDEFINED"; return name; }
+        const std::string lvlstr = "UNDEFINED";
 
         template<>
-        inline auto& lvlname<Level::INFO>()
-        { static std::string name = "INFO "; return name; }
+        const std::string lvlstr<Level::TRACE> =
+            "TRACE";
+
 
         template<>
-        inline auto& lvlname<Level::DEBUG>()
-        { static std::string name = "DEBUG"; return name; }
+        const std::string lvlstr<Level::DEBUG> =
+            "DEBUG";
+
 
         template<>
-        inline auto& lvlname<Level::TRACE>()
-        { static std::string name = "TRACE"; return name; }
+        const std::string lvlstr<Level::INFO> =
+            "INFO ";
+
 
         template<>
-        inline auto& lvlname<Level::WARN>()
-        { static std::string name = "WARN "; return name; }
+        const std::string lvlstr<Level::WARN> =
+            "WARN ";
+
 
         template<>
-        inline auto& lvlname<Level::ERROR>()
-        { static std::string name = "ERROR"; return name; }
+        const std::string lvlstr<Level::ERROR> =
+            "ERROR";
+
 
         template<>
-        inline auto& lvlname<Level::FATAL>()
-        { static std::string name = "FATAL"; return name; }
+        const std::string lvlstr<Level::FATAL> =
+            "FATAL";
+
 
         enum class Skip
-        { UNDEFINED, DONT_SKIP, SKIP };
+        {
+            UNDEFINED,
+            DONT_SKIP,
+            SKIP
+        };
 
 
-        template<typename key, typename value>
-        std::map<key, value> concatmap(std::pair<key, value> && p, const std::map<key, value>& m, const std::map<key, value>& m3)
+        template < typename key,
+                 typename value >
+        std::map<key, value> concatmap(
+            std::pair<key, value> && p,
+            const std::map<key, value>& m,
+            const std::map<key, value>& m2)
         {
             std::map<key, value> res(m);
             res[p.first] = p.second;
-            res.insert(std::begin(m3), std::end(m3));
+
+            res.insert(std::begin(m2),
+                       std::end(m2));
 
             return res;
         }
 
+
         template < Level lvl ,
                  typename type_t >
         class formatter;
+
 
         template < Level lvl,
                  typename t = void >
@@ -916,29 +805,45 @@ namespace brain
             public:
                 static Skip skip;
                 static std::map<std::ostream*, std::ostream*> outs;
-                static nat::plmproperty<formatter<lvl, t>> format;
+                static component<formatter<lvl, t>> format;
 
-                inline static void skip_policy(Skip skip) noexcept
-                { fct::assign(loggerconf::skip, skip); }
+
+                inline static void skip_policy(
+                    Skip skip) noexcept
+                {
+                    fct::assign(loggerconf::skip, skip);
+                }
+
 
                 template <typename formatter_t = formatter<lvl, t>>
-                inline static void format_policy(formatter_t && f)
-                { format(formatter_t(f)); }
+                inline static void format_policy(
+                    formatter_t && f)
+                {
+                    format(formatter_t(f));
+                }
         };
 
-        template <Level lvl, typename t>
-        nat::plmproperty<formatter<lvl, t>> loggerconf<lvl, t>::format;
 
-        template <Level lvl, typename t>
+        template < Level lvl,
+                 typename t >
+        component<formatter<lvl, t>> loggerconf<lvl, t>::format;
+
+
+        template < Level lvl,
+                 typename t >
         Skip loggerconf<lvl, t>::skip = Skip::UNDEFINED;
 
-        template <Level lvl, typename t>
+
+        template < Level lvl,
+                 typename t >
         std::map<std::ostream*, std::ostream*> loggerconf<lvl, t>::outs =
             concatmap( {&std::cout, &(std::cout << std::boolalpha)}, loggerconf<Level::ALL>::outs, loggerconf<lvl>::outs);
+
 
         template < typename Type,
                  typename clock >
         class logger;
+
 
         template < typename T,
                  typename clock = std::chrono::system_clock >
@@ -956,14 +861,16 @@ namespace brain
                 }
 
                 template <typename ... t>
-                void start(t && ... message) noexcept
+                void start(
+                    t && ... message) noexcept
                 {
                     fct::assign(t0, clock::now());
                     logger<T, clock>::info(message...);
                 }
 
                 template <typename ... t>
-                void step(t && ... message) noexcept
+                void step(
+                    t && ... message) noexcept
                 {
                     logger<T, clock>::info(message..., " : ",
                     std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - t0).count(),
@@ -972,7 +879,8 @@ namespace brain
                 }
 
                 template <typename ... t>
-                void stop(t && ... message) noexcept
+                void stop(
+                    t && ... message) noexcept
                 {
                     logger<T, clock>::info(message..., " : ",
                     std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - t0).count(),
@@ -981,7 +889,10 @@ namespace brain
                 }
 
                 template<typename func_t, typename ... args_t>
-                static void bench(const std::string& func_name, func_t& func, args_t ... args)
+                static void bench(
+                    const std::string& func_name,
+                    func_t& func,
+                    args_t ... args)
                 {
                     timer<T> t;
                     t.start("Start of benchmark of ", func_name);
@@ -990,7 +901,11 @@ namespace brain
                 }
 
                 template<typename func_t, typename ... args_t>
-                static void bench(const std::string& func_name, unsigned nb_try, func_t& func, args_t ... args)
+                static void bench(
+                    const std::string& func_name,
+                    unsigned nb_try,
+                    func_t& func,
+                    args_t ... args)
                 {
                     timer<T> t;
                     t.start("Start of benchmark of ", func_name);
@@ -1008,12 +923,14 @@ namespace brain
         {
             public:
                 template<typename ... args_t>
-                void operator()(std::ostream& out, args_t && ... messages) const
+                void operator()(
+                    std::ostream& out,
+                    args_t && ... messages) const
                 {
                     auto && now = timer<std::chrono::system_clock>::now();
                     now.erase(now.length() - 1, 1);
                     out << std::boolalpha;
-                    fct::append(out, now, " : [", lvlname<lvl>(), "] (", typeid(type_t).name(), ") : ", messages...);
+                    fct::append(out, now, " : [", lvlstr<lvl>, "] (", typeid(type_t).name(), ") : ", messages...);
                     out << std::endl;
                 }
         };
@@ -1025,15 +942,18 @@ namespace brain
         struct log
         {
             template <typename ... t>
-            void operator()(t && ... message) const
+            void operator()(
+                t && ... message) const
             {
                 if((fct::equals(loggerconf<lvl>::skip, Skip::SKIP)
                         and fct::equals(loggerconf<lvl, type_t>::skip, Skip::DONT_SKIP))
                         or (fct::not_equals(loggerconf<lvl>::skip, Skip::SKIP)
                             and fct::not_equals(loggerconf<lvl, type_t>::skip, Skip::SKIP)))
                 {
-                    fct::for_each(loggerconf<lvl, type_t>::outs, [&](auto && out)
-                    { (*loggerconf<lvl, type_t>::format)(*out.second, message...); });
+                    for(auto & out : loggerconf<lvl, type_t>::outs)
+                    {
+                        brain::get(loggerconf<lvl, type_t>::format)(*out.second, message...);
+                    }
                 }
             }
         };
@@ -1042,25 +962,31 @@ namespace brain
                  typename clock = std::chrono::system_clock >
         using debug = log<Level::DEBUG, type_t, clock>;
 
+
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using trace = log<Level::TRACE, type_t, clock>;
+
 
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using warn = log<Level::WARN, type_t, clock>;
 
+
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using info = log<Level::INFO, type_t, clock>;
+
 
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using error = log<Level::ERROR, type_t, clock>;
 
+
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
         using fatal = log<Level::FATAL, type_t, clock>;
+
 
         template < typename type_t,
                  typename clock = std::chrono::system_clock >
@@ -1069,36 +995,62 @@ namespace brain
         {
             public:
                 template <typename ... t>
-                inline static void info(t && ... message) noexcept
-                { logging::info<type_t, clock>()(message...); }
+                inline static void info(
+                    t && ... message) noexcept
+                {
+                    logging::info<type_t, clock>()(message...);
+                }
+
 
                 template <typename ... t>
-                inline static void trace(t && ... message) noexcept
-                {  logging::trace<type_t, clock>()(message...); }
+                inline static void trace(
+                    t && ... message) noexcept
+                {
+                    logging::trace<type_t, clock>()(message...);
+                }
+
 
                 template <typename ... t>
-                inline static void debug(t && ... message) noexcept
-                {  logging::debug<type_t, clock>()(message...); }
+                inline static void debug(
+                    t && ... message) noexcept
+                {
+                    logging::debug<type_t, clock>()(message...);
+                }
+
 
                 template <typename ... t>
-                inline static void warn(t && ... message) noexcept
-                {  logging::warn<type_t, clock>()(message...); }
+                inline static void warn(
+                    t && ... message) noexcept
+                {
+                    logging::warn<type_t, clock>()(message...);
+                }
+
 
                 template <typename ... t>
-                inline static void error(t && ... message) noexcept
-                {  logging::error<type_t, clock>()(message...); }
+                inline static void error(
+                    t && ... message) noexcept
+                {
+                    logging::error<type_t, clock>()(message...);
+                }
+
 
                 template <typename ... t>
-                inline static void fatal(t && ... message) noexcept
-                {  logging::fatal<type_t, clock>()(message  ...); }
+                inline static void fatal(
+                    t && ... message) noexcept
+                {
+                    logging::fatal<type_t, clock>()(message  ...);
+                }
         };
     }
+
 
     template<typename type_t>
     using logger = logging::logger<type_t>;
 
+
     template<typename type_t>
     using timer = logging::timer<type_t>;
+
 
     using ROOT = logging::ROOT;
 
@@ -1358,6 +1310,13 @@ namespace brain
                 /// List of test steps
                 std::list<std::pair<bool, std::string>> m_steps;
 
+
+                /// More length
+                /// description
+                /// between all
+                /// steps
+                size_t m_lengther_description {default_v<size_t>};
+
             public:
                 /// Return the name
                 /// of the test
@@ -1367,11 +1326,22 @@ namespace brain
                 };
 
 
+                /// Getter on 
+                /// m_lengther_description
+                const size_t lengthest() const
+                {
+                    return m_lengther_description;
+                }
+                
+
                 /// Add a step to the test
                 void add_step(
                     bool expr,
                     const std::string description)
                 {
+                    if(description.length() > m_lengther_description)
+                        m_lengther_description = description.length();
+
                     m_steps.push_back(std::make_pair(expr, description));
                 }
 
@@ -1393,6 +1363,17 @@ namespace brain
         template <typename test_t>
         struct test_suite<test_t>
         {
+            inline std::string complete_line(
+                const std::string& str,
+                size_t line_size,
+                char completor)
+            {
+                return str + (str.size() < line_size ?
+                              std::string(line_size - str.size() - 2 ,
+                                          completor)
+                              : "");
+            }
+
             inline void operator()()
             {
                 timer<test_t> t;
@@ -1400,24 +1381,74 @@ namespace brain
                 auto && test = test_t();
                 test.test();
                 bool res {true};
+                unsigned nb_steps_passed {0};
+
+                static const std::string tab_border {"== "};
 
                 logger<test_t>::info("==============================");
                 t.start("==      START == ");
-                logger<test_t>::info("==");
-                logger<test_t>::info("==");
-                
+                logger<test_t>::info(tab_border);
+                logger<test_t>::info(tab_border);
+
+                static const std::string step_ok =
+                    " | Ok !";
+                static const std::string step_ko =
+                    " | Ko /!\\";
+
+
                 for(const auto & step : test.steps())
                     if((res &= step.first, step.first))
-                        logger<test_t>::info("== -- ", step.second, " : Ok !");
+                    {
+                        /// The step is Ok
+                        nb_steps_passed++;
+
+                        logger<test_t>::info(tab_border,
+                                             '|',
+                                             std::string(test.lengthest() + 3, '-'),
+                                             '|',
+                                             std::string(step_ko.size() + 1,
+                                                         '-'),
+                                             '|');
+
+                        logger<test_t>::info(tab_border,
+                                             "| ",
+                                             complete_line(step.second,
+                                                           test.lengthest() + 3,
+                                                           ' '),
+                                             step_ok, "     |");
+                    }
 
                     else
-                        logger<test_t>::info("== -- ", step.second, " : Ko /!\\");
+                    {
+                        logger<test_t>::info(tab_border,
+                                             "| ",
+                                             std::string(test.lengthest() + 3, '-'),
+                                             '|',
+                                             std::string(step_ko.size() + 1,
+                                                         '-'),
+                                             '|');
 
-                if(fct::logic_not(res))
-                    logger<test_t>::error("==      Result : Ko /!\\");
+                        logger<test_t>::info(tab_border,
+                                             '|',
+                                             complete_line(step.second,
+                                                           test.lengthest() + 3,
+                                                           ' '),
+                                             step_ko, "     |");
+                    }
 
-                else
-                    logger<test_t>::info("==      Result : Ok !");
+                logger<test_t>::info(tab_border,
+                                     '|',
+                                     std::string(test.lengthest() + 3, '-'),
+                                     '|',
+                                     std::string(step_ko.size() + 1,
+                                                 '-'),
+                                     '|');
+
+                logger<test_t>::info(tab_border,
+                                     "     Result : passed ",
+                                     nb_steps_passed,
+                                     "/",
+                                     test.steps().size());
 
                 t.stop("==        END == ");
                 logger<test_t>::info("==============================");

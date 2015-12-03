@@ -33,12 +33,18 @@ namespace brain
 
                 virtual void test()
                 {
-                    static_assert(v_<std::is_same<t_<a_type>, a_type>>, "");
-                    static_assert(v_<a_type> == 1, "");
-                    static_assert(v_<std::is_same<vt_<a_type>, const int>>, "");
-                    static_assert(size_<a_type> == 12, "");
-                    static_assert(v_<std::is_same<return_<a_type, int>, a_type>>, "");
-                    static_assert(v_<std::is_same<r_<a_type, int>, a_type>>, "");
+                    add_step(v_<std::is_same<t_<a_type>, a_type>>,
+                             "test of t_");
+                    add_step(v_<a_type> == 1,
+                             "test of v_");
+                    add_step(v_<std::is_same<vt_<a_type>, const int>>,
+                             "test of vt_");
+                    add_step(size_<a_type> == 12,
+                             "test of size_");
+                    add_step(v_<std::is_same<return_<a_type, int>, a_type>>,
+                             "test of return_");
+                    add_step(v_<std::is_same<r_<a_type, int>, a_type>>,
+                             "test of r_");
                 }
             };
 
@@ -50,17 +56,17 @@ namespace brain
             {
                 virtual void test()
                 {
-                    static_assert(v_<bool_t_<true>> == true, "");
-                    static_assert(v_<short_t_<1>> == 1, "");
-                    static_assert(v_<ushort_t_<1>> == 1, "");
-                    static_assert(v_ < char_t_ < 'c' >> == 'c', "");
-                    static_assert(v_<int_t_<1>> == 1, "");
-                    static_assert(v_<long_t_<1>> == 1, "");
-                    static_assert(v_<longlong_t_<1>> == 1, "");
-                    static_assert(v_<unsigned_t_<1>> == 1, "");
-                    static_assert(v_<unsignedl_t_<1>> == 1, "");
-                    static_assert(v_<unsignedll_t_<1>> == 1, "");
-                    static_assert(v_<size_t_<1>> == 1, "");
+                    add_step(v_<bool_t_<true>> == true, "");
+                    add_step(v_<short_t_<1>> == 1, "");
+                    add_step(v_<ushort_t_<1>> == 1, "");
+                    add_step(v_ < char_t_ < 'c' >> == 'c', "");
+                    add_step(v_<int_t_<1>> == 1, "");
+                    add_step(v_<long_t_<1>> == 1, "");
+                    add_step(v_<longlong_t_<1>> == 1, "");
+                    add_step(v_<unsigned_t_<1>> == 1, "");
+                    add_step(v_<unsignedl_t_<1>> == 1, "");
+                    add_step(v_<unsignedll_t_<1>> == 1, "");
+                    add_step(v_<size_t_<1>> == 1, "");
                 }
             };
 
@@ -73,9 +79,9 @@ namespace brain
             {
                 virtual void test()
                 {
-                    static_assert(v_<sizeof_t_<int>> == sizeof(int), "");
-                    static_assert(v_<sizeof_pack_t_<int, double, int>> == 3, "");
-                    static_assert(v_<alignof_t_<int>> == alignof(int), "");
+                    add_step(v_<sizeof_t_<int>> == sizeof(int), "");
+                    add_step(v_<sizeof_pack_t_<int, double, int>> == 3, "");
+                    add_step(v_<alignof_t_<int>> == alignof(int), "");
                 }
             };
 
@@ -89,14 +95,14 @@ namespace brain
 
                 virtual void test()
                 {
-                    static_assert(size_<a_list> == v_<sizeof_pack_t_<int, float, double>>, "");
-                    static_assert(v_<std::is_same<t_<a_list>, a_list>>, "");
-                    static_assert(v_<std::is_same<front_t<a_list>, int>>, "");
-                    static_assert(v_<std::is_same<back_t<a_list>, double>>, "");
-                    static_assert(v_<std::is_same<concat_t<list<int>, list<float, double>, list<>>, list<int, float, double>>>, "");
-                    static_assert(v_<std::is_same<at_t<unsigned_t<2>, a_list>, double>>, "");
-                    static_assert(v_<std::is_same<repeat_t<unsigned_t<3>, int>, list<int, int, int>>>, "");
-                    static_assert(v_<std::is_same<to_list_t<std::tuple<int, int>>, list<int, int>>>, "");
+                    add_step(size_<a_list> == v_<sizeof_pack_t_<int, float, double>>, "");
+                    add_step(v_<std::is_same<t_<a_list>, a_list>>, "");
+                    add_step(v_<std::is_same<front_t<a_list>, int>>, "");
+                    add_step(v_<std::is_same<back_t<a_list>, double>>, "");
+                    add_step(v_<std::is_same<concat_t<list<int>, list<float, double>, list<>>, list<int, float, double>>>, "");
+                    add_step(v_<std::is_same<at_t<unsigned_t<2>, a_list>, double>>, "");
+                    add_step(v_<std::is_same<repeat_t<unsigned_t<3>, int>, list<int, int, int>>>, "");
+                    add_step(v_<std::is_same<to_list_t<std::tuple<int, int>>, list<int, int>>>, "");
                 }
             };
 
@@ -124,21 +130,18 @@ namespace brain
                 virtual void test()
                 {
                     /// TODO Unitary for compose
-                    static_assert(v_<std::is_same<always_r<void>, void>> , "");
-                    static_assert(v_<has_type_t<a_type>>, "");
-                    static_assert(!v_<has_type_t<another_type>>, "");
-                    static_assert(v_<has_return_t<a_type>>, "");
-                    static_assert(!v_<has_return_t<another_type>>, "");
-                    static_assert(v_<is_meta_function_t<a_type>>, "");
-                    static_assert(!v_<is_meta_function_t<another_type>>, "");
-                    /// TODO Unitary for bind_front
-                    /// TODO Unitary for bind_back
-                    static_assert(v_<std::is_same<expand_t<a_type, list<int, double>>, int>>, "");
-
-                    static_assert(v_<std::is_same<push_back_t<float, a_list>, list<int, double, float>>>, "");
-                    static_assert(v_<std::is_same<push_front_t<float, a_list>, list<float, int, double>>>, "");
-                    static_assert(v_<std::is_same<pop_back_t<a_list>, list<int>>>, "");
-                    static_assert(v_<std::is_same<pop_front_t<a_list>, list<double>>>, "");
+                    add_step(v_<std::is_same<always_r<void>, void>> , "");
+                    add_step(v_<has_type_t<a_type>>, "");
+                    add_step(!v_<has_type_t<another_type>>, "");
+                    add_step(v_<has_return_t<a_type>>, "");
+                    add_step(!v_<has_return_t<another_type>>, "");
+                    add_step(v_<is_meta_function_t<a_type>>, "");
+                    add_step(!v_<is_meta_function_t<another_type>>, "");
+                    add_step(v_<std::is_same<expand_t<a_type, list<int, double>>, int>>, "");
+                    add_step(v_<std::is_same<push_back_t<float, a_list>, list<int, double, float>>>, "");
+                    add_step(v_<std::is_same<push_front_t<float, a_list>, list<float, int, double>>>, "");
+                    add_step(v_<std::is_same<pop_back_t<a_list>, list<int>>>, "");
+                    add_step(v_<std::is_same<pop_front_t<a_list>, list<double>>>, "");
                 }
             };
 
@@ -156,7 +159,7 @@ namespace brain
 
                 virtual void test()
                 {
-                    static_assert(v_<std::is_same<t_<defer<a_type, int, double>>, void>>, "");
+                    add_step(v_<std::is_same<t_<defer<a_type, int, double>>, void>>, "");
                     return v_<std::true_type>;
                 }
             };*/
@@ -173,7 +176,7 @@ namespace brain
 
                 virtual void test()
                 {
-                    static_assert(v_<std::is_same<r_<quote_r_<a_type>, int, float, double>, a_type<int, float, double>>> , "");
+                    add_step(v_<std::is_same<r_<quote_r_<a_type>, int, float, double>, a_type<int, float, double>>> , "");
                 }
             };
 
@@ -185,23 +188,23 @@ namespace brain
             {
                 virtual void test()
                 {
-                    static_assert(v_<inc_t_<unsigned_t_<0>>> == 1, "");
-                    static_assert(v_<dec_t_<unsigned_t_<1>>> == 0, "");
-                    static_assert(v_<plus_t<unsigned_t_<1>, unsigned_t_<1>>> == 2, "");
-                    static_assert(v_<minus_t_<unsigned_t_<1>, unsigned_t_<1>>> == 0, "");
-                    static_assert(v_<multiplies_t_<unsigned_t_<2>, unsigned_t_<2>>> == 4, "");
-                    static_assert(v_<divides_t_<unsigned_t_<4>, unsigned_t_<2>>> == 2, "");
-                    static_assert(v_<negate_t_<int_t_<1>>> == -1, "");
-                    static_assert(v_<modulus_t_<unsigned_t_<5>, unsigned_t_<2>>> == 1, "");
+                    add_step(v_<inc_t_<unsigned_t_<0>>> == 1, "");
+                    add_step(v_<dec_t_<unsigned_t_<1>>> == 0, "");
+                    add_step(v_<plus_t<unsigned_t_<1>, unsigned_t_<1>>> == 2, "");
+                    add_step(v_<minus_t_<unsigned_t_<1>, unsigned_t_<1>>> == 0, "");
+                    add_step(v_<multiplies_t_<unsigned_t_<2>, unsigned_t_<2>>> == 4, "");
+                    add_step(v_<divides_t_<unsigned_t_<4>, unsigned_t_<2>>> == 2, "");
+                    add_step(v_<negate_t_<int_t_<1>>> == -1, "");
+                    add_step(v_<modulus_t_<unsigned_t_<5>, unsigned_t_<2>>> == 1, "");
 
-                    static_assert(v_<equal_to_t_<int_t_<1>, int_t_<1>>>, "");
-                    static_assert(!v_<not_equal_to_t_<int_t_<1>, int_t_<1>>>, "");
-                    static_assert(v_<greater_t_<int_t_<2>, int_t_<1>>>, "");
-                    static_assert(v_<less_t_<int_t_<1>, int_t_<2>>>, "");
-                    static_assert(v_<greater_equal_t_<int_t_<2>, int_t_<1>>>, "");
-                    static_assert(v_<less_equal_t_<int_t_<1>, int_t_<2>>>, "");
-                    static_assert(v_<greater_equal_t_<int_t_<1>, int_t_<1>>>, "");
-                    static_assert(v_<less_equal_t_<int_t_<1>, int_t_<1>>>, "");
+                    add_step(v_<equal_to_t_<int_t_<1>, int_t_<1>>>, "");
+                    add_step(!v_<not_equal_to_t_<int_t_<1>, int_t_<1>>>, "");
+                    add_step(v_<greater_t_<int_t_<2>, int_t_<1>>>, "");
+                    add_step(v_<less_t_<int_t_<1>, int_t_<2>>>, "");
+                    add_step(v_<greater_equal_t_<int_t_<2>, int_t_<1>>>, "");
+                    add_step(v_<less_equal_t_<int_t_<1>, int_t_<2>>>, "");
+                    add_step(v_<greater_equal_t_<int_t_<1>, int_t_<1>>>, "");
+                    add_step(v_<less_equal_t_<int_t_<1>, int_t_<1>>>, "");
                 }
             };
 
@@ -212,19 +215,19 @@ namespace brain
             {
                 virtual void test()
                 {
-                    static_assert(v_<std::is_same<if_c<true, int, double>, int>>, "");
-                    static_assert(v_<std::is_same<if_c<false, int, double>, double>>, "");
-                    static_assert(v_<std::is_same<if_t<bool_t_<true>, int, double>, int>>, "");
-                    static_assert(v_<std::is_same<if_t<bool_t_<false>, int, double>, double>>, "");
-                    static_assert(v_<std::is_same<select_c<true, int, double>, int>>, "");
-                    static_assert(v_<std::is_same<select_c<false, int, double>, double>>, "");
-                    static_assert(v_<std::is_same<select_t<bool_t_<true>, int, double>, int>>, "");
-                    static_assert(v_<std::is_same<select_t<bool_t_<false>, int, double>, double>>, "");
-                    static_assert(v_<std::is_same<std::true_type, and_t<bool_t_<true>, bool_t_<true>>>>, "");
-                    static_assert(v_<std::is_same<std::false_type, and_t<bool_t_<false>, bool_t_<true>>>>, "");
-                    static_assert(v_<std::is_same<std::true_type, or_t<bool_t_<false>, bool_t_<true>>>>, "");
-                    static_assert(v_<std::is_same<std::false_type, or_t<bool_t_<false>, bool_t_<false>>>>, "");
-                    static_assert(!v_<not_t<bool_t_<true>>>, "");
+                    add_step(v_<std::is_same<if_c<true, int, double>, int>>, "");
+                    add_step(v_<std::is_same<if_c<false, int, double>, double>>, "");
+                    add_step(v_<std::is_same<if_t<bool_t_<true>, int, double>, int>>, "");
+                    add_step(v_<std::is_same<if_t<bool_t_<false>, int, double>, double>>, "");
+                    add_step(v_<std::is_same<select_c<true, int, double>, int>>, "");
+                    add_step(v_<std::is_same<select_c<false, int, double>, double>>, "");
+                    add_step(v_<std::is_same<select_t<bool_t_<true>, int, double>, int>>, "");
+                    add_step(v_<std::is_same<select_t<bool_t_<false>, int, double>, double>>, "");
+                    add_step(v_<std::is_same<std::true_type, and_t<bool_t_<true>, bool_t_<true>>>>, "");
+                    add_step(v_<std::is_same<std::false_type, and_t<bool_t_<false>, bool_t_<true>>>>, "");
+                    add_step(v_<std::is_same<std::true_type, or_t<bool_t_<false>, bool_t_<true>>>>, "");
+                    add_step(v_<std::is_same<std::false_type, or_t<bool_t_<false>, bool_t_<false>>>>, "");
+                    add_step(!v_<not_t<bool_t_<true>>>, "");
                 }
             };
 
@@ -244,7 +247,7 @@ namespace brain
                 virtual void test()
                 {
 
-                    static_assert(v_<std::is_same<filter_t<a_list, is_int>, list<int, int>>>, "");
+                    add_step(v_<std::is_same<filter_t<a_list, is_int>, list<int, int>>>, "");
                 }
             };
         }
@@ -286,8 +289,6 @@ namespace brain
         {
             virtual void test()
             {
-                bool res = true;
-
                 object o1;
                 component<object> co1;
                 component<int> ci1;
@@ -342,77 +343,47 @@ namespace brain
             }
         };
 
-        /// TODO To complete
-        struct reference_test :
+
+        struct monomorphe_test:
             public basic_test
         {
-            void foo(reference<object>& ref)
-            {
-                object o;
-                ref = o;
-            }
-
-
             virtual void test()
             {
-                bool res = true;
+                const int i1 {1};
+                monomorphe<int> mi1 {i1};
+                add_step(mi1 == i1,
+                         "test of cref constructor");
+                int i2 {2};
+                monomorphe<int> mi2 {i2};
+                add_step(mi2 == i2,
+                         "test of ref constructor");
+                monomorphe<int> mi3 {3};
+                add_step(mi3 == 3,
+                         "test of uref constructor");
+                monomorphe<int> mi4 {4l};
+                add_step(mi4 == 4,
+                         "test of convertible constructor");
+                monomorphe<int> mi5;
+                mi5 = 5;
+                add_step(mi5 == 5,
+                         "test of uref assignement");
+                monomorphe<int> mi6;
+                int i6 {6};
+                mi6 = i6;
+                add_step(mi6 == i6,
+                         "test of ref constructor");
+                monomorphe<int> mi7;
+                const int i7 {7};
+                mi7 = i7;
+                add_step(mi7 == i7,
+                         "test of cref constructor");
+                monomorphe<int> mi8;
+                mi8 = 8l;
+                add_step(mi8 == 8,
+                         "test of convertible constructor");
 
-                object o1;
-                reference<object> ro1 {o1};
-
-                /// The both id must be
-                /// equal because of
-                /// the reference ro1 is
-                /// on o1 (no copy).
-                res &= (brain::get(ro1).id == o1.id);
-
-                object o2;
-                brain::set(ro1, o2);
-
-                /// The both must be
-                /// equal because the
-                /// reference ro1 is now
-                /// on o2 object (no copy)
-                res &= (brain::get(ro1).id == o2.id);
-
-                object o3;
-                brain::set(ro1, o3);
-
-                /// The both must be
-                /// equal because the
-                /// reference ro1 is now
-                /// on o3 object (no copy)
-                res &= (brain::get(ro1).id == o3.id);
-
-                reference<object> ro2 {o3};
-
-                /// The both must be equal
-                res &= (ro2.get().id == o3.id);
-
-                reference<object> ro3 {ro2};
-
-                /// The both must be equal
-                res &= (ro2.get().id == ro3.get().id);
-
-                reference<object> ro4;
-                ro4 = o1;
-
-                res &= (ro4.get().id == o1.id);
-
-                ro4 = ro3;
-
-                res &= (ro4.get().id == ro3.get().id);
-
-                reference<object> ro5;
-                res &= !brain::valid(ro5);
-
-                res &= (ro5 = ro4, brain::valid(ro5));
             }
         };
-
-
-
-
     }
 
 
