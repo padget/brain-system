@@ -36,7 +36,8 @@ int main()
          test::parser_test,
           *
          test::tree_maker_test*/ >>();
-
+        
+    logger<ROOT>::info(sizeof(reference<int>));
 
     return 0;
 }

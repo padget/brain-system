@@ -359,8 +359,7 @@ namespace brain
     /// a component (strength
     /// aggregation) in modele
     /// design
-    template < typename type_t,
-             typename politic_t = no_effect<type_t >>
+    template < typename type_t>
     class component: /// Validated
         public property<type_t>
     {
@@ -588,11 +587,16 @@ namespace brain
 
 
     /// TODO
-    template < typename type_t,
-             typename politic_t = no_effect<type_t >>
+    template <typename type_t>
     class reference:
         public property<type_t>
     {
+        private:
+            struct counter
+            {
+                size_t count {0u};
+            };
+
         public:
             using type = reference;
             using value_type = type_t;
@@ -603,21 +607,156 @@ namespace brain
 
         private:
             pointer_type m_value {nullptr};
+            counter* m_counter {nullptr};
 
         public:
+            /// Default constructor
             reference() = default;
+
+
+            /// Constructor for
+            /// pointer_type
+            reference(
+                pointer_type value):
+                m_value(value)
+            {
+                if(valid())
+                {
+                    m_counter = new counter();
+                    m_counter->count++;
+                }
+            }
+
+
+            /// Copy constructor
+            reference(
+                const reference& other):
+                m_value(other.m_value)
+            {
+                if(valid())
+                {
+                    m_counter = other.m_counter;
+                    m_counter->count++;
+                }
+            }
+
+
+            /// Move constructor
+            reference(
+                reference && other):
+                m_value(other.m_value),
+                m_counter(other.m_counter)
+            {
+            }
+
+
+            /// Destructor
+            ~reference()
+            {
+                if(valid())
+                    if(alone())
+                    {
+                        delete m_value;
+                        delete m_counter;
+                    }
+
+                    else
+                        m_counter->count--;
+            }
+
+
+        public:
+            /// pointer assignement
+            reference& operator=(
+                pointer_type value)
+            {
+                if(value != m_value)
+                {
+                    if(valid())
+                        if(alone())
+                        {
+                            auto* tmp = m_value;
+                            delete tmp;
+                        }
+
+                        else
+                        {
+                            m_counter->count--;
+                            m_counter = new counter();
+                        }
+
+                    m_value = value;
+                }
+
+                return *this;
+            }
+
+
+            /// Copy assignement
+            reference& operator=(
+                const reference& other)
+            {
+                if(this != &other)
+                {
+                    if(m_value != other.m_value)
+                    {
+                        if(valid())
+                            if(alone())
+                            {
+                                auto* tmp = m_value;
+                                delete tmp;
+                            }
+
+                            else
+                            {
+                                m_counter->count--;
+                                m_counter = new counter();
+                            }
+
+                        m_value = other.m_value;
+                    }
+                    else 
+                    {
+                        
+                    m}
+                }
+
+                return *this;
+            }
+
+
+            /// Move assignement
+            reference& operator=(
+                reference && other)
+            {
+                if(this != &other)
+                {
+                    m_counter = other.m_counter;
+                    m_value = other.m_value;
+                }
+
+                return *this;
+            }
+
+
+        public:
+            inline bool alone() const
+            {
+                return m_counter->count == 1;
+            }
+
 
 
         public:
             /// Getter on m_value
-            virtual cref_type get() const
+            inline virtual cref_type get() const
             {
                 return *m_value;
             }
 
 
             /// Setter on m_value
-            virtual void set(
+            inline virtual void set(
                 uref_type value)
             {
                 this->operator =(value);
@@ -625,7 +764,7 @@ namespace brain
 
 
             /// Setter on m_value
-            virtual void set(
+            inline virtual void set(
                 ref_type value)
             {
                 this->operator =(value);
@@ -633,11 +772,10 @@ namespace brain
 
 
             /// Validator on m_value
-            virtual bool valid() const
+            inline virtual bool valid() const
             {
-                return static_cast<bool>(m_value);
+                return m_value != nullptr;
             }
-
     };
 
 
