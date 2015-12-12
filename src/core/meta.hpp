@@ -316,6 +316,43 @@ namespace brain
             defer_t<alignof_t_, type_t>;
 
 
+        /// /////////////////////// ///
+        /// Keyword Feature Remover ///
+        /// /////////////////////// ///
+
+
+        ///
+        template<typename type_t>
+        using remove_const_t =
+            std::remove_const_t<type_t>;
+
+
+        ///
+        template<typename type_t>
+        using remove_volatile_t =
+            std::remove_volatile_t<type_t>;
+
+
+        ///
+        template<typename type_t>
+        using remove_reference_t =
+            std::remove_reference_t<type_t>;
+
+
+        ///
+        template<typename type_t>
+        using remove_pointer_t =
+            std::remove_pointer_t<type_t>;
+
+
+        ///
+        template<typename type_t>
+        using extract_basic_type_t =
+            remove_const_t <
+            remove_pointer_t <
+            remove_reference_t<type_t> > >;
+
+
         /// ///////////////////////////// ///
         /// Mathematical wrapper features ///
         /// ///////////////////////////// ///

@@ -29,10 +29,12 @@
 #include <list>
 #include <chrono>
 #include "macro.hpp"
+#include "serialize.hpp"
 #include "meta.hpp"
 #include "pattern.hpp"
 #include "property.hpp"
 #include "server_ptr.hpp"
+#include "logging.hpp"
 /*#define WIN32
 
 #if defined (WIN32)
@@ -66,129 +68,6 @@ namespace brain
                    std::forward<args_t>(args)...);
     }
 
-    /// ///////////////////////// ///
-    /// Basic Concepts / Patterns ///
-    /// ///////////////////////// ///
-
-
-    /// Declare that an
-    /// object can be
-    /// transformed into
-    /// a string_t
-    template<typename string_t>
-    struct basic_stringable
-    {
-        /// Default virtual destructor
-        /// for polymorphic inheritance
-        virtual ~basic_stringable() = default;
-
-        /// Operator string_t() for
-        /// explicit casting operation
-        /// Must be override for
-        /// inheritance to provide cast
-        virtual operator string_t() noexcept = 0;
-    };
-
-
-    /// Alias for basic_stringable
-    /// of std::string
-    using stringable =
-        basic_stringable<std::string>;
-
-
-    /// Alias for basic_stringable
-    /// of std::wstring
-    using wstringable =
-        basic_stringable<std::wstring>;
-
-
-    /// Design pattern Singleton.
-    /// Initiate the singleton
-    /// at the first invocation
-    /// and keep it all over the
-    /// execution of the program
-    template <typename type_t>
-    struct singleton :
-            pattag::singleton
-    {
-        /// Lazy loading of
-        /// the singleton
-        static type_t& single() noexcept
-        {
-            static type_t obj;
-            return obj;
-        }
-    };
-
-
-    /// Returns true if
-    /// type_t is derived
-    /// from singleton<type_t>
-    template<typename type_t>
-    using is_singleton =
-        std::is_base_of<singleton<type_t>, type_t>;
-
-
-    /// Accessor for single()
-    /// member of singleton_t
-    template<typename singleton_t>
-    const auto& single =
-        singleton_t::single();
-
-
-    /// Design pattern prototype
-    /// Provides a pure clone methode
-    template<typename type_t>
-    struct prototype:
-            pattag::prototype
-    {
-        /// Alias for
-        /// unique_ptr<type_t>
-        using type_ptr =
-            std::unique_ptr<type_t>;
-
-
-        /// Clone method that
-        /// returns a copy of
-        /// the prototype object
-        virtual type_ptr clone() = 0;
-    };
-
-
-    /// Alias for
-    /// prototype pattern
-    template<typename type_t>
-    using cloneable =
-        prototype<type_t>;
-
-
-    /// Returns true if
-    /// type_t inherits from
-    /// cloneable<type_t>
-    template<typename type_t>
-    using is_clonable =
-        std::is_base_of<cloneable<type_t>, type_t>;
-
-
-    /// Marshalling
-    /// Unmarshalling
-    template < typename input_t,
-             typename output_t >
-    struct serializer
-    {
-        /// Marshalling
-        /// function
-        virtual void marshall(
-            const input_t& in,
-            output_t& out) = 0;
-
-
-        /// Unmarshalling
-        /// function
-        virtual void unmarshall(
-            const output_t& out,
-            input_t& in) = 0;
-    };
 
 
     /// ///////////////////////////// ///
@@ -309,20 +188,6 @@ namespace brain
         "";
 
 
-    /// //////////////// ///
-    /// Pattern Observer ///
-    /// //////////////// ///
-
-
-    /// TODO Doc
-    template<typename type_t>
-    struct observer
-    {
-        virtual void update(
-            const type_t& observed) = 0;
-    };
-
-
     /// ////// ///
     /// Object ///
     /// ////// ///
@@ -391,719 +256,52 @@ namespace brain
     unsigned long long object::s_id {default_v<unsigned long long>};
 
 
-    /// //////////////////////////// ///
-    /// Unsorted // TODO : Sort Them ///
-    /// //////////////////////////// ///
-    namespace fct
+    template<typename char_t>
+    serializerstream<char_t>& operator<<(
+        serializerstream<char_t>& out,
+        const object& ob)
     {
-        template<typename ... types_t>
-        using arguments = std::tuple<types_t...>;
-
-        template<typename sfunctor1_t, typename sfunctor2_t>
-        using pair_sfunctor = std::pair<sfunctor1_t, sfunctor2_t>;
-
-        template<typename tuple_t>
-        using expand_index_sequence = std::make_index_sequence<std::tuple_size<std::decay_t<tuple_t>>::value>;
-
-        template<typename func_t, typename tuple_t, size_t ... idx>
-        inline auto expand(func_t && f, tuple_t && t, std::index_sequence<idx...> && index)
-        { return std::forward<func_t>(f)(std::get<idx>(std::forward<tuple_t>(t))...); }
-
-        template<typename func_t, typename tuple_t>
-        inline auto expand(func_t && f, tuple_t && t)
-        {
-            return expand(std::forward<func_t>(f),
-                          std::forward<tuple_t>(t),
-                          expand_index_sequence<tuple_t>());
-        }
-
-
-        template < typename type_t,
-                 typename smart_t,
-                 typename ...args_t >
-        inline smart_t make_ptr(args_t && ...args)
-        { return smart_t(new type_t(std::forward<args_t>(args)...)); }
-
-        template < typename type_t,
-                 typename ...args_t >
-        inline std::unique_ptr<type_t> unique(args_t && ... args)
-        { return std::make_unique<type_t>(std::forward<args_t>(args)...); }
-
-        template < typename type_t,
-                 typename ...args_t >
-        inline std::shared_ptr<type_t> shared(args_t && ... args)
-        { return std::make_shared<type_t>(std::forward<args_t>(args)...); }
-
-        template<typename type_t>
-        inline type_t && mv(type_t & o)
-        { return std::move(o); }
-
-        template<typename type_t>
-        inline type_t && mv(type_t && o)
-        { return std::move(o); }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto adds(left_t && l,
-                                   right_t && r)
-        { return l + r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto substracts(left_t && l,
-                                         right_t && r)
-        { return l - r; }
-
-        template <typename left_t>
-        inline constexpr auto minus(left_t && l)
-        { return -l; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto multiplies(left_t && l,
-                                         right_t && r)
-        { return l * r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto divides(left_t && l,
-                                      right_t && r)
-        { return l / r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto modulo(left_t && l,
-                                     right_t && r)
-        { return l % r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto equals(left_t && l,
-                                     right_t && r)
-        { return l == r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto not_equals(left_t && l,
-                                         right_t && r)
-        { return not equals(l, r); }
-
-        template<typename left_t>
-        inline constexpr auto not_null(left_t && l)
-        { return not_equals(l, nullptr); }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto less(left_t && l,
-                                   right_t && r)
-        { return l < r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto less_equal(left_t && l,
-                                         right_t && r)
-        { return l <= r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto greater(left_t && l,
-                                      right_t && r)
-        { return l > r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto greater_equal(left_t && l,
-                                            right_t && r)
-        { return l >= r; }
-
-        template <typename left_t>
-        inline auto p_inc(left_t& l)
-        { return ++l; }
-
-        template <typename left_t>
-        inline auto s_inc(left_t && l)
-        { return l++; }
-
-        template <typename left_t>
-        inline auto p_decr(left_t& l)
-        { return --l; }
-
-        template <typename left_t>
-        inline auto s_decr(left_t && l)
-        { return l--; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto logic_and(left_t && l,
-                                        right_t && r)
-        { return l and r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline constexpr auto logic_or(left_t && l,
-                                       right_t && r)
-        { return l or r; }
-
-        template<typename type_t>
-        inline constexpr auto logic_not(type_t && r)
-        { return not r; }
-
-        template < typename left_t,
-                 typename right_t >
-        inline auto& assign(left_t& l,
-                            right_t && r)
-        {
-            l = r;
-            return l;
-        }
-
-        template < typename left_t,
-                 typename right_t >
-        inline auto& assign(left_t& l,
-                            right_t & r)
-        { return l = r; }
-
-        template <typename t>
-        inline std::ostream& append(std::ostream& out, t && o) noexcept
-        { return out << o; }
-
-        template <typename t, typename ... T>
-        inline std::ostream& append(std::ostream& out, t && o, T && ... os) noexcept
-        {
-            out << o;
-            return append(out, os...);
-        }
-
-        template<typename t>
-        std::string to_string(t && o)
-        {
-            std::stringstream ss;
-            return (ss << o, ss.str());
-        }
-
-        template<typename container_t>
-        inline auto begin(container_t& c)
-        { return std::begin(c);}
-
-        template<typename container_t>
-        inline auto begin(const container_t& c)
-        { return std::begin(c);}
-
-        template<typename container_t>
-        inline constexpr auto cbegin(const container_t& c)
-        { return fct::begin(c);}
-
-        template<typename container_t>
-        inline auto end(container_t& c)
-        { return std::end(c);}
-
-        template<typename container_t>
-        inline auto end(const container_t& c)
-        { return std::end(c);}
-
-        template<typename container_t>
-        inline constexpr auto cend(const container_t& c)
-        { return fct::end(c);}
-
-        template < typename container_t,
-                 typename contained_t >
-        inline auto& push(container_t& c,
-                          contained_t && value)
-        { return (c.push_back(value), c); }
-
-        template < typename container_t,
-                 typename contained_t >
-        inline auto& push(container_t& c,
-                          contained_t* value)
-        { return (c.push_back(value), c); }
-
-        template <typename container_t>
-        inline auto& push_all(container_t& c,
-                              typename container_t::const_iterator && first,
-                              typename container_t::const_iterator && after_last)
-        { return (c.insert(c.end(), first, after_last), c); }
-
-        template<typename container_t>
-        inline auto& push_all(container_t& c, container_t& other)
-        { return push_all(c, other.cbegin(), other.cend()); }
-
-        template<typename container_t>
-        inline auto& push_all(container_t& c, container_t && other)
-        { return push_all(c, other.cbegin(), other.cend()); }
-
-        template<typename container_t>
-        inline constexpr auto empty(container_t && c)
-        { return c.empty(); }
-
-        template<typename container_t>
-        inline constexpr auto not_empty(container_t && c)
-        { return logic_not(empty(c)); }
-
-        template<typename type_t>
-        inline auto& inner(type_t && o)
-        { return *o; }
-
-        template<typename type_t>
-        inline auto& inner(type_t & o)
-        { return *o; }
-
-        template<typename type_t>
-        inline void delete_if_not_null(type_t* p)
-        {
-            if(fct::not_null(p))
-            { delete p; p = nullptr; }
-        }
-
-
-        template < typename arg_test_t,
-                 typename predicate_t,
-                 typename ... arg_then_t,
-                 typename then_t >
-        inline void do_if(predicate_t& predicate,
-                          arg_test_t && arg_test,
-                          then_t& then,
-                          arg_then_t && ... arg_then)
-        {
-            if(predicate(std::forward<arg_test_t>(arg_test)))
-                then(std::forward<arg_then_t>(arg_then)...);
-        }
-
-        template < typename ... arg_then_t,
-                 typename then_t >
-        inline void do_ifb(bool predicate,
-                           then_t& then,
-                           arg_then_t && ... arg_then)
-        {
-            if(predicate)
-                then(std::forward(arg_then...));
-        }
-
-        template < typename iter_t,
-                 typename func_t >
-        inline void for_each(iter_t && first, iter_t last, func_t && f)
-        { std::for_each(first, last, f); }
-
-        template < typename container_t,
-                 typename func_t >
-        inline void for_each(container_t && c, func_t && f)
-        { std::for_each(c.begin(), c.end(), f); }
-    }
-
-    namespace cops
-    {
-        template <typename t>
-        inline std::ostream& append(std::ostream& out, t && o) noexcept
-        { return out << o; }
-
-        template <typename t, typename ... T>
-        inline std::ostream& append(std::ostream& out, t && o, T && ... os) noexcept
-        {
-            out << o;
-            return append(out, os...);
-        }
-
-        template <typename str>
-        std::string concat(str && ch1)
-        {
-            std::wstringstream stream;
-            return (stream << ch1, stream.str());
-        }
-
-        template <typename str1, typename ... str2>
-        std::string concat(str1 && ch1, str2 && ... ch2)
-        { return fct::adds(concat(ch1), concat(ch2...)); }
-
+        return out;
     }
 
 
-    /// //////////////// ///
-    /// Logging Features ///
-    /// //////////////// ///
-    namespace logging
-    {
-        struct ROOT {};
-
-        enum class Level
-        {
-            TRACE,
-            DEBUG,
-            INFO,
-            WARN,
-            ERROR,
-            FATAL,
-            ALL
-        };
-
-
-        template<Level lvl>
-        const std::string lvlstr = "UNDEFINED";
-
-        template<>
-        const std::string lvlstr<Level::TRACE> =
-            "TRACE";
-
-
-        template<>
-        const std::string lvlstr<Level::DEBUG> =
-            "DEBUG";
-
-
-        template<>
-        const std::string lvlstr<Level::INFO> =
-            "INFO ";
-
-
-        template<>
-        const std::string lvlstr<Level::WARN> =
-            "WARN ";
-
-
-        template<>
-        const std::string lvlstr<Level::ERROR> =
-            "ERROR";
-
-
-        template<>
-        const std::string lvlstr<Level::FATAL> =
-            "FATAL";
-
-
-        enum class Skip
-        {
-            UNDEFINED,
-            DONT_SKIP,
-            SKIP
-        };
-
-
-        template < typename key,
-                 typename value >
-        std::map<key, value> concatmap(
-            std::pair<key, value> && p,
-            const std::map<key, value>& m,
-            const std::map<key, value>& m2)
-        {
-            std::map<key, value> res(m);
-            res[p.first] = p.second;
-
-            res.insert(std::begin(m2),
-                       std::end(m2));
-
-            return res;
-        }
-
-
-        template < Level lvl ,
-                 typename type_t >
-        class formatter;
-
-
-        template < Level lvl,
-                 typename t = void >
-        class loggerconf
-        {
-            public:
-                static Skip skip;
-                static std::map<std::ostream*, std::ostream*> outs;
-                static component<formatter<lvl, t>> format;
-
-
-                inline static void skip_policy(
-                    Skip skip) noexcept
-                {
-                    fct::assign(loggerconf::skip, skip);
-                }
-
-
-                template <typename formatter_t = formatter<lvl, t>>
-                inline static void format_policy(
-                    formatter_t && f)
-                {
-                    format(formatter_t(f));
-                }
-        };
-
-
-        template < Level lvl,
-                 typename t >
-        component<formatter<lvl, t>> loggerconf<lvl, t>::format;
-
-
-        template < Level lvl,
-                 typename t >
-        Skip loggerconf<lvl, t>::skip = Skip::UNDEFINED;
-
-
-        template < Level lvl,
-                 typename t >
-        std::map<std::ostream*, std::ostream*> loggerconf<lvl, t>::outs =
-            concatmap( {&std::cout, &(std::cout << std::boolalpha)}, loggerconf<Level::ALL>::outs, loggerconf<lvl>::outs);
-
-
-        template < typename Type,
-                 typename clock >
-        class logger;
-
-
-        template < typename T,
-                 typename clock = std::chrono::system_clock >
-        class timer
-        {
-                typename clock::time_point t0 = clock::now();
-
-
-            public:
-
-                static std::string now() noexcept
-                {
-                    auto time = clock::to_time_t(clock::now());
-                    return std::string(ctime(&time));
-                }
-
-                template <typename ... t>
-                void start(
-                    t && ... message) noexcept
-                {
-                    fct::assign(t0, clock::now());
-                    logger<T, clock>::info(message...);
-                }
-
-                template <typename ... t>
-                void step(
-                    t && ... message) noexcept
-                {
-                    logger<T, clock>::info(message..., " : ",
-                    std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - t0).count(),
-                    " ms");
-                    fct::assign(t0, clock::now());
-                }
-
-                template <typename ... t>
-                void stop(
-                    t && ... message) noexcept
-                {
-                    logger<T, clock>::info(message..., " : ",
-                    std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - t0).count(),
-                    " ms");
-                    fct::assign(t0, clock::now());
-                }
-
-                template<typename func_t, typename ... args_t>
-                static void bench(
-                    const std::string& func_name,
-                    func_t& func,
-                    args_t ... args)
-                {
-                    timer<T> t;
-                    t.start("Start of benchmark of ", func_name);
-                    func(args...);
-                    t.stop("End of benchmark of ", func_name);
-                }
-
-                template<typename func_t, typename ... args_t>
-                static void bench(
-                    const std::string& func_name,
-                    unsigned nb_try,
-                    func_t& func,
-                    args_t ... args)
-                {
-                    timer<T> t;
-                    t.start("Start of benchmark of ", func_name);
-
-                    for(unsigned u = 0; fct::less(u, nb_try); fct::p_inc(u))
-                        func(args...);
-
-                    t.stop("End of benchmark of ", func_name);
-                }
-        };
-
-        template < Level lvl,
-                 typename type_t >
-        class formatter
-        {
-            public:
-                template<typename ... args_t>
-                void operator()(
-                    std::ostream& out,
-                    args_t && ... messages) const
-                {
-                    auto && now = timer<std::chrono::system_clock>::now();
-                    now.erase(now.length() - 1, 1);
-                    out << std::boolalpha;
-                    fct::append(out, now, " : [", lvlstr<lvl>, "] (", typeid(type_t).name(), ") : ", messages...);
-                    out << std::endl;
-                }
-        };
-
-
-        template < Level lvl,
-                 typename type_t,
-                 typename clock = std::chrono::system_clock >
-        struct log
-        {
-            template <typename ... t>
-            void operator()(
-                t && ... message) const
-            {
-                if((fct::equals(loggerconf<lvl>::skip, Skip::SKIP)
-                        and fct::equals(loggerconf<lvl, type_t>::skip, Skip::DONT_SKIP))
-                        or (fct::not_equals(loggerconf<lvl>::skip, Skip::SKIP)
-                            and fct::not_equals(loggerconf<lvl, type_t>::skip, Skip::SKIP)))
-                {
-                    for(auto & out : loggerconf<lvl, type_t>::outs)
-                    {
-                        brain::get(loggerconf<lvl, type_t>::format)(*out.second, message...);
-                    }
-                }
-            }
-        };
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        using debug = log<Level::DEBUG, type_t, clock>;
-
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        using trace = log<Level::TRACE, type_t, clock>;
-
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        using warn = log<Level::WARN, type_t, clock>;
-
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        using info = log<Level::INFO, type_t, clock>;
-
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        using error = log<Level::ERROR, type_t, clock>;
-
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        using fatal = log<Level::FATAL, type_t, clock>;
-
-
-        template < typename type_t,
-                 typename clock = std::chrono::system_clock >
-        class logger :
-            public singleton<logger<type_t, clock>>
-        {
-            public:
-                template <typename ... t>
-                inline static void info(
-                    t && ... message) noexcept
-                {
-                    logging::info<type_t, clock>()(message...);
-                }
-
-
-                template <typename ... t>
-                inline static void trace(
-                    t && ... message) noexcept
-                {
-                    logging::trace<type_t, clock>()(message...);
-                }
-
-
-                template <typename ... t>
-                inline static void debug(
-                    t && ... message) noexcept
-                {
-                    logging::debug<type_t, clock>()(message...);
-                }
-
-
-                template <typename ... t>
-                inline static void warn(
-                    t && ... message) noexcept
-                {
-                    logging::warn<type_t, clock>()(message...);
-                }
-
-
-                template <typename ... t>
-                inline static void error(
-                    t && ... message) noexcept
-                {
-                    logging::error<type_t, clock>()(message...);
-                }
-
-
-                template <typename ... t>
-                inline static void fatal(
-                    t && ... message) noexcept
-                {
-                    logging::fatal<type_t, clock>()(message  ...);
-                }
-        };
-    }
-
-
-    template<typename type_t>
-    using logger = logging::logger<type_t>;
-
-
-    template<typename type_t>
-    using timer = logging::timer<type_t>;
-
-
-    using ROOT = logging::ROOT;
-
-
-    /**
-    * Le namespace sys permet de mettre en place
-    * la paradigme de programmation par system.
-    *
-    * Il s'agit de déclarer un system et d'un ensemble
-    * de receiptor potentiels. On reliera le système à
-    * un sous ensemble de receiptors. Ces receiptors
-    * permettent de prendre en compte les évenements
-    * reçus par le système.
-    *
-    * Un système peut être relié à d'autres système par
-    * une sémantique d'émetteur -> recepteur.
-    *
-    * Il faut explicitement faire la liaison dans chacun
-    * des sens. La liaison ne se fait que dans un seul
-    * sens à la fois.
-    */
     namespace sys
     {
         class system;
         class event;
 
-        /**
-         * @class event
-         * @author Benjamin
-         * @date 27/09/2015
-         * @file core.hpp
-         * @brief An event enable to transport information
-         * from a system (emetor) to another system (more
-         * precisly to an event_receiptor).
-         */
-        /*class event
-        {
-            public:
-                nat::client_property<system> source;
 
-            public:
-                inline event(ptr::client_ptr<system> src) :
-                    source(src)
-                {}
+        /* class event
+         {
+             public:
+                 reference<system> source;
 
-                event(const event&) noexcept = default;
-                event(event &&) noexcept = default;
-                virtual ~event() noexcept = default;
+             public:
+                 inline event(
+                     reference<system> src) :
+                     source(src)
+                 {
+                 }
 
-            public:
-                event& operator=(const event&) noexcept = default;
-                event& operator=(event &&) noexcept = default;
-        };*/
+
+                 event(
+                     const event&) noexcept = default;
+
+
+                 event(
+                     event &&) noexcept = default;
+
+
+                 virtual ~event() noexcept = default;
+
+             public:
+                 event& operator=(
+                     const event&) noexcept = default;
+
+
+                 event& operator=(
+                     event &&) noexcept = default;
+         };*/
 
         /**
          * @class event_receiptor
@@ -1112,16 +310,22 @@ namespace brain
          * @file core.hpp
          * @brief Functor that receives the events from systems
          */
-        /* class event_receiptor
-         {
-                 virtual void receipt(system&, event&) const = 0 ;
+        class event_receiptor
+        {
+                virtual void receipt(
+                    system&,
+                    event&) const = 0 ;
 
-             public:
-                 virtual void operator()(system& s, event& e) const
-                 { receipt(s, e); }
-         };
 
-         using event_receiptor_u = std::unique_ptr<event_receiptor> ;*/
+            public:
+                virtual void operator()(
+                    system& s,
+                    event& e) const
+                {
+                    receipt(s, e);
+                }
+        };
+
 
         /**
          * @class basic_receiptor
@@ -1132,27 +336,25 @@ namespace brain
          * receiptor that's specific to the event_t and to
          * system_t.
          */
-        /*     template < typename event_t,
-                      typename system_t >
-             class basic_receiptor:
-                 public event_receiptor
-             {
-                 public:
-                     virtual void act(system_t&, event_t&) const = 0;
+        template < typename event_t,
+                 typename system_t >
+        class basic_receiptor:
+            public event_receiptor
+        {
+            public:
+                virtual void act(system_t&, event_t&) const = 0;
 
-                     virtual void receipt(system& s, event& e) const
-                     {
-                         if(fct::logic_and(fct::equals(typeid(e),
-                                                       typeid(event_t)),
-                                           fct::equals(typeid(s),
-                                                       typeid(system_t))))
-                         {
-                             event_t& trs_e = dynamic_cast<event_t&>(e);
-                             system_t& trs_s = dynamic_cast<system_t&>(s);
-                             act(trs_s, trs_e);
-                         }
-                     }
-             };*/
+                virtual void receipt(system& s, event& e) const
+                {
+                    if(typeid(e) == typeid(event_t) and
+                            typeid(s) == typeid(system_t))
+                    {
+                        event_t& trs_e = dynamic_cast<event_t&>(e);
+                        system_t& trs_s = dynamic_cast<system_t&>(s);
+                        act(trs_s, trs_e);
+                    }
+                }
+        };
 
         /**
          * @class system
@@ -1162,59 +364,76 @@ namespace brain
          * @brief A system is a component that can receive
          * and send events.
          */
-        /*    class system:
-                public object
-            {
-                    using system_clt = ptr::client_ptr<system>;
-                    using systems_clt = std::vector<system_clt>;
-                    using event_receiptors_u = std::vector<event_receiptor_u>;
+        class system:
+            public object
+        {
+                using system_clt =
+                    ptr::client_ptr<system>;
+                using systems_clt =
+                    std::vector<system_clt>;
+                using event_receiptors =
+                    std::vector<component<event_receiptor>>;
 
-                public:
-                    property<bool> autoconnected {default_v<bool>};
-                    property<event_receiptors_u> receiptors;
-                    property<systems_clt> systems;
+            public:
+                /// True if a system is
+                /// autoconnected, false
+                /// else
+                monomorphe<bool> autoconnected {default_v<bool>};
 
-                public:
-                    BRAIN_ALL_DEFAULT(system)
 
-                public:
-                    inline void addReceiver(const system_clt& receiver)
+                /// List of all systems
+                /// that can be notified
+                /// by the current here
+                monomorphe<event_receiptors> receiptors;
+
+
+                ///
+                monomorphe<systems_clt> systems;
+
+            public:
+                BRAIN_ALL_DEFAULT(system)
+
+            public:
+                inline void addReceiver(const system_clt& receiver)
+                {
+                    if(receiver)
+                        systems().push_back(receiver);
+                }
+
+                inline void addReceiver(system_clt && receiver)
+                {
+                    if(receiver)
+                        systems().push_back(receiver);
+                }
+
+            public:
+                inline void receive(event& e)
+                {
+                    for(const auto & rec : receiptors())
+                        ;// rec(*this, e);
+                }
+
+                inline void send(event& e)
+                {
+                    if(autoconnected())
+                        this->receive(e);
+
+                    for(auto & system : systems())
                     {
-                        if(receiver)
-                            systems().push_back(receiver);
-                    }
+                        if(system) system->receive(e);
+                    };
+                }
 
-                    inline void addReceiver(system_clt && receiver)
+            public:
+                /*inline void bilink(std::initializer_list<system_clt> && _systems)
+                {
+                    fct::for_each(_systems, [this](auto & system)
                     {
-                        if(receiver)
-                            systems().push_back(receiver);
-                    }
-
-                public:
-                    inline void receive(event& e)
-                    {
-                        fct::for_each(receiptors(), [&](auto & receiptor)
-                        { (*receiptor)(*this, e); });
-                    }
-
-                    inline void send(event& e)
-                    {
-                        if(autoconnected) this->receive(e);
-
-                        fct::for_each(systems(), [&e](auto & system)
-                        { if(system) system->receive(e); });
-                    }
-
-                public:
-                    /*inline void bilink(std::initializer_list<system_clt> && _systems)
-                    {
-                        fct::for_each(_systems, [this](auto & system)
-                        {
-                            this->addReceiver(system);
-                            system->addReceiver(this);
-                        });
-                    }*/
-        /* };*/
+                        this->addReceiver(system);
+                        system->addReceiver(this);
+                    });
+                }*/
+        };
 
         /**
          * @class system_with_receiptors
@@ -1298,9 +517,12 @@ namespace brain
     }
 
 
-    enum class exitcode
-    : int
-    { WELL = 0, CRITIC = 1 };
+    enum class exitcode :
+    int
+    {
+        WELL = 0,
+        CRITIC = 1
+    };
 
 
     namespace test
@@ -1326,13 +548,13 @@ namespace brain
                 };
 
 
-                /// Getter on 
+                /// Getter on
                 /// m_lengther_description
                 const size_t lengthest() const
                 {
                     return m_lengther_description;
                 }
-                
+
 
                 /// Add a step to the test
                 void add_step(

@@ -1,6 +1,10 @@
 #ifndef __BRAIN__PATTERN_HPP
 #define __BRAIN__PATTERN_HPP
 
+#include <type_traits>
+#include <string>
+#include <memory>
+
 namespace brain
 {
     /// /////////////////////////// ///
@@ -370,5 +374,108 @@ namespace brain
     using implements_visitor_t =
         implements_pattern_t<pattag::visitor, type_t>;
 
+
+    /// ///////////////////////// ///
+    /// Basic Concepts / Patterns ///
+    /// ///////////////////////// ///
+
+
+    /// Declare that an
+    /// object can be
+    /// transformed into
+    /// a string_t
+    template<typename string_t>
+    struct basic_stringable
+    {
+        /// Default virtual destructor
+        /// for polymorphic inheritance
+        virtual ~basic_stringable() = default;
+
+        /// Operator string_t() for
+        /// explicit casting operation
+        /// Must be override for
+        /// inheritance to provide cast
+        virtual operator string_t() noexcept = 0;
+    };
+
+
+    /// Alias for basic_stringable
+    /// of std::string
+    using stringable =
+        basic_stringable<std::string>;
+
+
+    /// Alias for basic_stringable
+    /// of std::wstring
+    using wstringable =
+        basic_stringable<std::wstring>;
+
+
+    /// Design pattern Singleton.
+    /// Initiate the singleton
+    /// at the first invocation
+    /// and keep it all over the
+    /// execution of the program
+    template <typename type_t>
+    struct singleton :
+            pattag::singleton
+    {
+        /// Lazy loading of
+        /// the singleton
+        static type_t& single() noexcept
+        {
+            static type_t obj;
+            return obj;
+        }
+    };
+
+
+    /// Returns true if
+    /// type_t is derived
+    /// from singleton<type_t>
+    template<typename type_t>
+    using is_singleton =
+        std::is_base_of<singleton<type_t>, type_t>;
+
+
+    /// Accessor for single()
+    /// member of singleton_t
+    template<typename singleton_t>
+    const auto& single =
+        singleton_t::single();
+
+
+    /// Design pattern prototype
+    /// Provides a pure clone methode
+    template<typename type_t>
+    struct prototype:
+            pattag::prototype
+    {
+        /// Alias for
+        /// unique_ptr<type_t>
+        using type_ptr =
+            std::unique_ptr<type_t>;
+
+
+        /// Clone method that
+        /// returns a copy of
+        /// the prototype object
+        virtual type_ptr clone() = 0;
+    };
+
+
+    /// Alias for
+    /// prototype pattern
+    template<typename type_t>
+    using cloneable =
+        prototype<type_t>;
+
+
+    /// Returns true if
+    /// type_t inherits from
+    /// cloneable<type_t>
+    template<typename type_t>
+    using is_clonable =
+        std::is_base_of<cloneable<type_t>, type_t>;
 }
 #endif

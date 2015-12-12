@@ -87,6 +87,9 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/core/server_ptr.hpp"/>
         <File Name="src/core/pattern.hpp"/>
         <File Name="src/core/property.hpp"/>
+        <File Name="src/core/serialize.hpp"/>
+        <File Name="src/core/logging.hpp"/>
+        <File Name="src/core/filtering.hpp"/>
       </VirtualDirectory>
       <File Name="src/data.h"/>
       <VirtualDirectory Name="data">
@@ -104,7 +107,7 @@ C:\users\benjamin\projets\code_lite_w\brain
         <VirtualDirectory Name="utest">
           <File Name="src/test/utest/utest.hpp"/>
         </VirtualDirectory>
-        <File Name="src/test/Socket.cpp"/>
+        <File Name="src/test/Socket.cpp" ExcludeProjConfig="Release"/>
         <File Name="src/test/Socket.hpp"/>
       </VirtualDirectory>
     </VirtualDirectory>

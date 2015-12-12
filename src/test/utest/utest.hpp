@@ -263,22 +263,22 @@ namespace brain
             {
                 object o1;
                 object o2 {o1};
-                add_step(o1.id != o2.id,
+                add_step(o1.id() != o2.id(),
                          "test of constructor by copy");
                 object o3;
-                add_step(o1.id != o3.id && o2.id != o3.id,
+                add_step(o1.id() != o3.id() && o2.id() != o3.id(),
                          "test of default constructor");
                 o3 = o1;
-                add_step(o1.id != o3.id,
+                add_step(o1.id() != o3.id(),
                          "test of copy assignement");
                 object o5;
-                auto o5_id = o5.id;
+                auto o5_id = o5.id();
                 object o6 {std::move(o5)};
-                add_step(o5_id == o6.id,
+                add_step(o5_id == o6.id(),
                          "test of move assignement");
-                auto o6_id = o6.id;
+                auto o6_id = o6.id();
                 object o7 {std::move(o6)};
-                add_step(o7.id == o6_id,
+                add_step(o7.id() == o6_id,
                          "test of move constructor");
             }
         };
@@ -287,6 +287,7 @@ namespace brain
         struct component_test:
             public basic_test
         {
+            
             virtual void test()
             {
                 object o1;
@@ -296,29 +297,29 @@ namespace brain
                 component<int> ci3 {new int(3)};
                 add_step(!brain::valid(ci1),
                          "test of default constructor");
-                add_step(2 == ci2,
+                add_step(2 == ci2(),
                          "test of generic constructor with rvalue");
-                add_step(3 == ci3,
+                add_step(3 == ci3(),
                          "test of pointer based constructor");
                 component<int> ci4 {std::move(ci3)};
                 add_step(brain::valid(ci4)
                          && !brain::valid(ci3)
-                         && ci4 == 3,
+                         && ci4() == 3,
                          "test of move constructor");
                 component<int> ci5;
                 int i5 = 5;
                 ci5 = i5;
-                add_step(ci5 == 5,
+                add_step(ci5() == 5,
                          "test of ref_type assignement");
                 ci5 = 6;
-                add_step(ci5 == 6,
+                add_step(ci5() == 6,
                          "test of uref_type assignement");
-                const int i7 = 7;
+                const int i7{7};
                 ci5 = i7;
-                add_step(ci5 == 7,
+                add_step(ci5() == 7,
                          "test of cref_type");
                 ci5 = new int(8);
-                add_step(ci5 == 8,
+                add_step(ci5() == 8,
                          "test of pointer_ytpe assignement");
 
                 using derived = meta::inherit<object>;
@@ -339,7 +340,8 @@ namespace brain
                 add_step(brain::valid(cobase4),
                          "test of polymorphism by reference constructor");
 
-
+                component<derived> d1;
+                component<object> cobase5 {std::move(d1)};
             }
         };
 
@@ -351,39 +353,136 @@ namespace brain
             {
                 const int i1 {1};
                 monomorphe<int> mi1 {i1};
-                add_step(mi1 == i1,
+                add_step(mi1() == i1,
                          "test of cref constructor");
                 int i2 {2};
                 monomorphe<int> mi2 {i2};
-                add_step(mi2 == i2,
+                add_step(mi2() == i2,
                          "test of ref constructor");
                 monomorphe<int> mi3 {3};
-                add_step(mi3 == 3,
+                add_step(mi3() == 3,
                          "test of uref constructor");
                 monomorphe<int> mi4 {4l};
-                add_step(mi4 == 4,
+                add_step(mi4() == 4,
                          "test of convertible constructor");
                 monomorphe<int> mi5;
                 mi5 = 5;
-                add_step(mi5 == 5,
+                add_step(mi5() == 5,
                          "test of uref assignement");
                 monomorphe<int> mi6;
                 int i6 {6};
                 mi6 = i6;
-                add_step(mi6 == i6,
+                add_step(mi6() == i6,
                          "test of ref constructor");
                 monomorphe<int> mi7;
                 const int i7 {7};
                 mi7 = i7;
-                add_step(mi7 == i7,
+                add_step(mi7() == i7,
                          "test of cref constructor");
                 monomorphe<int> mi8;
                 mi8 = 8l;
-                add_step(mi8 == 8,
+                add_step(mi8() == 8,
                          "test of convertible constructor");
 
             }
         };
+
+
+        struct shared_component_test:
+            public basic_test
+        {
+            virtual void test()
+            {
+                using derived = meta::inherit<object>;
+
+                shared_component<object> sco1;
+                add_step(!sco1.valid(),
+                         "test of default constructor");
+                int i1 {1};
+                shared_component<int> sci1 {i1};
+                add_step(sci1() == i1,
+                         "test of ref constructor");
+                const int i2 {2};
+                shared_component<int> si2 {i2};
+                add_step(si2() == i2,
+                         "test of cref constructor");
+                shared_component<int> si3 {3};
+                add_step(si3() == 3,
+                         "test of uref constructor");
+                derived d1;
+                shared_component<object> sco2 {d1};
+                add_step(sco2.valid(),
+                         "test of derived_t constructor");
+                shared_component<object> sco3 {new object()};
+                add_step(sco3.valid(),
+                         "test of pointer constructor");
+                shared_component<object> sco4 {new derived()};
+                add_step(sco4.valid(),
+                         "test of derived pointer constructor");
+                
+                const derived* d2{new derived()};
+                shared_component<object> sco5{d2};
+            }
+        };
+
+        /*        struct server_ptr_test :
+                    public basic_test
+                {
+                        class Base
+                        {
+
+                            public:
+                                virtual ~Base() {}
+                                virtual std::string foo()
+                                {return "base";}
+                        };
+
+                        class Derived:
+                            public Base
+                        {
+
+                            public:
+                                virtual ~Derived() {}
+                                virtual std::string foo()
+                                {return "derived";}
+                        };
+
+                        class Derived2
+                            : public Derived
+                        {
+                            public:
+                                virtual ~Derived2() {}
+                                virtual std::string foo()
+                                {return "derived";}
+                        };
+
+                        using derived  = meta::inherit<object>;
+
+                    public:
+                        virtual void test()
+                        {
+                            server_ptr<object> server {new derived()};
+
+                            server_ptr<object>::client clt(server);
+
+                            if(clt)
+                                logger<ROOT>::debug("clt est OK ", clt->foo());
+
+                            else
+                                logger<ROOT>::debug("clt est KO");
+
+                            {
+                                myptr server2 = fct::mv(server);
+                                logger<ROOT>::debug(" serveur ", bool(server2));
+                            }
+
+                            if(clt)
+                                logger<ROOT>::debug("clt est OK ", clt->foo());
+
+                            else
+                                logger<ROOT>::debug("clt est KO");
+                        }
+                };*/
     }
 
 
@@ -454,68 +553,7 @@ namespace brain
                       return true;
                   }
           };
-
-          struct smart_ptr_test :
-              public basic_test
-          {
-
-                  class Base
-                  {
-
-                      public:
-                          virtual ~Base() {}
-                          virtual std::string foo()
-                          {return "base";}
-                  };
-
-                  class Derived:
-                      public Base
-                  {
-
-                      public:
-                          virtual ~Derived() {}
-                          virtual std::string foo()
-                          {return "derived";}
-                  };
-
-                  class Derived2
-                      : public Derived
-                  {
-                      public:
-                          virtual ~Derived2() {}
-                          virtual std::string foo()
-                          {return "derived";}
-                  };
-
-              public:
-                  virtual bool test()
-                  {
-                      using myptr = ptr::server_ptr<Base>;
-                      myptr server(new Derived2());
-
-                      myptr::client clt(server);
-
-                      if(clt)
-                          logger<smart_ptr_test>::debug("clt est OK ", clt->foo());
-
-                      else
-                          logger<smart_ptr_test>::debug("clt est KO");
-
-                      {
-                          myptr server2 = fct::mv(server);
-                          logger<smart_ptr_test>::debug(" serveur ", bool(server2));
-                      }
-
-                      if(clt)
-                          logger<smart_ptr_test>::debug("clt est OK ", clt->foo());
-
-                      else
-                          logger<smart_ptr_test>::debug("clt est KO");
-
-
-                      return true;
-                  }
-          };*/
+    */
 
     /*
             enum class LQL
