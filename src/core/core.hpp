@@ -261,7 +261,15 @@ namespace brain
         serializerstream<char_t>& out,
         const object& ob)
     {
-        return out;
+        using attr =
+            typename serializerstream<char_t>::attribute;
+        return out
+               << brain::attrsbegin
+               << "object"
+               << attrsbegin
+               << attr("id", ob.id())
+               << attrsend
+               << attrsend;
     }
 
 

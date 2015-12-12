@@ -57,6 +57,5 @@ int main()
        << attrsend<char>;
 
     std::cout << xml_format<char>()(ss) ;
-
     return 0;
 }

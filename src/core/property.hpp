@@ -672,6 +672,7 @@ namespace brain
     };
 
 
+
     /// Wrapper of vector
     /// of component
     template<typename type_t>
@@ -701,7 +702,6 @@ namespace brain
     {
             template<typename derived_t>
             friend class shared_component;
-
         public:
             using type =
                 shared_component;
@@ -1001,7 +1001,7 @@ namespace brain
             /// Validator on m_value
             inline virtual bool valid() const
             {
-                return static_cast<bool>(m_value);
+                return m_value != nullptr;
             }
     };
 
