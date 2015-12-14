@@ -4,6 +4,7 @@
 #include "property.hpp"
 #include <string>
 #include <sstream>
+#include <stack>
 #include "meta.hpp"
 
 namespace brain
@@ -73,7 +74,8 @@ namespace brain
                     /// the passed parameters
                     attribute(
                         const std::basic_string<char_t>& _name,
-                        const std::basic_string<char_t>& _value):
+                        const std::basic_string<char_t>& _value =
+                            std::basic_string<char_t> {}):
                         name(_name),
                         value(_value)
                     {
@@ -123,10 +125,23 @@ namespace brain
             /// Add an attribute
             /// into the attributes list
             serializerstream& operator <<(
+                const std::basic_string<char_t>& _name)
+            {
+                attribute attr {_name};
+                attr.depth(current_depth());
+                attributes().push_back(attr);
+
+                return *this;
+            }
+
+
+            /// Add an attribute
+            /// into the attributes list
+            serializerstream& operator <<(
                 const attribute& attr)
             {
                 attr.depth(current_depth());
-                attributes.push_back(attr);
+                attributes().push_back(attr);
 
                 return *this;
             }
@@ -234,57 +249,64 @@ namespace brain
             {
                 content_builder builder;
 
+                /// A stack to store
+                /// the hierarchy of
+                /// the current node
                 std::stack<std::basic_string<char_t>> parents;
 
                 const auto& attrs =
                     ss.attributes();
 
+
+                /// For each node of
+                /// the list of the
+                /// attributes
                 for(auto it = std::begin(attrs),
                         end = std::end(attrs);
                         it != end;
                         it++)
                 {
-
-                    builder << this->indent(' ', 4u * (*it).depth())
-                            << '<' << (*it).name() << '>' ;
                     auto next =
                         std::next(it);
 
-
-                    /// If the next element
-                    /// has a greater depth
-                    /// then a NL is added
-                    /// in the builder and
-                    /// the current name
-                    /// is pushed into the
-                    /// parents stack
-                    if(next != end and
-                            (*next).depth() < (*it).depth())
+                    if((*it).value().empty())
                     {
                         parents.push((*it).name());
-                        builder << '\n' ;
-                    }
-
-                    /// Else if the next
-                    /// element has less
-                    /// depth, then the
-                    /// the
-                    else if(next != end and
-                            (*next).depth() > (*it).depth())
-                    {
-                        builder << (*it).value()
-                                << '<' << '/' << (*it).name() << '>'
-                                << '\n'
-                                << this->indent(' ', 4 * ((*it).depth() - 1))
-                                << '<' << '/' << parents.top() << '>'
-                                << '\n';
-                        parents.pop();
+                        builder << this->indent(' ', 4 * (*it).depth()) << '<' << (*it).name() << '>' << '\n';
                     }
 
                     else
-                        builder << (*it).value()
-                                << '<' << '/' << (*it).name() << '>'
-                                << '\n';
+                    {
+                        builder << this->indent(' ', 4 * (*it).depth()) << '<' << (*it).name() << '>';
+                        builder << (*it).value();
+                        builder  << '<' << '/' << (*it).name() << '>' << '\n' ;
+                    }
+
+                    if(next != end and
+                            (*next).depth() < (*it).depth())
+                    {
+                        builder << this->indent(' ', 4 * ((*it).depth() - 1)) << '<' << parents.top() << '>' << '\n';
+                        parents.pop();
+                    }
+
+                }
+
+                /// If the stack of parents
+                /// is not empty and if there
+                /// were something in the attrs
+                /// list, so we close each
+                /// parent that is staying
+                if(!parents.empty() and
+                        !attrs.empty())
+                {
+                    auto last_depth = attrs.back().depth();
+
+                    while(!parents.empty())
+                    {
+                        last_depth--;
+                        builder << this->indent(' ', 4 * last_depth) << '<' << '/' << parents.top() << '>' << '\n';
+                        parents.pop();
+                    }
                 }
 
                 return builder.str();

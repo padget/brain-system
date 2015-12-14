@@ -107,7 +107,7 @@ C:\users\benjamin\projets\code_lite_w\brain
         <VirtualDirectory Name="utest">
           <File Name="src/test/utest/utest.hpp"/>
         </VirtualDirectory>
-        <File Name="src/test/Socket.cpp" ExcludeProjConfig="Release"/>
+        <File Name="src/test/Socket.cpp" ExcludeProjConfig="Debug;Release"/>
         <File Name="src/test/Socket.hpp"/>
       </VirtualDirectory>
     </VirtualDirectory>
@@ -125,7 +125,7 @@ C:\users\benjamin\projets\code_lite_w\brain
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="MinGW ( gcc.exe (tdm64-1) 5.1.0 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-O3;-O0;-std=c++14;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+      <Compiler Options="-g;-O0;-std=c++14;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
       </Compiler>
       <Linker Options="" Required="yes">

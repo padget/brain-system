@@ -23,8 +23,8 @@ struct derived: public base {virtual void foo() {std::cout << "derived" << std::
 /// C++ compiler.
 int main()
 {
-    
-    
+
+
     /* launch < test::test_suite < meta::test::member_test,
             meta::test::literal_test,
             meta::test::constkw_test,
@@ -44,18 +44,24 @@ int main()
            *
      //     test::tree_maker_test>> ();
      */
-  
+
+    std::stack<std::string> st;
+    st.push("Coucou");
+    std::cout << st.top() << std::endl;
+
+
     serializerstream<char> ss;
     using attr =
         typename serializerstream<char>::attribute;
 
-   
-    ss << attrsbegin<char>
-       << attr("object", "")
-       << attrsbegin<char>
-       << attr("id", 2)
-       << attrsend<char>;
+    object o;
+    
+    ss << o;
 
-    std::cout << xml_format<char>()(ss) ;
+    auto && res =  xml_format<char>()(ss) ;
+
+    std::cout << res << std::endl;
+    std::cout << res << std::endl;
+
     return 0;
 }

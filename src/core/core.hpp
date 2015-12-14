@@ -260,16 +260,16 @@ namespace brain
     serializerstream<char_t>& operator<<(
         serializerstream<char_t>& out,
         const object& ob)
-    {
+    { 
         using attr =
             typename serializerstream<char_t>::attribute;
         return out
-               << brain::attrsbegin
+               << attrsbegin<char_t>
                << "object"
-               << attrsbegin
+               << attrsbegin<char_t>
                << attr("id", ob.id())
-               << attrsend
-               << attrsend;
+               << attrsend<char_t>
+               << attrsend<char_t>;
     }
 
 
