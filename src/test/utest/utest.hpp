@@ -287,7 +287,7 @@ namespace brain
         struct component_test:
             public basic_test
         {
-            
+
             virtual void test()
             {
                 object o1;
@@ -314,7 +314,7 @@ namespace brain
                 ci5 = 6;
                 add_step(ci5() == 6,
                          "test of uref_type assignement");
-                const int i7{7};
+                const int i7 {7};
                 ci5 = i7;
                 add_step(ci5() == 7,
                          "test of cref_type");
@@ -419,11 +419,51 @@ namespace brain
                 shared_component<object> sco4 {new derived()};
                 add_step(sco4.valid(),
                          "test of derived pointer constructor");
-                
-                const derived* d2{new derived()};
-                shared_component<object> sco5{d2};
+
+                const derived* d2 {new derived()};
+                shared_component<object> sco5 {d2};
             }
         };
+
+        class foo
+        {
+            public:
+                monomorphe<object> o1;
+                monomorphe<object> o2;
+        };
+
+        template<typename char_t>
+        serializerstream<char_t>& operator <<(
+            serializerstream<char_t>& out,
+            const foo& f)
+        {
+            using attr =
+                typename serializerstream<char_t>::attribute;
+            
+            out << "foo";
+            out << f.o1();
+            out << attrsbegin;
+            out << f.o2();
+            out << attrsend;
+
+            return out;
+        }
+
+        struct xmlformat_test:
+            public basic_test
+        {
+            virtual void test()
+            {
+                foo f;
+                serializerstream<char> ss;
+                ss << f;
+                auto && res =  xml_format<char>()(ss) ;
+                std::cout << res << std::endl;
+            }
+        };
+
+
+
 
         /*        struct server_ptr_test :
                     public basic_test

@@ -24,7 +24,6 @@ namespace brain
     template<typename char_t>
     struct serializerstream final
     {
-
             /// An attribute is
             /// the main support
             /// of the data for
@@ -102,9 +101,22 @@ namespace brain
                     }
             };
 
+
+            class component
+            {
+                public:
+                    /// Name of the component
+                    monomorphe<std::basic_string<char_t>> name;
+            };
+
             /// Last depth used into
             /// the stream storing
             monomorphe<unsigned> current_depth {0};
+
+
+            /// Last name used into
+            /// the stream storing
+            monomorphe<std::basic_string> current_name;
 
 
             /// List of all attributes
@@ -249,10 +261,13 @@ namespace brain
             {
                 content_builder builder;
 
+                using parent =
+                    std::tuple<unsigned, std::basic_string<char_t>>;
+
                 /// A stack to store
                 /// the hierarchy of
                 /// the current node
-                std::stack<std::basic_string<char_t>> parents;
+                std::stack<parent> parents;
 
                 const auto& attrs =
                     ss.attributes();
@@ -269,26 +284,52 @@ namespace brain
                     auto next =
                         std::next(it);
 
+                    /// If the current value is
+                    /// empty, then a simple
+                    /// open balise is inserted :
+                    /// <open>\n
                     if((*it).value().empty())
                     {
-                        parents.push((*it).name());
-                        builder << this->indent(' ', 4 * (*it).depth()) << '<' << (*it).name() << '>' << '\n';
+                        parents.push(parent((*it).depth(), (*it).name()));
+                        builder << this->indent(' ', 4 * (*it).depth())
+                                << '<'
+                                << (*it).name()
+                                << '>' << '\n';
                     }
 
+                    /// Else open/close balises
+                    /// with inner value is
+                    /// inserted into the builder :
+                    /// <open>value</open>\n
                     else
-                    {
-                        builder << this->indent(' ', 4 * (*it).depth()) << '<' << (*it).name() << '>';
-                        builder << (*it).value();
-                        builder  << '<' << '/' << (*it).name() << '>' << '\n' ;
-                    }
+                        builder << this->indent(' ', 4 * (*it).depth())
+                                << '<'
+                                << (*it).name()
+                                << '>'
+                                << (*it).value()
+                                << '<' << '/'
+                                << (*it).name()
+                                << '>' << '\n' ;
 
+                    /// Finally, if there is
+                    /// a change of depth in
+                    /// upper direction, so
+                    /// a close balise is
+                    /// inserted with the
+                    /// top parent name of
+                    /// parents stack.
                     if(next != end and
                             (*next).depth() < (*it).depth())
                     {
-                        builder << this->indent(' ', 4 * ((*it).depth() - 1)) << '<' << parents.top() << '>' << '\n';
-                        parents.pop();
+                        while(std::get<0>(parents.top()) >= (*next).depth())
+                        {
+                            builder << this->indent(' ', 4 * ((*it).depth() - 1))
+                                    << '<' << '/'
+                                    << std::get<1>(parents.top())
+                                    << '>' << '\n';
+                            parents.pop();
+                        }
                     }
-
                 }
 
                 /// If the stack of parents
@@ -304,7 +345,10 @@ namespace brain
                     while(!parents.empty())
                     {
                         last_depth--;
-                        builder << this->indent(' ', 4 * last_depth) << '<' << '/' << parents.top() << '>' << '\n';
+                        builder << this->indent(' ', 4 * last_depth)
+                                << '<' << '/'
+                                << std::get<1>(parents.top())
+                                << '>' << '\n';
                         parents.pop();
                     }
                 }
