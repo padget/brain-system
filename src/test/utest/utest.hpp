@@ -172,7 +172,8 @@ namespace brain
             {
                 template<typename ... args_t>
                 struct a_type
-                {};
+                {
+                };
 
                 virtual void test()
                 {
@@ -432,19 +433,29 @@ namespace brain
                 monomorphe<object> o2;
         };
 
+        class foo2 :
+            public foo
+    {};
+
         template<typename char_t>
         serializerstream<char_t>& operator <<(
             serializerstream<char_t>& out,
             const foo& f)
         {
-            using attr =
-                typename serializerstream<char_t>::attribute;
-            
             out << "foo";
-            out << f.o1();
-            out << attrsbegin;
-            out << f.o2();
-            out << attrsend;
+            out << composedof<char_t>("o1", f.o1());
+            out << composedof<char_t>("o2", f.o2());
+
+            return out;
+        }
+
+        template<typename char_t>
+        serializerstream<char_t>& operator <<(
+            serializerstream<char_t>& out,
+            const foo2& f)
+        {
+            out << "foo2";
+            out << fromparent<char_t, foo>(f);
 
             return out;
         }
@@ -454,11 +465,11 @@ namespace brain
         {
             virtual void test()
             {
-                foo f;
-                serializerstream<char> ss;
-                ss << f;
-                auto && res =  xml_format<char>()(ss) ;
-                std::cout << res << std::endl;
+
+                foo2 f;
+                object o1;
+                std::cout << xml_format<char>()(f) << std::endl;
+                std::cout << xml_format<char>()(o1) << std::endl;
             }
         };
 

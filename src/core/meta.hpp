@@ -1686,7 +1686,7 @@ namespace brain
             using return_ =
                 expand_t<func_t, map_replace_t<func_args_, to_map_t<lambda_args_, list<args_t...>>>>;
         };
-
+        
 
         /// //////// ///
         /// Unsorted ///
@@ -1807,7 +1807,12 @@ namespace brain
         template<typename ... types_t>
         struct inherit:
             public types_t ...
-        {};
+        {
+            };
+            
+            
+        
+        
     }
 }
 

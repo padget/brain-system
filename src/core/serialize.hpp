@@ -13,6 +13,8 @@ namespace brain
     template<typename char_t>
     struct format;
 
+    template<typename char_t>
+    struct serializerflag;
 
     /// A serialization stream
     /// is a stream that can
@@ -49,7 +51,7 @@ namespace brain
                     /// name() is not empty
                     auto has_value()
                     {
-                        return value().empty();
+                        return !value().empty();
                     }
 
 
@@ -57,7 +59,7 @@ namespace brain
                     /// value() is not empty
                     auto has_name()
                     {
-                        return name().empty();
+                        return !name().empty();
                     }
 
 
@@ -102,21 +104,9 @@ namespace brain
             };
 
 
-            class component
-            {
-                public:
-                    /// Name of the component
-                    monomorphe<std::basic_string<char_t>> name;
-            };
-
             /// Last depth used into
             /// the stream storing
             monomorphe<unsigned> current_depth {0};
-
-
-            /// Last name used into
-            /// the stream storing
-            monomorphe<std::basic_string> current_name;
 
 
             /// List of all attributes
@@ -128,7 +118,7 @@ namespace brain
             /// the behaviour of the
             /// serialization stream
             serializerstream& operator <<(
-                serializerstream & (*flag)(serializerstream&))
+                serializerflag<char_t> && flag)
             {
                 return flag(*this);
             }
@@ -152,9 +142,10 @@ namespace brain
             serializerstream& operator <<(
                 const attribute& attr)
             {
+                current_depth() ++;
                 attr.depth(current_depth());
                 attributes().push_back(attr);
-
+                current_depth() --;
                 return *this;
             }
 
@@ -164,8 +155,10 @@ namespace brain
             serializerstream& operator <<(
                 attribute && attr)
             {
+                current_depth() ++;
                 attr.depth(current_depth());
                 attributes().push_back(attr);
+                current_depth() --;
 
                 return *this;
             }
@@ -200,6 +193,152 @@ namespace brain
     }
 
 
+    /// Basic flag for
+    /// serializerstream
+    template<typename char_t>
+    struct serializerflag
+    {
+        virtual serializerstream<char_t>& operator()(
+            serializerstream<char_t>& out) = 0;
+    };
+
+
+    ///
+    template<typename char_t>
+    struct composedof final:
+        public serializerflag<char_t>
+    {
+        /// Embedded Serializerstream
+        monomorphe<serializerstream<char_t>> ss;
+
+
+        /// Component name
+        monomorphe<std::basic_string<char_t>> comp_name;
+
+
+        /// Constructor that inject
+        /// ob of type_t into the
+        /// embedded serializer stream
+        template <typename type_t>
+        composedof(
+            const std::basic_string<char_t>& name,
+            const type_t& ob):
+            comp_name(name)
+        {
+            ss() << ob;
+        }
+        
+
+        ///
+        virtual serializerstream<char_t>& operator()(
+            serializerstream<char_t>& out)
+        {
+            /// Composition => depth++
+            out.current_depth() ++;
+
+            auto& attrs =
+                ss().attributes();
+
+            /// Align the depth with
+            /// the out current_deph
+            std::for_each(std::begin(attrs),
+                          std::end(attrs),
+                          [&out](auto & attr)
+            {
+                attr.depth(attr.depth() + out.current_depth());
+            });
+
+            /// If the list is not
+            /// empty and the first
+            /// element has only a
+            /// name, then this
+            /// element is removed
+            if(!attrs.empty() and
+                    !attrs.front().has_value() and
+                    attrs.front().has_name())
+                attrs.front().name(comp_name());
+
+            /// Add all elements from
+            /// ss into out at the end.
+            out.attributes().insert(std::end(out.attributes()),
+                                    std::begin(ss().attributes()),
+                                    std::end(ss().attributes()));
+
+            out.current_depth() --;
+
+            return out;
+        }
+    };
+
+
+    /// Flag to signify that
+    /// the current object is
+    /// a part of parent class
+    template < typename char_t,
+             typename parent_t >
+    struct fromparent final:
+        public serializerflag<char_t>
+    {
+
+        /// Embedded Serializerstream
+        monomorphe<serializerstream<char_t>> ss;
+
+        /// Constructor that takes an
+        /// object of type_t and
+        /// inject them into the
+        /// stream ss of this flag
+        template < typename type_t>
+        fromparent(
+            const type_t& ob)
+        {
+            /// Use the operator
+            /// << specifically
+            /// implemented for type_t
+            ss() << static_cast<const parent_t&>(ob);
+        }
+
+
+        /// Suppress the first
+        /// element of the list
+        /// if exists and has only
+        /// a name
+        virtual serializerstream<char_t>& operator()(
+            serializerstream<char_t>& out)
+        {
+            auto& attrs =
+                ss().attributes();
+
+
+            /// Align the depth with
+            /// the out current_deph
+            std::for_each(std::begin(attrs),
+                          std::end(attrs),
+                          [&out](auto & attr)
+            {
+                attr.depth(attr.depth() + out.current_depth());
+            });
+
+
+            /// If the list is not
+            /// empty and the first
+            /// element has only a
+            /// name, then this
+            /// element is removed
+            if(!attrs.empty() and
+                    !attrs.front().has_value() and
+                    attrs.front().has_name())
+                attrs.pop_front();
+
+            /// Add all elements from
+            /// ss into out at the end.
+            out.attributes().insert(std::end(out.attributes()),
+                                    std::begin(ss().attributes()),
+                                    std::end(ss().attributes()));
+            return out;
+        }
+    };
+
+
     /// A Format is the
     /// way that an object
     /// data is transform
@@ -213,7 +352,7 @@ namespace brain
             /// in order to convert
             /// the content of the stream
             /// into an basic_string
-            virtual std::basic_string<char_t> transform(
+            virtual inline std::basic_string<char_t> transform(
                 const serializerstream<char_t>& ss) const
             {
                 return std::basic_string<char_t>();
@@ -238,6 +377,15 @@ namespace brain
                 return std::basic_string<char_t>(nb_char,
                                                  c);
             }
+
+
+            template<typename type_t>
+            inline auto operator()(
+                const type_t& ob)
+            {
+                serializerstream<char_t> ss;
+                return (*this)(ss << ob);
+            }
     };
 
 
@@ -256,7 +404,7 @@ namespace brain
             /// Overload transform
             /// to implements an
             /// xml translation
-            virtual content transform(
+            virtual inline content transform(
                 const serializerstream<char_t>& ss) const
             {
                 content_builder builder;
@@ -319,9 +467,11 @@ namespace brain
                     /// top parent name of
                     /// parents stack.
                     if(next != end and
-                            (*next).depth() < (*it).depth())
+                            (*next).depth() < (*it).depth() and
+                            !parents.empty())
                     {
-                        while(std::get<0>(parents.top()) >= (*next).depth())
+                        while(!parents.empty() and
+                                std::get<0>(parents.top()) >= (*next).depth())
                         {
                             builder << this->indent(' ', 4 * ((*it).depth() - 1))
                                     << '<' << '/'
@@ -340,7 +490,8 @@ namespace brain
                 if(!parents.empty() and
                         !attrs.empty())
                 {
-                    auto last_depth = attrs.back().depth();
+                    auto last_depth =
+                        attrs.back().depth();
 
                     while(!parents.empty())
                     {

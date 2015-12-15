@@ -264,11 +264,9 @@ namespace brain
         using attr =
             typename serializerstream<char_t>::attribute;
 
-        return out  
-        << "object"
-               << attrsbegin
-               << attr("id", ob.id())
-               << attrsend;
+        return out
+               << "object"
+               << composedof<char_t>("id", ob.id());
     }
 
 
