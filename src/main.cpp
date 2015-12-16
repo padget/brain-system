@@ -36,7 +36,7 @@ int main()
            test::component_test,
            test::monomorphe_test,
            test::shared_component_test,
-           test::xmlformat_test/*,
+           test::marshalling_test/*,
           test::reference_test,
           test::system_test,
           test::smart_ptr_test,

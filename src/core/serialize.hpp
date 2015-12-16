@@ -142,7 +142,9 @@ namespace brain
             }
 
 
-            ///
+            /// For a complex type, 
+            /// inject them into 
+            /// the stream
             virtual stream<char_t>& operator()(
                 stream<char_t>& out)
             {
@@ -825,7 +827,9 @@ namespace brain
     }
 
 
-    /// TODO Doc
+    /// General marshalling 
+    /// function of the
+    /// serialization API
     template < typename char_t,
              template<typename> typename format_t,
              typename type_t >

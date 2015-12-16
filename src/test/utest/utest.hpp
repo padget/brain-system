@@ -461,7 +461,7 @@ namespace brain
             return out;
         }
 
-        struct xmlformat_test:
+        struct marshalling_test:
             public basic_test
         {
             virtual void test()
