@@ -257,16 +257,16 @@ namespace brain
 
 
     template<typename char_t>
-    serializerstream<char_t>& operator<<(
-        serializerstream<char_t>& out,
+    serialize::stream<char_t>& operator<<(
+        serialize::stream<char_t>& out,
         const object& ob)
     {
         using attr =
-            typename serializerstream<char_t>::attribute;
+            typename serialize::stream<char_t>::attribute;
 
         return out
                << "object"
-               << fundamental<char_t>("id", ob.id());
+               << serialize::fundamental<char_t>("id", ob.id());
     }
 
 

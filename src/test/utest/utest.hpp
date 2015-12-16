@@ -435,27 +435,28 @@ namespace brain
 
         class foo2 :
             public foo
-    {};
+        {
+        };
 
         template<typename char_t>
-        serializerstream<char_t>& operator <<(
-            serializerstream<char_t>& out,
+        serialize::stream<char_t>& operator <<(
+            serialize::stream<char_t>& out,
             const foo& f)
         {
             out << "foo";
-            out << composedof<char_t>("o1", f.o1());
-            out << composedof<char_t>("o2", f.o2());
+            out << serialize::complex<char_t>("o1", f.o1());
+            out << serialize::complex<char_t>("o2", f.o2());
 
             return out;
         }
 
         template<typename char_t>
-        serializerstream<char_t>& operator <<(
-            serializerstream<char_t>& out,
+        serialize::stream<char_t>& operator <<(
+            serialize::stream<char_t>& out,
             const foo2& f)
         {
             out << "foo2";
-            out << fromparent<char_t, foo>(f);
+            out << serialize::fromparent<char_t, foo>(f);
 
             return out;
         }
@@ -468,8 +469,8 @@ namespace brain
 
                 foo2 f;
                 object o1;
-                std::cout << xml_format<char>()(f) << std::endl;
-                std::cout << xml_format<char>()(o1) << std::endl;
+                std::cout << marshall<char, serialize::xml_format>(f) << std::endl;
+                std::cout << marshall<char, serialize::xml_format>(o1) << std::endl;
             }
         };
 
