@@ -466,11 +466,10 @@ namespace brain
         {
             virtual void test()
             {
-
                 foo2 f;
                 object o1;
-                std::cout << marshall<char, serialize::xml_format>(f) << std::endl;
-                std::cout << marshall<char, serialize::xml_format>(o1) << std::endl;
+                std::cout << marshall<char, serialize::lql_format>(f) << std::endl;
+                std::cout << marshall<char, serialize::json_format>(o1) << std::endl;
             }
         };
 

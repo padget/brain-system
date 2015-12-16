@@ -322,10 +322,17 @@ namespace brain
         class xml_format final :
             public format<char_t>
         {
+                using content =
+                    std::basic_string<char_t>;
+
+
+                using content_builder =
+                    std::basic_ostringstream<char_t>;
+
 
             public:
-                /// Overload transform
-                /// to implements an
+                /// Overload that
+                /// implements an
                 /// xml translation
                 virtual inline content transform(
                     const stream<char_t>& ss) const
@@ -446,7 +453,226 @@ namespace brain
 
                 using content_builder =
                     std::basic_ostringstream<char_t>;
-            public: /// TODO JSON function injector
+
+
+            public:
+                /// Overload that
+                /// implements an
+                /// xml translation
+                virtual inline content transform(
+                    const stream<char_t>& ss) const
+                {
+                    content_builder builder;
+
+                    using parent =
+                        unsigned;
+
+                    /// A stack to store
+                    /// the hierarchy of
+                    /// the current node
+                    std::stack<parent> parents;
+
+                    const auto& attrs =
+                        ss.attributes();
+
+
+                    /// For each node of
+                    /// the list of the
+                    /// attributes
+                    for(auto it = std::begin(attrs),
+                            end = std::end(attrs);
+                            it != end;
+                            it++)
+                    {
+                        auto next =
+                            std::next(it);
+
+                        /// If the current value is
+                        /// empty, then a simple
+                        /// open balise is inserted :
+                        /// <open>\n
+                        if((*it).value().empty())
+                        {
+                            parents.push((*it).depth());
+                            builder << this->indent(' ', 4 * (*it).depth())
+                                    << (*it).name()
+                                    << ':' << ' ' << '{' << '\n';
+                        }
+
+                        /// Else open/close balises
+                        /// with inner value is
+                        /// inserted into the builder :
+                        /// <open>value</open>\n
+                        else
+                            builder << this->indent(' ', 4 * (*it).depth())
+
+                                    << (*it).name()
+                                    << ':' << ' '
+                                    << (*it).value()
+                                    << '\n' ;
+
+                        /// Finally, if there is
+                        /// a change of depth in
+                        /// upper direction, so
+                        /// a close balise is
+                        /// inserted with the
+                        /// top parent name of
+                        /// parents stack.
+                        if(next != end and
+                                (*next).depth() < (*it).depth() and
+                                !parents.empty())
+                        {
+                            while(!parents.empty() and
+                                    parents.top() >= (*next).depth())
+                            {
+                                builder << this->indent(' ', 4 * ((*it).depth() - 1))
+                                        << '}' << '\n';
+                                parents.pop();
+                            }
+                        }
+                    }
+
+                    /// If the stack of parents
+                    /// is not empty and if there
+                    /// were something in the attrs
+                    /// list, so we close each
+                    /// parent that is staying
+                    if(!parents.empty() and
+                            !attrs.empty())
+                    {
+                        auto last_depth =
+                            attrs.back().depth();
+
+                        while(!parents.empty())
+                        {
+                            last_depth--;
+                            builder << this->indent(' ', 4 * last_depth)
+                                    << '}' << '\n';
+                            parents.pop();
+                        }
+                    }
+
+                    return builder.str();
+                }
+        };
+
+
+        /// LQL format that
+        /// transforms an
+        /// object or stream
+        /// into LQL
+        template < typename char_t>
+        class lql_format final :
+            public format<char_t>
+        {
+                using content =
+                    std::basic_string<char_t>;
+
+
+                using content_builder =
+                    std::basic_ostringstream<char_t>;
+
+
+            public:
+                /// Overload that
+                /// implements an
+                /// xml translation
+                virtual inline content transform(
+                    const stream<char_t>& ss) const
+                {
+                    content_builder builder;
+
+                    using parent =
+                        unsigned;
+
+                    /// A stack to store
+                    /// the hierarchy of
+                    /// the current node
+                    std::stack<parent> parents;
+
+                    const auto& attrs =
+                        ss.attributes();
+
+
+                    /// For each node of
+                    /// the list of the
+                    /// attributes
+                    for(auto it = std::begin(attrs),
+                            end = std::end(attrs);
+                            it != end;
+                            it++)
+                    {
+                        auto next =
+                            std::next(it);
+
+                        /// If the current value is
+                        /// empty, then a simple
+                        /// open balise is inserted :
+                        /// <open>\n
+                        if((*it).value().empty())
+                        {
+                            parents.push((*it).depth());
+                            builder << this->indent(' ', 4 * (*it).depth())
+                                    << '(' 
+                                    << (*it).name()
+                                    << '\n';
+                        }
+
+                        /// Else open/close balises
+                        /// with inner value is
+                        /// inserted into the builder :
+                        /// <open>value</open>\n
+                        else
+                            builder << this->indent(' ', 4 * (*it).depth())
+                                    << '(' 
+                                    << (*it).name()
+                                    <<  ' '
+                                    << (*it).value()
+                                    << ')' <<'\n' ;
+
+                        /// Finally, if there is
+                        /// a change of depth in
+                        /// upper direction, so
+                        /// a close balise is
+                        /// inserted with the
+                        /// top parent name of
+                        /// parents stack.
+                        if(next != end and
+                                (*next).depth() < (*it).depth() and
+                                !parents.empty())
+                        {
+                            while(!parents.empty() and
+                                    parents.top() >= (*next).depth())
+                            {
+                                builder << this->indent(' ', 4 * ((*it).depth() - 1))
+                                        << ')' << '\n';
+                                parents.pop();
+                            }
+                        }
+                    }
+
+                    /// If the stack of parents
+                    /// is not empty and if there
+                    /// were something in the attrs
+                    /// list, so we close each
+                    /// parent that is staying
+                    if(!parents.empty() and
+                            !attrs.empty())
+                    {
+                        auto last_depth =
+                            attrs.back().depth();
+
+                        while(!parents.empty())
+                        {
+                            last_depth--;
+                            builder << this->indent(' ', 4 * last_depth)
+                                    << '}' << '\n';
+                            parents.pop();
+                        }
+                    }
+
+                    return builder.str();
+                }
         };
 
 
@@ -488,7 +714,7 @@ namespace brain
 
                         /// Returns true if
                         /// name() is not empty
-                        auto has_value()
+                        auto has_value() const
                         {
                             return !value().empty();
                         }
@@ -496,7 +722,7 @@ namespace brain
 
                         /// Returns true if
                         /// value() is not empty
-                        auto has_name()
+                        auto has_name() const
                         {
                             return !name().empty();
                         }
