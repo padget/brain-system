@@ -475,7 +475,6 @@ namespace brain
 
 
 
-
         /*        struct server_ptr_test :
                     public basic_test
                 {
