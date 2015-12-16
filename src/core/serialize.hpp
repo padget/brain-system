@@ -46,11 +46,11 @@ namespace brain
             public injector<char_t>
         {
             /// Embedded stream
-            monomorphe<stream<char_t>> ss;
+            property<stream<char_t>> ss;
 
 
             /// Component name
-            monomorphe<std::basic_string<char_t>> comp_name;
+            property<std::basic_string<char_t>> comp_name;
 
 
             /// Constructor that inject
@@ -122,11 +122,11 @@ namespace brain
             public injector<char_t>
         {
             /// Embedded Serializerstream
-            monomorphe<stream<char_t>> ss;
+            property<stream<char_t>, true> ss;
 
 
             /// Component name
-            monomorphe<std::basic_string<char_t>> comp_name;
+            property<std::basic_string<char_t>, true> comp_name;
 
 
             /// Constructor that inject
@@ -142,8 +142,8 @@ namespace brain
             }
 
 
-            /// For a complex type, 
-            /// inject them into 
+            /// For a complex type,
+            /// inject them into
             /// the stream
             virtual stream<char_t>& operator()(
                 stream<char_t>& out)
@@ -199,7 +199,7 @@ namespace brain
         {
 
             /// Embedded Serializerstream
-            monomorphe<stream<char_t>> ss;
+            property<stream<char_t>> ss;
 
             /// Constructor that takes an
             /// object of type_t and
@@ -563,7 +563,7 @@ namespace brain
         /// transforms an
         /// object or stream
         /// into LQL
-        template < typename char_t>
+        template <typename char_t>
         class lql_format final :
             public format<char_t>
         {
@@ -615,7 +615,7 @@ namespace brain
                         {
                             parents.push((*it).depth());
                             builder << this->indent(' ', 4 * (*it).depth())
-                                    << '(' 
+                                    << '('
                                     << (*it).name()
                                     << '\n';
                         }
@@ -626,11 +626,11 @@ namespace brain
                         /// <open>value</open>\n
                         else
                             builder << this->indent(' ', 4 * (*it).depth())
-                                    << '(' 
+                                    << '('
                                     << (*it).name()
                                     <<  ' '
                                     << (*it).value()
-                                    << ')' <<'\n' ;
+                                    << ')' << '\n' ;
 
                         /// Finally, if there is
                         /// a change of depth in
@@ -703,15 +703,15 @@ namespace brain
                     public:
                         /// Depth of the attribute
                         /// in the object tree
-                        monomorphe<unsigned> depth {0};
+                        property<unsigned> depth {0};
 
 
                         /// Name of the attribute
-                        monomorphe<std::basic_string<char_t>> name;
+                        property<std::basic_string<char_t>> name;
 
 
                         /// Value of the attribute
-                        monomorphe<std::basic_string<char_t>> value;
+                        property<std::basic_string<char_t>> value;
 
 
                         /// Returns true if
@@ -773,12 +773,12 @@ namespace brain
 
                 /// Last depth used into
                 /// the stream storing
-                monomorphe<unsigned> current_depth {0};
+                property<unsigned> current_depth {0};
 
 
                 /// List of all attributes
                 /// injected in the stream
-                monomorphe<std::list<attribute>> attributes;
+                property<std::list<attribute>> attributes;
 
 
                 /// Operator << to alter
@@ -827,7 +827,7 @@ namespace brain
     }
 
 
-    /// General marshalling 
+    /// General marshalling
     /// function of the
     /// serialization API
     template < typename char_t,

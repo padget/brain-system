@@ -175,31 +175,31 @@ namespace brain
 
     /// Generic property
     template < typename type_t,   /// Embedded type
-             bool _is_component > /// Flag on life cycle on embedded value
+             bool _is_component = true > /// Flag on life cycle on embedded value
     class property;
 
     /// Forbid the use
     /// of type_t&
-    template<typename type_t, 
-    bool _is_component>
+    template < typename type_t,
+             bool _is_component >
     class property<type_t&, _is_component>;
-    
-    
+
+
     /// Forbid the use
     /// of const type_t&
-    template<typename type_t, 
-    bool _is_component>
+    template < typename type_t,
+             bool _is_component >
     class property<const type_t&, _is_component>;
-    
-    
+
+
     /// Forbid the use
     /// of type_t&&
-    template<typename type_t, 
-    bool _is_component>
-    class property<type_t&&, _is_component>;
+    template < typename type_t,
+             bool _is_component >
+    class property < type_t && , _is_component >;
 
 
-    /// Implementation for 
+    /// Implementation for
     /// type_t that's not
     /// pointer.
     template<typename type_t>
@@ -207,7 +207,46 @@ namespace brain
     {
             type_t m_value;
 
-            
+        public:
+            property() = default;
+            property(const type_t& _value):
+                m_value(_value)
+            {
+            }
+            property(type_t && _value):
+                m_value(_value)
+            {
+            }
+            property(const property& other):
+                m_value(other.m_value)
+            {
+            }
+            property(property && other):
+                m_value(std::move(other.m_value))
+            {
+            }
+
+        public:
+            type_t& operator()()
+            {
+                return m_value;
+            }
+
+            const type_t& operator()() const
+            {
+                return m_value;
+            }
+
+            void operator()(const type_t& _value)
+            {
+                m_value = _value;
+            }
+
+            void operator()(type_t && _value)
+            {
+                m_value = _value;
+            }
+
         public:
             const type_t& get() const
             {
@@ -231,46 +270,119 @@ namespace brain
     };
 
 
-    /// Implementation for 
+
+    /// Implementation for
+    /// type_t that's not
+    /// pointer and const.
+    template<typename type_t>
+    class property<const type_t, true>
+    {
+            type_t m_value;
+
+        public:
+            property() = default;
+            property(const type_t& _value):
+                m_value(_value)
+            {
+            }
+            property(type_t && _value):
+                m_value(_value)
+            {
+            }
+            property(const property& other):
+                m_value(other.m_value)
+            {
+            }
+            property(property && other):
+                m_value(std::move(other.m_value))
+            {
+            }
+
+        public:
+            const type_t& operator()() const
+            {
+                return m_value;
+            }
+
+        public:
+            const type_t& get() const
+            {
+                return m_value;
+            }
+    };
+
+
+    /// Implementation for
     /// type that is pointer
     /// and that considered
     /// as component
     template<typename type_t>
     class property<type_t*, true> final
     {
-            type_t* m_value;
+            std::unique_ptr<type_t> m_value;
 
         public:
-            virtual ~property()
+            property() = default;
+            property(type_t* _value = nullptr):
+                m_value(_value)
             {
-                delete m_value;
-                m_value = nullptr;
             }
-            
+
+        public:
+            type_t& operator()()
+            {
+                return *m_value;
+            }
+
+            const type_t& operator()() const
+            {
+                return *m_value;
+            }
+
+            void operator()(const type_t& _value)
+            {
+                *m_value = _value;
+            }
+
+            void operator()(type_t && _value)
+            {
+                *m_value = _value;
+            }
+
+            void operator()(type_t* _value = nullptr)
+            {
+                m_value.reset(_value);
+            }
+
         public:
             const type_t& get() const
             {
-                return m_value;
+                return *m_value;
             }
 
             type_t& get()
             {
-                return m_value;
+                return *m_value;
             }
 
             void set(const type_t& _value)
             {
-                m_value = _value;
+                *m_value = _value;
             }
 
             void set(type_t && _value)
             {
-                m_value = _value;
+                *m_value = _value;
+            }
+
+            void set(type_t* _value = nullptr)
+            {
+                m_value.reset(_value);
             }
     };
 
 
-    /// Implementation for 
+    /// Implementation for
     /// type that is pointer
     /// and that considered
     /// as reference

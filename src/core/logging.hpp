@@ -100,8 +100,8 @@ namespace brain
         {
 
             static std::map<std::ostream*, std::ostream*> outs;
-            static monomorphe<Skip> skip;
-            static component<formatter<lvl, t>> format;
+            static property<Skip, true> skip;
+            static property<formatter<lvl, t>*, true> format;
 
 
             inline static void skip_policy(
@@ -122,12 +122,12 @@ namespace brain
 
         template < Level lvl,
                  typename t >
-        component<formatter<lvl, t>> loggerconf<lvl, t>::format;
+        property<formatter<lvl, t>*, true> loggerconf<lvl, t>::format;
 
 
         template < Level lvl,
                  typename t >
-        monomorphe<Skip> loggerconf<lvl, t>::skip {Skip::UNDEFINED};
+        property<Skip, true> loggerconf<lvl, t>::skip {Skip::UNDEFINED};
 
 
         template < Level lvl,
@@ -153,7 +153,7 @@ namespace brain
 
 
             public:
-                monomorphe<time_point> t0 {clock::now()};
+                property<time_point, true> t0 {clock::now()};
 
 
             public:
@@ -306,8 +306,8 @@ namespace brain
                         loggerconf<lvl, type_t>::skip() == Skip::DONT_SKIP)
                         or (loggerconf<lvl>::skip() != Skip::SKIP and
                             loggerconf<lvl, type_t>::skip() != Skip::SKIP))
-                    for(auto & out : loggerconf<lvl, type_t>::outs)
-                        brain::get(loggerconf<lvl, type_t>::format)(*out.second, message...);
+                    //for(auto & out : loggerconf<lvl, type_t>::outs)
+                        ;//loggerconf<lvl, type_t>::format()(*out.second, message...);
             }
         };
 

@@ -206,7 +206,7 @@ namespace brain
             /// id of the current
             /// object. It's generated
             /// with static ID.
-            monomorphe<unsigned long long> id {++s_id};
+            property<unsigned long long> id {++s_id};
 
 
             /// Default constructor
@@ -239,7 +239,7 @@ namespace brain
                 const object& other)
             {
                 if(this != &other)
-                    id = ++s_id;
+                    id(++s_id);
 
                 return *this;
             }
@@ -377,23 +377,23 @@ namespace brain
                 using systems_clt =
                     std::vector<system_clt>;
                 using event_receiptors =
-                    std::vector<component<event_receiptor>>;
+                    std::vector<property<event_receiptor*, true>>;
 
             public:
                 /// True if a system is
                 /// autoconnected, false
                 /// else
-                monomorphe<bool> autoconnected {default_v<bool>};
+                property<bool, true> autoconnected {default_v<bool>};
 
 
                 /// List of all systems
                 /// that can be notified
                 /// by the current here
-                monomorphe<event_receiptors> receiptors;
+                property<event_receiptors, true> receiptors;
 
 
                 ///
-                monomorphe<systems_clt> systems;
+                property<systems_clt, true> systems;
 
             public:
                 BRAIN_ALL_DEFAULT(system)

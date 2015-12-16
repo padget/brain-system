@@ -23,7 +23,7 @@ struct derived: public base {virtual void foo() {std::cout << "derived" << std::
 /// C++ compiler.
 int main()
 {
-
+    std::cout << sizeof(std::function<void()>);
 
     launch < test::test_suite < meta::test::member_test,
            meta::test::literal_test,
@@ -33,9 +33,6 @@ int main()
            meta::test::math_test,
            meta::test::conditional_test,
            test::object_test,
-           test::component_test,
-           test::monomorphe_test,
-           test::shared_component_test,
            test::marshalling_test/*,
           test::reference_test,
           test::system_test,
