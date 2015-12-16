@@ -266,7 +266,7 @@ namespace brain
 
         return out
                << "object"
-               << composedof<char_t>("id", ob.id());
+               << fundamental<char_t>("id", ob.id());
     }
 
 

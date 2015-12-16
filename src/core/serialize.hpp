@@ -205,6 +205,78 @@ namespace brain
 
     ///
     template<typename char_t>
+    struct fundamental final:
+        public serializerflag<char_t>
+    {
+        /// Embedded Serializerstream
+        monomorphe<serializerstream<char_t>> ss;
+
+
+        /// Component name
+        monomorphe<std::basic_string<char_t>> comp_name;
+
+
+        /// Constructor that inject
+        /// ob of type_t into the
+        /// embedded serializer stream
+        template < typename type_t,
+                 typename = std::enable_if_t<std::is_fundamental<type_t>::value >>
+        fundamental(
+            const std::basic_string<char_t>& name,
+            const type_t& ob):
+            comp_name(name)
+        {
+            using attribute =
+                typename serializerstream<char_t>::attribute;
+            ss() << attribute(name, ob);
+        }
+
+
+        ///
+        virtual serializerstream<char_t>& operator()(
+            serializerstream<char_t>& out)
+        {
+            /// Composition => depth++
+            out.current_depth() ++;
+
+            auto& attrs =
+                ss().attributes();
+
+            /// Align the depth with
+            /// the out current_deph
+            std::for_each(std::begin(attrs),
+                          std::end(attrs),
+                          [&out](auto & attr)
+            {
+                attr.depth(attr.depth() + out.current_depth());
+            });
+
+            /// If the list is not
+            /// empty and the first
+            /// element has only a
+            /// name, then this
+            /// element is removed
+            if(!attrs.empty() and
+                    !attrs.front().has_value() and
+                    attrs.front().has_name())
+                attrs.front().name(comp_name());
+
+            /// Add all elements from
+            /// ss into out at the end.
+            out.attributes().insert(std::end(out.attributes()),
+                                    std::begin(ss().attributes()),
+                                    std::end(ss().attributes()));
+
+            out.current_depth() --;
+
+            return out;
+        }
+    };
+
+
+
+    ///
+    template<typename char_t>
     struct composedof final:
         public serializerflag<char_t>
     {
@@ -227,7 +299,7 @@ namespace brain
         {
             ss() << ob;
         }
-        
+
 
         ///
         virtual serializerstream<char_t>& operator()(
@@ -287,7 +359,7 @@ namespace brain
         /// object of type_t and
         /// inject them into the
         /// stream ss of this flag
-        template < typename type_t>
+        template <typename type_t>
         fromparent(
             const type_t& ob)
         {
@@ -379,6 +451,10 @@ namespace brain
             }
 
 
+            /// Direct transformation
+            /// of any class that supports
+            /// the serializerstream
+            /// operator <<
             template<typename type_t>
             inline auto operator()(
                 const type_t& ob)
