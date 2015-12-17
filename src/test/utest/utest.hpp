@@ -284,12 +284,122 @@ namespace brain
             }
         };
 
+        struct property_value_test:
+            public basic_test
+        {
+
+            virtual void test()
+            {
+                {
+                    int i {1};
+                    property<int> pi {i};
+                    add_step(pi() == i,
+                             "test of cref constructor");
+                }
+
+                {
+                    property<int> pi {1};
+                    add_step(pi() == 1,
+                             "test of uref constructor");
+                }
+
+                {
+                    property<int> pi {1}, pi2 {pi};
+                    add_step(pi() == pi2(),
+                             "test of cref copy constructor");
+                }
+
+                {
+                    property<int> pi {1};
+                    pi(2);
+                    add_step(pi() == 2,
+                             "test of uref setter");
+                }
+
+                {
+                    property<int> pi {1};
+                    int i {2};
+                    pi(i);
+                    add_step(pi() == 2,
+                             "test of cref setter");
+                }
+
+                {
+                    property<int> pi {1};
+                    pi.set(2);
+                    add_step(pi() == 2,
+                             "test of uref function setter");
+                }
+
+                {
+                    property<int> pi {1};
+                    int i {2};
+                    pi.set(i);
+                    add_step(pi() == 2,
+                             "test of cref function setter");
+                }
+            }
+        };
+
+
+        struct property_cvalue_test:
+            public basic_test
+        {
+            virtual void test()
+            {
+                {
+                    property<const int> pi {1};
+                    add_step(pi() == 1,
+                             "test of uref constructor");
+                }
+
+                {
+                    int i {1};
+                    property<const int> pi {i};
+                    add_step(pi() == 1,
+                             "test of cref constructor");
+                }
+
+                {
+                    property<const int> pi {1}, pi2 {pi};
+                    add_step(pi() == pi2(),
+                             "test of cref copy constructor");
+                }
+
+                {
+                    property<const int> pi {property<const int>{1}};
+                    add_step(pi() == 1,
+                             "test of uref move constructor");
+                }
+
+            }
+        };
+
+
+        struct property_pointer_test:
+            public basic_test
+        {
+            virtual void test()
+            {
+                {
+                    property<int*> pi {new int{1}};
+                    add_step(pi() == 1,
+                             "test of pointer constructor");
+                }
+                
+                {
+                property<int *> pi{new int{1}};
+                    std::cout << pi() << std::endl;
+                }
+            }
+        };
+
 
         class foo
         {
             public:
-                property<object, true> o1;
-                property<object, true> o2;
+                property<object> o1;
+                property<object> o2;
         };
 
         class foo2 :

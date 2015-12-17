@@ -646,7 +646,8 @@ namespace brain
                             while(!parents.empty() and
                                     parents.top() >= (*next).depth())
                             {
-                                builder << this->indent(' ', 4 * ((*it).depth() - 1))
+                                builder << this->indent(' ',
+                                                        4 * ((*it).depth() - 1))
                                         << ')' << '\n';
                                 parents.pop();
                             }

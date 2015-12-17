@@ -203,67 +203,113 @@ namespace brain
     /// type_t that's not
     /// pointer.
     template<typename type_t>
-    class property<type_t, true>
+    class property<type_t, true> final
     {
+            /// Embedded value
             type_t m_value;
 
+
         public:
+            /// Default constructor
             property() = default;
-            property(const type_t& _value):
+
+
+            /// Constructor by cref
+            property(
+                const type_t& _value):
                 m_value(_value)
             {
             }
-            property(type_t && _value):
+
+
+            /// Constructor by uref
+            property(
+                type_t && _value):
                 m_value(_value)
             {
             }
-            property(const property& other):
+
+
+            /// Constructor by copy cref
+            property(
+                const property& other):
                 m_value(other.m_value)
             {
             }
-            property(property && other):
+
+
+            /// Constructor by copy cref
+            property(
+                property && other):
                 m_value(std::move(other.m_value))
             {
             }
 
+
+            /// Default destructor
+            ~property() = default;
+
+
         public:
+            /// TODO Deleted operator=()
+
+        public:
+            /// Getter on ref
             type_t& operator()()
             {
                 return m_value;
             }
 
+
+            /// Getter on cref
             const type_t& operator()() const
             {
                 return m_value;
             }
 
-            void operator()(const type_t& _value)
+
+            /// Setter on cref
+            void operator()(
+                const type_t& _value)
             {
                 m_value = _value;
             }
 
-            void operator()(type_t && _value)
+
+            /// Setter on uref
+            void operator()(
+                type_t && _value)
             {
                 m_value = _value;
             }
+
 
         public:
+            /// Getter on cref
             const type_t& get() const
             {
                 return m_value;
             }
 
+
+            /// Getter on ref
             type_t& get()
             {
                 return m_value;
             }
 
-            void set(const type_t& _value)
+
+            /// Setter on cref
+            void set(
+                const type_t& _value)
             {
                 m_value = _value;
             }
 
-            void set(type_t && _value)
+
+            /// Setter on uref
+            void set(
+                type_t && _value)
             {
                 m_value = _value;
             }
@@ -275,36 +321,62 @@ namespace brain
     /// type_t that's not
     /// pointer and const.
     template<typename type_t>
-    class property<const type_t, true>
+    class property<const type_t, true> final
     {
+            /// Embedded value
             type_t m_value;
 
         public:
+            /// Default constructor
             property() = default;
-            property(const type_t& _value):
+
+
+            /// Constructor by cref
+            property(
+                const type_t& _value):
                 m_value(_value)
             {
             }
-            property(type_t && _value):
+
+
+            /// Constructor by uref
+            property(
+                type_t && _value):
                 m_value(_value)
             {
             }
-            property(const property& other):
+
+
+            /// Constructor by copy cref
+            property(
+                const property& other):
                 m_value(other.m_value)
             {
             }
-            property(property && other):
+
+
+            /// Constructor by move uref
+            property(
+                property && other):
                 m_value(std::move(other.m_value))
             {
             }
 
+
+            /// Default destructor
+            ~property() = default;
+
+
         public:
+            /// Getter on cref
             const type_t& operator()() const
             {
                 return m_value;
             }
 
+
         public:
+            /// Getter on cref
             const type_t& get() const
             {
                 return m_value;
@@ -322,60 +394,108 @@ namespace brain
             std::unique_ptr<type_t> m_value;
 
         public:
-            property() = default;
-            property(type_t* _value = nullptr):
+            /// Constructor by pointer
+            property(
+                type_t* _value = nullptr):
                 m_value(_value)
             {
             }
 
+
+            /// Deleted constructor
+            /// by copy
+            property(
+                const property&) = delete;
+
+
+            /// Move semantic constructor
+            property(
+                property &&) = default;
+
+
+            /// Default constructor
+            ~property() = default;
+
+
         public:
+            /// Getter by ref
             type_t& operator()()
             {
                 return *m_value;
             }
 
+
+            /// Getter by cref
             const type_t& operator()() const
             {
                 return *m_value;
             }
 
-            void operator()(const type_t& _value)
+
+            /// Setter by cref
+            void operator()(
+                const type_t& _value)
             {
                 *m_value = _value;
             }
 
-            void operator()(type_t && _value)
+
+            /// Setter by uref
+            void operator()(
+                type_t && _value)
             {
                 *m_value = _value;
             }
 
-            void operator()(type_t* _value = nullptr)
+
+            /// Setter by pointer
+            /// The pointer must not
+            /// managed by any other
+            /// agent
+            void operator()(
+                type_t* _value)
             {
                 m_value.reset(_value);
             }
 
+
         public:
+            /// Getter by cref
             const type_t& get() const
             {
                 return *m_value;
             }
 
+
+            /// Getter by ref
             type_t& get()
             {
                 return *m_value;
             }
 
-            void set(const type_t& _value)
+
+            /// Setter by cref
+            void set(
+                const type_t& _value)
             {
                 *m_value = _value;
             }
 
-            void set(type_t && _value)
+
+            /// Setter by uref
+            void set(
+                type_t && _value)
             {
                 *m_value = _value;
             }
 
-            void set(type_t* _value = nullptr)
+
+            /// Setter by pointer
+            /// The pointer must not
+            /// managed by any other
+            /// agent
+            void set(
+                type_t* _value = nullptr)
             {
                 m_value.reset(_value);
             }
@@ -390,7 +510,6 @@ namespace brain
     class property<type_t*, false> final
     {
             type_t* m_value;
-
 
 
         public:

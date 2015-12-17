@@ -122,7 +122,7 @@ namespace brain
 
         template < Level lvl,
                  typename t >
-        property<formatter<lvl, t>*, true> loggerconf<lvl, t>::format;
+        property<formatter<lvl, t>*> loggerconf<lvl, t>::format;
 
 
         template < Level lvl,
@@ -248,7 +248,7 @@ namespace brain
                 std::ostream& out,
                 t && o) noexcept
             {
-                return out << o;
+                return out << o; 
             }
 
 
@@ -306,8 +306,8 @@ namespace brain
                         loggerconf<lvl, type_t>::skip() == Skip::DONT_SKIP)
                         or (loggerconf<lvl>::skip() != Skip::SKIP and
                             loggerconf<lvl, type_t>::skip() != Skip::SKIP))
-                    //for(auto & out : loggerconf<lvl, type_t>::outs)
-                        ;//loggerconf<lvl, type_t>::format()(*out.second, message...);
+                    for(auto & out : loggerconf<lvl, type_t>::outs)
+                        loggerconf<lvl, type_t>::format()(*out.second, message...);
             }
         };
 
