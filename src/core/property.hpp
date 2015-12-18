@@ -157,53 +157,69 @@ namespace brain
     }
 
 
-    /// General validator
-    /// for property
-    /// interface
-    template<typename property_t>
-    inline auto valid(
-        const property_t& p)
-    {
-        return p.valid();
-    }
-
-
     /// //////// ///
     /// Property ///
     /// //////// ///
 
 
+    /// Enum that helps
+    /// to determinate
+    /// the managing
+    /// system
+    enum class managing
+    {
+        /// If the managing
+        /// of the embedded
+        /// value can't be
+        /// shared
+        unique,
+
+
+        /// If the managing
+        /// of the embedded
+        /// value can be shared
+        shared,
+
+
+        /// If the embedded
+        /// value is managed
+        /// as a value
+        none
+    };
+
+
     /// Generic property
     template < typename type_t,   /// Embedded type
-             bool _is_component = true > /// Flag on life cycle on embedded value
+             managing _manage = managing::none > /// Flag on life cycle on embedded value
     class property;
+
 
     /// Forbid the use
     /// of type_t&
     template < typename type_t,
-             bool _is_component >
-    class property<type_t&, _is_component>;
+             managing _manage  >
+    class property<type_t&, _manage>;
 
 
     /// Forbid the use
     /// of const type_t&
     template < typename type_t,
-             bool _is_component >
-    class property<const type_t&, _is_component>;
+             managing _manage >
+    class property<const type_t&, _manage>;
 
 
     /// Forbid the use
     /// of type_t&&
     template < typename type_t,
-             bool _is_component >
-    class property < type_t && , _is_component >;
+             managing _manage >
+    class property < type_t && , _manage >;
 
 
     /// Implementation for
     /// type_t that's not
     /// pointer.
     template<typename type_t>
-    class property<type_t, true> final
+    class property<type_t, managing::none> final
     {
             /// Embedded value
             type_t m_value;
@@ -321,7 +337,7 @@ namespace brain
     /// type_t that's not
     /// pointer and const.
     template<typename type_t>
-    class property<const type_t, true> final
+    class property<const type_t, managing::none> final
     {
             /// Embedded value
             type_t m_value;
@@ -389,15 +405,38 @@ namespace brain
     /// and that considered
     /// as component
     template<typename type_t>
-    class property<type_t*, true> final
+    class property<type_t*, managing::unique> final
     {
+            /// Embedded value
             std::unique_ptr<type_t> m_value;
+
 
         public:
             /// Constructor by pointer
             property(
                 type_t* _value = nullptr):
                 m_value(_value)
+            {
+            }
+
+
+            /// Constructor by
+            /// smart pointer
+            property(
+                std::unique_ptr<type_t> && _value):
+                m_value {_value}
+            {
+            }
+
+
+            /// Constructor by 
+            /// smart pointer
+            /// from another
+            /// type
+            template<typename other_t>
+            property(
+                std::unique_ptr<other_t> && _value):
+                m_value {_value}
             {
             }
 
@@ -419,32 +458,16 @@ namespace brain
 
         public:
             /// Getter by ref
-            type_t& operator()()
+            type_t* operator()()
             {
-                return *m_value;
+                return m_value.get();
             }
 
 
             /// Getter by cref
-            const type_t& operator()() const
+            const type_t* operator()() const
             {
-                return *m_value;
-            }
-
-
-            /// Setter by cref
-            void operator()(
-                const type_t& _value)
-            {
-                *m_value = _value;
-            }
-
-
-            /// Setter by uref
-            void operator()(
-                type_t && _value)
-            {
-                *m_value = _value;
+                return m_value.get();
             }
 
 
@@ -459,34 +482,41 @@ namespace brain
             }
 
 
+            void operator()(
+                std::unique_ptr<type_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
+            template<typename other_t>
+            void operator()(
+                std::unique_ptr<other_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
         public:
             /// Getter by cref
-            const type_t& get() const
+            const type_t* get() const
             {
-                return *m_value;
+                return m_value.get();
             }
 
 
             /// Getter by ref
-            type_t& get()
+            type_t* get()
             {
-                return *m_value;
+                return m_value.get();
             }
 
 
-            /// Setter by cref
-            void set(
-                const type_t& _value)
+            /// Returns the embedded
+            /// pointer
+            const type_t* ptr() const
             {
-                *m_value = _value;
-            }
-
-
-            /// Setter by uref
-            void set(
-                type_t && _value)
-            {
-                *m_value = _value;
+                return m_value.get();
             }
 
 
@@ -499,6 +529,21 @@ namespace brain
             {
                 m_value.reset(_value);
             }
+
+
+            void set(
+                std::unique_ptr<type_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
+            template<typename other_t>
+            void set(
+                std::unique_ptr<other_t> && _value)
+            {
+                m_value = _value;
+            }
     };
 
 
@@ -507,34 +552,175 @@ namespace brain
     /// and that considered
     /// as reference
     template<typename type_t>
-    class property<type_t*, false> final
+    class property<type_t*, managing::shared> final
     {
-            type_t* m_value;
+            /// Embedded pointer value
+            std::shared_ptr<type_t> m_value;
+
+        public:
+            /// Basic constructor
+            /// based on pointer
+            property(
+                type_t* _value = nullptr):
+                m_value {_value}
+            {
+            }
+
+
+            property(
+                const std::shared_ptr<type_t>& _value):
+                m_value {_value}
+            {
+            }
+
+
+            property(
+                std::shared_ptr<type_t> && _value):
+                m_value {_value}
+            {
+            }
+
+
+            template<typename other_t>
+            property(
+                const std::shared_ptr<other_t>& _value):
+                m_value {_value}
+            {
+            }
+
+
+            template<typename other_t>
+            property(
+                std::shared_ptr<other_t> && _value):
+                m_value {_value}
+            {
+            }
+
+
+            /// Default copy
+            /// constructor
+            property(
+                const property&) = default;
+
+
+            /// Default move
+            /// constructor
+            property(
+                property &&) = default;
+
+
+            /// Default destructor
+            ~property() = default;
 
 
         public:
-            const type_t& get() const
+            /// Getter on pointer
+            type_t* operator()()
             {
                 return m_value;
             }
 
-            type_t& get()
+
+            /// Getter on cpointer
+            const type_t* operator()() const
             {
                 return m_value;
             }
 
-            void set(const type_t& _value)
+
+            /// Setter on pointer
+            void operator()(type_t* _value)
             {
                 m_value = _value;
             }
 
-            void set(type_t && _value)
+
+            void operator()(
+                const std::shared_ptr<type_t>& _value)
             {
                 m_value = _value;
             }
+
+
+            void operator()(
+                std::shared_ptr<type_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
+            template<typename other_t>
+            void operator()(
+                const std::shared_ptr<other_t>& _value)
+            {
+                m_value = _value;
+            }
+
+
+            template<typename other_t>
+            void operator()(
+                std::shared_ptr<other_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
+        public:
+            /// Getter function
+            /// on cpointer
+            const type_t* get() const
+            {
+                return m_value;
+            }
+
+
+            /// Getter function
+            /// on pointer
+            type_t* get()
+            {
+                return m_value;
+            }
+
+
+            /// Setter function
+            /// on pointer
+            void set(type_t* _value)
+            {
+                m_value = _value;
+            }
+
+
+            void set(
+                const std::shared_ptr<type_t>& _value)
+            {
+                m_value = _value;
+            }
+
+
+            void set(
+                std::shared_ptr<type_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
+            template<typename other_t>
+            void set(
+                const std::shared_ptr<other_t>& _value)
+            {
+                m_value = _value;
+            }
+
+
+            template<typename other_t>
+            void set(
+                std::shared_ptr<other_t> && _value)
+            {
+                m_value = _value;
+            }
+
+
     };
-
-
 }
 
 #endif

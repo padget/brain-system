@@ -42,7 +42,7 @@ namespace brain
 
                 template <enum_t id, typename ... defs_t>
                 using list_rule     = cpl::list_rule<enum_t, id, defs_t...>;
-                
+
                 template<typename root_rule_t>
                 using root_rule = cpl::root_rule<root_rule_t>;
 
@@ -50,10 +50,10 @@ namespace brain
                 using bind          = cpl::bind<object_t, declare_t>;
 
                 template<typename ... binds_t>
-                using binds         = cpl::binds<enum_t, binds_t... >;
+                using binds         = cpl::binds<enum_t, binds_t...>;
 
                 template <typename declare_ignored_t, typename root_t, typename ... rules_t>
-                using grammar       = cpl::grammar<enum_t, declare_ignored_t, root_t, rules_t... >;
+                using grammar       = cpl::grammar<enum_t, declare_ignored_t, root_t, rules_t...>;
 
                 template<typename grammar_t, typename binds_t>
                 using executer      = cpl::executer<enum_t, grammar_t, binds_t>;

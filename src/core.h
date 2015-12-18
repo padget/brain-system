@@ -7,9 +7,9 @@
 
 #ifndef CORE_H_
 #define CORE_H_
- 
+
 // rgb(20, 25, 31)
- 
+
 #include "core/core.hpp"
 
 

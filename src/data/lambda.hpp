@@ -161,7 +161,7 @@ namespace brain
 
 
         // [REGION] : bti_Plus
-*/
+        */
         /*
          template <>
         data::type bti_Plus::lambda_type("expression", 1, 1);

@@ -100,8 +100,8 @@ namespace brain
         {
 
             static std::map<std::ostream*, std::ostream*> outs;
-            static property<Skip, true> skip;
-            static property<formatter<lvl, t>*, true> format;
+            static property<Skip> skip;
+            static property<formatter<lvl, t>*, managing::unique> format;
 
 
             inline static void skip_policy(
@@ -122,12 +122,12 @@ namespace brain
 
         template < Level lvl,
                  typename t >
-        property<formatter<lvl, t>*> loggerconf<lvl, t>::format;
+        property<formatter<lvl, t>*, managing::unique> loggerconf<lvl, t>::format;
 
 
         template < Level lvl,
                  typename t >
-        property<Skip, true> loggerconf<lvl, t>::skip {Skip::UNDEFINED};
+        property<Skip> loggerconf<lvl, t>::skip {Skip::UNDEFINED};
 
 
         template < Level lvl,
@@ -153,7 +153,7 @@ namespace brain
 
 
             public:
-                property<time_point, true> t0 {clock::now()};
+                property<time_point> t0 {clock::now()};
 
 
             public:
@@ -248,7 +248,7 @@ namespace brain
                 std::ostream& out,
                 t && o) noexcept
             {
-                return out << o; 
+                return out << o;
             }
 
 
@@ -307,7 +307,7 @@ namespace brain
                         or (loggerconf<lvl>::skip() != Skip::SKIP and
                             loggerconf<lvl, type_t>::skip() != Skip::SKIP))
                     for(auto & out : loggerconf<lvl, type_t>::outs)
-                        loggerconf<lvl, type_t>::format()(*out.second, message...);
+                        (*loggerconf<lvl, type_t>::format())(*out.second, message...);
             }
         };
 

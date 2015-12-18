@@ -36,7 +36,7 @@ namespace brain
                                      find_match<next_t, other_t...>(begin, end, m, max_match));
             }
 
-            template < typename terminal_t >
+            template <typename terminal_t>
             bool find_match(statement_iterator& begin,
                             statement_iterator& end,
                             std::smatch& m,
@@ -142,7 +142,7 @@ namespace brain
         {
             using production_t = tpl::type_find<enum_t, tpl::id_of<symbol_t>, productions_list_t>;
 
-            template < typename iterator_t>
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -171,7 +171,7 @@ namespace brain
                  typename symbol_t >
         struct terminal_analyser<enum_t, symbol_t, true>
         {
-            template < typename iterator_t >
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -200,7 +200,7 @@ namespace brain
         {
             using target = typename symbol_t::target_type;
 
-            template < typename iterator_t >
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             { fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit))); }
@@ -224,7 +224,7 @@ namespace brain
         {
             using symbol_t = tpl::rtype_at<_idx, typename production_t::symbols_list>;
 
-            template < typename iterator_t>
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -260,7 +260,7 @@ namespace brain
         {
             using symbol_t = tpl::rtype_at<0, typename production_t::symbols_list>;
 
-            template < typename iterator_t >
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -289,7 +289,7 @@ namespace brain
                  typename productions_list_t >
         struct list_analyser
         {
-            template < typename iterator_t >
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -329,7 +329,7 @@ namespace brain
         {
             using symbol_t = tpl::rtype_at<_idx, typename production_t::symbols_list>;
 
-            template < typename iterator_t >
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -351,7 +351,7 @@ namespace brain
         {
             using symbol_t = tpl::rtype_at<0, typename production_t::symbols_list>;
 
-            template < typename iterator_t>
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             { symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, res); }
@@ -373,7 +373,7 @@ namespace brain
             using list_anl = list_analyser<enum_t, production_t, productions_list_t>;
             using or_anl = or_analyser<enum_t, production_t, productions_list_t>;
 
-            template < typename iterator_t>
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             {
@@ -405,7 +405,7 @@ namespace brain
                  typename productions_list_t >
         struct production_analyser<enum_t, tpl::no_type, productions_list_t>
         {
-            template < typename iterator_t >
+            template <typename iterator_t>
             void operator()(iterator_t& iter,
                             node<enum_t>& res)
             { fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit))); }
@@ -451,7 +451,7 @@ namespace brain
         //--//--//--// TREE MANANGER /--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
 
-        template < typename to_t>
+        template <typename to_t>
         struct converter
         {
             auto operator()(const std::string& from)
@@ -555,7 +555,7 @@ namespace brain
             target operator()(const node_type& n)
             {
                 node_displayer<enum_t>()(n);
-                
+
                 if(fct::not_empty(n.childs))
                 {
                     typename production_t::symbols_list::elements args;
@@ -737,7 +737,7 @@ namespace brain
             static constexpr bool value = (symbol_type::is_terminal
                                            or (not symbol_type::is_terminal
                                                and tpl::in_type_list_by_id<symbol_type, productions_list_t>::value))
-                                          and tpl::value_of<production_defined < production_t, productions_list_t, tpl::decr<_idx>>>;
+                                          and tpl::value_of<production_defined <production_t, productions_list_t, tpl::decr<_idx>>>;
         };
 
         template < typename production_t,

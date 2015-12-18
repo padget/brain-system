@@ -10,7 +10,7 @@ namespace brain
     {
         template<typename system_t>
         struct scanning_receiptor :
-            public sys::basic_receiptor < cpl::event<typename system_t::enum_type>, system_t>
+            public sys::basic_receiptor <cpl::event<typename system_t::enum_type>, system_t>
         {
             public:
                 virtual void act(system_t& s,
@@ -22,7 +22,7 @@ namespace brain
                 }
         };
 
-        template < typename enum_t>
+        template <typename enum_t>
         class scanner:
             public sys::system
         {
@@ -33,7 +33,7 @@ namespace brain
                 scanner() :
                     sys::system()
                 {
-                    
+
                 };
 
                 scanner(const scanner_def&) = default;

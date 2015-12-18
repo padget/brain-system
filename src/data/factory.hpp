@@ -1,8 +1,11 @@
 #ifndef __DATA_FACTORY_HPP
 #define __DATA_FACTORY_HPP
 
-namespace brain{namespace data{
- class factory: singleton<factory>
+namespace brain
+{
+    namespace data
+    {
+        class factory: singleton<factory>
         {
             public:
                 template <typename str_t, typename = brain::enable_if_stringable_t<str_t>>
@@ -19,12 +22,12 @@ namespace brain{namespace data{
                 { return type(name, min, max); }
 
             public:
-                template < typename str_t, typename = brain::enable_if_stringable_t<str_t>>
+                template <typename str_t, typename = brain::enable_if_stringable_t<str_t>>
                 static column createColumn(str_t& name, type& t)
                 { return column(name, t); }
 
             public:
-                template < typename str_t, typename = brain::enable_if_stringable_t<str_t>>
+                template <typename str_t, typename = brain::enable_if_stringable_t<str_t>>
                 static lambda createLambda(str_t && name, type && t)
                 { return lambda(name, t); }
 
@@ -51,7 +54,7 @@ namespace brain{namespace data{
                 static lambda_sptr createBasicLambda(std::initializer_list<expression_sptr> && values)
                 { return std::make_shared<basic>(values); }
         };
-}
+    }
 
 }
 

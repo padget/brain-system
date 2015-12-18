@@ -122,11 +122,11 @@ namespace brain
             public injector<char_t>
         {
             /// Embedded Serializerstream
-            property<stream<char_t>, true> ss;
+            property<stream<char_t>> ss;
 
 
             /// Component name
-            property<std::basic_string<char_t>, true> comp_name;
+            property<std::basic_string<char_t>> comp_name;
 
 
             /// Constructor that inject

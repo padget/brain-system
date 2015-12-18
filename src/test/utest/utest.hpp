@@ -338,6 +338,12 @@ namespace brain
                     add_step(pi() == 2,
                              "test of cref function setter");
                 }
+
+                {
+                    property<long> pl {4L};
+                    property<int> pi {pl()};
+                    std::cout << pi() << std::endl;
+                }
             }
         };
 
@@ -383,13 +389,32 @@ namespace brain
             {
                 {
                     property<int*> pi {new int{1}};
-                    add_step(pi() == 1,
+                    add_step(*pi() == 1,
                              "test of pointer constructor");
                 }
-                
+
                 {
-                property<int *> pi{new int{1}};
-                    std::cout << pi() << std::endl;
+                    int* pointer {nullptr};
+                    property<int *> pi {property<int *>{pointer = new int{1}}};
+
+                    std::cout << typeid(pi).name() << std::endl;
+                    add_step(*pi() == 1 and
+                             pi() == pointer,
+                             "test of move semantic constructor");
+                }
+
+                {
+                    property<int*> pi {new int{1}};
+                    pi(new int {2});
+                    add_step(*pi() == 2,
+                             "test of pointer setter");
+                }
+
+                {
+                    property<int *> pi {new int{1}};
+                    pi.set(new int {2});
+                    add_step(*pi() == 2,
+                             "test of set function pointer");
                 }
             }
         };

@@ -173,7 +173,7 @@ namespace brain
             nat::object
         {
                 using token_def = token<enum_t>;
-                
+
             public:
                 enum_t id = enum_t::ignored;
                 std::string value;
@@ -290,17 +290,17 @@ namespace brain
                     childs(_childs),
                     m_object(fct::mv(_object)) {}*/
 
-               node(node_def && other):
+                node(node_def && other):
                     token_def(other),
                     //m_object(fct::mv(other.m_object)),
                     childs(fct::mv(other.childs)) {}
 
                 node(const node_def& other):
                     token_def(other),
-                   // m_object(other.m_object),
+                    // m_object(other.m_object),
                     childs(other.childs) {}
-                
-                
+
+
                 virtual ~node() {}
 
             public:

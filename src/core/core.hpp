@@ -377,23 +377,23 @@ namespace brain
                 using systems_clt =
                     std::vector<system_clt>;
                 using event_receiptors =
-                    std::vector<property<event_receiptor*, true>>;
+                    std::vector<property<event_receiptor*, managing::unique>>;
 
             public:
                 /// True if a system is
                 /// autoconnected, false
                 /// else
-                property<bool, true> autoconnected {default_v<bool>};
+                property<bool> autoconnected {default_v<bool>};
 
 
                 /// List of all systems
                 /// that can be notified
                 /// by the current here
-                property<event_receiptors, true> receiptors;
+                property<event_receiptors> receiptors;
 
 
                 ///
-                property<systems_clt, true> systems;
+                property<systems_clt> systems;
 
             public:
                 BRAIN_ALL_DEFAULT(system)
