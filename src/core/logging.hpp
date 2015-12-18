@@ -107,7 +107,7 @@ namespace brain
             inline static void skip_policy(
                 Skip skip) noexcept
             {
-                loggerconf::skip = skip;
+                loggerconf::skip(skip);
             }
 
 
@@ -170,7 +170,7 @@ namespace brain
                 void start(
                     t && ... message) noexcept
                 {
-                    brain::set(t0, clock::now());
+                    t0(clock::now());
                     logger<T, clock>::info(message...);
                 }
 
@@ -405,14 +405,39 @@ namespace brain
 
 
     template<typename type_t>
-    using logger = logging::logger<type_t>;
+    using logger =
+        logging::logger<type_t>;
 
 
     template<typename type_t>
-    using timer = logging::timer<type_t>;
+    using timer =
+        logging::timer<type_t>;
 
 
-    using ROOT = logging::ROOT;
+    using ROOT =
+        logging::ROOT;
+
+
+
+    namespace logging2
+    {
+        template < typename type_t,
+                 typename char_t >
+        class logger
+        {
+            public:
+                template < typename object_t,
+                         typename = std::enable_if_t<std::is_fundamental<object_t>::value >>
+                logger& operator <<(const object_t& _t)
+                {
+                    std::basic_string<char_t> ss;
+                    ss << _t;
+                    ss.str();
+                    return *this;
+                }
+        };
+    }
+
 
 }
 

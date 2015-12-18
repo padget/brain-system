@@ -10,153 +10,6 @@
 
 namespace brain
 {
-    /// Base class for
-    /// a politic class
-    template<typename type_t>
-    struct politic: /// validated
-            pattag::politic
-    {
-        /// Default destructor
-        virtual ~politic() = default;
-
-
-        /// Return true if
-        /// the value respects
-        /// the politic implemented,
-        /// else must return false
-        virtual bool operator()(
-            const type_t& value) const = 0;
-
-
-        /// Return true if
-        /// the value respects
-        /// the politic implemented,
-        /// else must return false
-        virtual bool operator()(
-            type_t && value) const = 0;
-    };
-
-
-    /// Exception that must
-    /// be used when the data
-    /// is not validated by
-    /// a politic
-    struct invalid_data: /// validated
-        public std::exception
-    {
-            /// Default constructor
-            /// Initialises m_message
-            /// with the default message
-            invalid_data():
-                m_message("brain::invalid_data")
-            {
-            }
-
-
-            /// Construct that initialises
-            /// the default message with
-            /// the cause of invalid data
-            invalid_data(
-                const std::string& cause) :
-                m_message(std::string("brain::invalid_data : ") += cause)
-            {
-            }
-
-
-            /// Default destructor
-            virtual ~invalid_data() = default;
-
-
-            /// Returns m_message
-            virtual const char*
-            what() const noexcept
-            {
-                return m_message.c_str();
-            }
-
-        private:
-            std::string m_message;
-    };
-
-
-    /// Politic that has
-    /// no effect on the
-    /// value of type_t
-    template<typename type_t>
-    struct no_effect : /// validated
-        public politic<type_t>
-    {
-        /// Returns true
-        virtual bool operator()(
-            const type_t& value) const
-        {
-            return meta::v_ <
-                   std::true_type >;
-        };
-
-
-        /// Returns true
-        virtual bool operator()(
-            type_t && value) const
-        {
-            return meta::v_ <
-                   std::true_type >;
-        };
-    };
-
-    /// ////////////////////////// ///
-    /// General property interface ///
-    /// ////////////////////////// ///
-
-
-    /// General getter
-    /// for property
-    /// interface
-    template<typename property_t>
-    inline const auto& get(
-        const property_t& p)
-    {
-        return p.get();
-    }
-
-
-    /// General getter
-    /// for property
-    /// interface
-    template<typename property_t>
-    inline auto& get(
-        property_t& p)
-    {
-        return p.get();
-    }
-
-
-    /// General setter
-    /// for property
-    /// interface
-    template < typename property_t,
-             typename type_t >
-    inline void set(
-        property_t& p,
-        type_t& value)
-    {
-        p.set(value);
-    }
-
-
-    /// General setter
-    /// for property
-    /// interface
-    template < typename property_t,
-             typename type_t >
-    inline void set(
-        property_t& p,
-        type_t && value)
-    {
-        p.set(value);
-    }
-
-
     /// //////// ///
     /// Property ///
     /// //////// ///
@@ -223,7 +76,7 @@ namespace brain
     {
             /// Embedded value
             type_t m_value;
-
+            std::function<type_t&()> m_get;
 
         public:
             /// Default constructor
@@ -265,9 +118,6 @@ namespace brain
             /// Default destructor
             ~property() = default;
 
-
-        public:
-            /// TODO Deleted operator=()
 
         public:
             /// Getter on ref
@@ -429,7 +279,7 @@ namespace brain
             }
 
 
-            /// Constructor by 
+            /// Constructor by
             /// smart pointer
             /// from another
             /// type
@@ -478,7 +328,8 @@ namespace brain
             void operator()(
                 type_t* _value)
             {
-                m_value.reset(_value);
+                if(_value != m_value.get())
+                    m_value.reset(_value);
             }
 
 
@@ -527,7 +378,8 @@ namespace brain
             void set(
                 type_t* _value = nullptr)
             {
-                m_value.reset(_value);
+                if(_value != m_value.get())
+                    m_value.reset(_value);
             }
 
 
@@ -631,7 +483,8 @@ namespace brain
             /// Setter on pointer
             void operator()(type_t* _value)
             {
-                m_value = _value;
+                if(_value != m_value.get())
+                    m_value = _value;
             }
 
 
@@ -684,9 +537,11 @@ namespace brain
 
             /// Setter function
             /// on pointer
-            void set(type_t* _value)
+            void set(
+                type_t* _value)
             {
-                m_value = _value;
+                if(_value != m_value.get())
+                    m_value.reset(_value);
             }
 
 
@@ -718,8 +573,6 @@ namespace brain
             {
                 m_value = _value;
             }
-
-
     };
 }
 

@@ -396,8 +396,6 @@ namespace brain
                 {
                     int* pointer {nullptr};
                     property<int *> pi {property<int *>{pointer = new int{1}}};
-
-                    std::cout << typeid(pi).name() << std::endl;
                     add_step(*pi() == 1 and
                              pi() == pointer,
                              "test of move semantic constructor");
@@ -420,7 +418,7 @@ namespace brain
         };
 
 
-        class foo
+        /*class foo
         {
             public:
                 property<object> o1;
