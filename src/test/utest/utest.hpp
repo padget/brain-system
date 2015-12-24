@@ -281,7 +281,9 @@ namespace brain
                 object o7 {std::move(o6)};
                 add_step(o7.id() == o6_id,
                          "test of move constructor");
-            }
+                object o8;
+                o8.id(9);
+   }
         };
 
         struct property_value_test:
@@ -290,6 +292,11 @@ namespace brain
 
             virtual void test()
             {
+                {
+                    property<int> pi{[](const int& a){std::cout<< "coucou";}};
+                    pi(2);
+                }
+
                 {
                     int i {1};
                     property<int> pi {i};
@@ -418,40 +425,36 @@ namespace brain
         };
 
 
-        /*class foo
+        class foo:
+            public object
         {
+
             public:
-                property<object> o1;
                 property<object> o2;
+                virtual void serialize(
+                    serialize::stream<char>& out) const
+                {
+                    out << "foo";
+                    out << serialize::parent<char, object>(*this);
+                    out << serialize::complex<char>("an_object", o2());
+                }
         };
 
         class foo2 :
             public foo
         {
+            public:
+                property<object> o1;
+                virtual void serialize(
+                    serialize::stream<char>& out) const
+                {
+                    out << "foo2";
+                    out << serialize::parent<char, foo>(*this);
+                    out << serialize::complex<char>("o1", o1());
+                }
+
         };
 
-        template<typename char_t>
-        serialize::stream<char_t>& operator <<(
-            serialize::stream<char_t>& out,
-            const foo& f)
-        {
-            out << "foo";
-            out << serialize::complex<char_t>("o1", f.o1());
-            out << serialize::complex<char_t>("o2", f.o2());
-
-            return out;
-        }
-
-        template<typename char_t>
-        serialize::stream<char_t>& operator <<(
-            serialize::stream<char_t>& out,
-            const foo2& f)
-        {
-            out << "foo2";
-            out << serialize::fromparent<char_t, foo>(f);
-
-            return out;
-        }
 
         struct marshalling_test:
             public basic_test
@@ -459,10 +462,34 @@ namespace brain
             virtual void test()
             {
                 foo2 f;
-                object o1;
-                std::cout << marshall<char, serialize::lql_format>(f) << std::endl;
-                std::cout << marshall<char, serialize::json_format>(o1) << std::endl;
+                serialize::stream<char> ss;
+                std::cout << marshall<char, serialize::xml_format>(f) << std::endl;
             }
+        };
+
+        struct reactive_test:
+            public basic_test
+        {
+                class affectation :
+                    public react::operation
+                {
+                        virtual void operator()(
+                            react::reactive* result,
+                            const std::vector<react::reactive*>& args)
+                        {
+                            if(args.size() == 1)
+                                result->value() = args[0]->value();
+                        }
+                };
+
+                virtual void test()
+                {
+                    react::reactive a, b;
+                    a.value(1);
+                    b.value(2);
+                    react::formule f {&a, new affectation(), {&b}};
+                    f.compute();
+                }
         };
 
 

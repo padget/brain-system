@@ -28,7 +28,6 @@
 #include <tuple>
 #include <list>
 #include <chrono>
-#include "macro.hpp"
 #include "serialize.hpp"
 #include "meta.hpp"
 #include "pattern.hpp"
@@ -196,7 +195,8 @@ namespace brain
     /// Fundamental class
     /// for all class in
     /// brain-system framework
-    class object
+    class object:
+        public serialize::serializable<char>
     {
             /// Static incremental ID
             static unsigned long long s_id;
@@ -206,7 +206,7 @@ namespace brain
             /// id of the current
             /// object. It's generated
             /// with static ID.
-            property<unsigned long long> id {++s_id};
+            property<unsigned long long> id {++s_id, [this](const unsigned long long & _value) {std::cout << "new value" << this->id();}};
 
 
             /// Default constructor
@@ -248,6 +248,40 @@ namespace brain
             /// Move assignement
             object& operator=(
                 object &&) = default;
+
+
+        public:
+            /// Serialize method
+            /// to overload to
+            /// have a specific
+            /// feature for childs
+            /// classes
+            inline virtual void serialize(
+                serialize::stream<char>& out) const
+            {
+                out << "object"
+                    << serialize::fundamental<char>("id", id());
+            }
+
+
+        public:
+            /// Overload this method
+            /// to specify to the target
+            /// type
+            virtual bool equals(
+                const object& other) const
+            {
+                return id() == other.id();
+            }
+
+
+            /// Returns the result
+            /// of this->equals(other)
+            bool operator ==(
+                const object& other) const
+            {
+                return equals(other);
+            }
     };
 
 
@@ -256,17 +290,125 @@ namespace brain
     unsigned long long object::s_id {default_v<unsigned long long>};
 
 
-    template<typename char_t>
-    serialize::stream<char_t>& operator<<(
-        serialize::stream<char_t>& out,
-        const object& ob)
+    namespace react
     {
-        using attr =
-            typename serialize::stream<char_t>::attribute;
+        class reactive;
 
-        return out
-               << "object"
-               << serialize::fundamental<char_t>("id", ob.id());
+        class operation
+        {
+            public:
+                virtual void operator()(
+                    reactive*,
+                    const std::vector<reactive*>&) = 0;
+        };
+
+
+        class formule
+        {
+            public:
+                property<operation*, managing::unique> op;
+                property<reactive*> result;
+                property<std::vector<reactive*>> args;
+
+            public:
+                formule(
+                    reactive* _result,
+                    operation* _op,
+                    std::vector<reactive*> && _args):
+                    result {_result},
+                       op {_op},
+                args {_args}
+                {
+                }
+
+
+            public:
+                void compute()
+                {
+                    (*op())(result(), args());
+                }
+
+        };
+
+
+        class reactive
+        {
+            public:
+                property<int> value;
+                property<formule*> form;
+        };
+    }
+
+
+    namespace sys
+    {
+        /// Source is the source
+        /// of the event
+        class source:
+            public object
+        {
+        };
+
+        class event
+        {
+            public:
+                /// The source of
+                /// the event
+                property<source*> from;
+
+
+            public:
+                /// Constructor with
+                /// the source
+                event(source* _from):
+                    from {_from}
+                {
+                }
+
+
+                /// Default constructor
+                /// by copy
+                event(
+                    const event& other) = default;
+
+
+                /// Default constructor
+                /// by move
+                event(
+                    event && other) = default;
+
+
+                /// Default virtual
+                /// destructor
+                virtual ~event() = default;
+
+
+            public:
+                /// Default operator=
+                /// by copy
+                event& operator=(
+                    const event& other) = default;
+
+
+                /// Default operator=
+                /// by move
+                event& operator=(
+                    event && other) = default;
+        };
+
+
+        /// An event handler
+        /// represents the
+        template<typename event_t>
+        class handler
+        {
+                using callback_sig =
+                    std::function<void(source&, event&)>;
+                using event_type =
+                    event_t;
+            public:
+
+        };
     }
 
 
@@ -396,7 +538,7 @@ namespace brain
                 property<systems_clt> systems;
 
             public:
-                BRAIN_ALL_DEFAULT(system)
+
 
             public:
                 inline void addReceiver(const system_clt& receiver)

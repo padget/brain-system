@@ -14,7 +14,7 @@ namespace brain
         /// dynamic cast features.
         struct server_pointer_base
         {
-            BRAIN_ALL_DEFAULT(server_pointer_base)
+            virtual ~server_pointer_base() = default;
         };
 
 

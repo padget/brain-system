@@ -21,6 +21,22 @@ namespace brain
         struct stream;
 
 
+        /// Class to implements to 
+        /// be compatible with 
+        /// serialization library
+        template<typename char_t>
+        class serializable
+        {
+            public:
+                /// Overload this method
+                /// to specify the way
+                /// to serialize the 
+                /// current object
+                virtual void serialize(
+                    stream<char_t>& out) const = 0;
+        };
+
+
         /// /////////////////// ///
         /// Injector for Stream ///
         /// /////////////////// ///
@@ -31,6 +47,9 @@ namespace brain
         template<typename char_t>
         struct injector
         {
+            /// Overload this method
+            /// to operate some
+            /// alterations on stream
             virtual stream<char_t>& operator()(
                 stream<char_t>& out) = 0;
         };
@@ -105,6 +124,7 @@ namespace brain
                                         std::begin(ss().attributes()),
                                         std::end(ss().attributes()));
 
+                /// Composition => depth--
                 out.current_depth()--;
 
                 return out;
@@ -138,7 +158,8 @@ namespace brain
                 const type_t& ob):
                 comp_name(name)
             {
-                ss() << ob;
+                
+                ob.serialize(ss());
             }
 
 
@@ -149,7 +170,7 @@ namespace brain
                 stream<char_t>& out)
             {
                 /// Composition => depth++
-                out.current_depth() ++;
+                out.current_depth()++;
 
                 auto& attrs =
                     ss().attributes();
@@ -160,7 +181,8 @@ namespace brain
                               std::end(attrs),
                               [&out](auto & attr)
                 {
-                    attr.depth(attr.depth() + out.current_depth());
+                    attr.depth(attr.depth()
+                               + out.current_depth());
                 });
 
                 /// If the list is not
@@ -179,7 +201,8 @@ namespace brain
                                         std::begin(ss().attributes()),
                                         std::end(ss().attributes()));
 
-                out.current_depth() --;
+                /// Composition => depth--
+                out.current_depth()--;
 
                 return out;
             }
@@ -194,25 +217,24 @@ namespace brain
         /// current class
         template < typename char_t,
                  typename parent_t >
-        struct fromparent final:
+        struct parent final:
             public injector<char_t>
         {
 
-            /// Embedded Serializerstream
+            /// Embedded stream
             property<stream<char_t>> ss;
 
             /// Constructor that takes an
             /// object of type_t and
             /// inject them into the
             /// stream ss of this flag
-            template <typename type_t>
-            fromparent(
+            template<typename type_t>
+            parent(
                 const type_t& ob)
             {
-                /// Use the operator
-                /// << specifically
-                /// implemented for type_t
-                ss() << static_cast<const parent_t&>(ob);
+                /// Using the serialize
+                /// methode of the parent
+                static_cast<const parent_t>(ob).serialize(ss());
             }
 
 
@@ -303,15 +325,15 @@ namespace brain
 
 
                 /// Direct transformation
-                /// of any class that supports
-                /// the stream
-                /// operator <<
+                /// of any serializable
+                /// class
                 template<typename type_t>
                 inline auto operator()(
                     const type_t& ob)
                 {
                     stream<char_t> ss;
-                    return (*this)(ss << ob);
+                    ob.serialize(ss);
+                    return (*this)(ss);
                 }
         };
 
@@ -604,7 +626,7 @@ namespace brain
                             it != end;
                             it++)
                     {
-                        auto next =
+                        auto& next =
                             std::next(it);
 
                         /// If the current value is
@@ -822,6 +844,15 @@ namespace brain
                 {
                     attr.depth(current_depth());
                     attributes().push_back(attr);
+                    return *this;
+                }
+
+
+                /// 
+                stream& operator<< (
+                    const serializable<char_t>& ob)
+                {
+                    ob.serialize(*this);
                     return *this;
                 }
         };
