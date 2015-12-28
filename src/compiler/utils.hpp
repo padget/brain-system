@@ -155,7 +155,7 @@ namespace brain
 
             template<typename other_id_t>
             using return_ =
-                meta::bool_t < id_<id_t> == id_ < other_id_t >>;
+                meta::bool_t <id_<id_t> == id_ <other_id_t>>;
         };
 
         /**
@@ -675,7 +675,7 @@ namespace brain
             struct make_for_each_symbol
             {
                 using current_symbol =
-                    tpl::rtype_at<_idx, symbol_list_t>;
+                    meta::at_c < symbol_list_t::last_idx - _idx, symbol_list_t >;
 
                 void operator()(
                     const std::vector<node_type>& childs,
@@ -685,7 +685,7 @@ namespace brain
                     {
                         std::get<_idx>(args) =
                             terminal_object_maker<enum_t, current_symbol>()(childs[_idx]);
-                        make_for_each_symbol<symbol_list_t, tpl::decr<_idx>>()(childs, args);
+                        make_for_each_symbol < symbol_list_t, _idx - 1 > ()(childs, args);
                     }
                 }
             };
@@ -694,13 +694,13 @@ namespace brain
             struct make_for_each_symbol<symbol_list_t, 0>
             {
                 using current_symbol =
-                    tpl::rtype_at<0, symbol_list_t>;
+                    meta::at_c<symbol_list_t::last_idx, symbol_list_t>;
 
                 void operator()(
                     const std::vector<node_type>& childs,
                     typename symbol_list_t::elements& args)
                 {
-                    if(childs[0].id == current_symbol::id)
+                    if(childs[0].id == id_<current_symbol>)
                         std::get<0>(args) =
                             std::move(terminal_object_maker<enum_t, current_symbol>()(childs[0]));
                 }
@@ -751,7 +751,7 @@ namespace brain
         struct symbol_displayer
         {
             using symbol_t =
-                tpl::rtype_at<_idx, symbols_list_t>;
+                meta::at_c < symbols_list_t::last_idx - _idx, symbols_list_t >;
 
             void operator()()
             {
@@ -769,10 +769,15 @@ namespace brain
         struct symbol_displayer<enum_t, symbols_list_t, _type, 0>
         {
             using symbol_t =
-                tpl::rtype_at<0, symbols_list_t>;
+                meta::at_c<symbols_list_t::last_idx, symbols_list_t>;
 
             void operator()()
-            { logger<enum_t>::trace("  ", static_cast<char>(_type), " --- ", (long)symbol_t::id); }
+            {
+                logger<enum_t>::trace("  ",
+                                      static_cast<char>(_type),
+                                      " --- ",
+                                      (long)symbol_t::id);
+            }
         };
 
         /**
@@ -789,7 +794,7 @@ namespace brain
         struct production_displayer
         {
             using production_t =
-                tpl::rtype_at<_idx, productions_list_t>;
+                meta::at_c < productions_list_t::last_idx - _idx, productions_list_t >;
 
             void operator()()
             {
@@ -807,7 +812,7 @@ namespace brain
         struct production_displayer<enum_t, productions_list_t, 0>
         {
             using production_t =
-                tpl::rtype_at<0, productions_list_t>;
+                meta::at_c<productions_list_t::last_idx, productions_list_t>;
 
             void operator()()
             {
@@ -861,7 +866,7 @@ namespace brain
         struct production_defined
         {
             using symbol_type =
-                tpl::type_at<_idx, typename production_t::symbols_list>;
+                meta::at_c<_idx, typename production_t::symbols_list>;
             static constexpr bool value = (symbol_type::is_terminal
                                            or (not symbol_type::is_terminal
                                                and tpl::in_type_list_by_id<symbol_type, productions_list_t>::value))
