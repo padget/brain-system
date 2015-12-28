@@ -2,7 +2,6 @@
 #define SUPPORTS_HPP_INCLUDED
 
 #include "../core.h"
-#include "../core/functionnal.hpp"
 
 class regex_match;
 namespace brain
@@ -17,19 +16,42 @@ namespace brain
         template<typename target_t>
         struct target
         {
-            using target_type = target_t;
+            using target_type =
+                target_t;
         };
 
+
+        ///
+        template < typename id_t,
+                 id_t _id >
+        struct id_type
+        {
+            static id_t id;
+        };
+
+        template < typename id_t,
+                 id_t _id >
+        id_t id_type<id_t, _id>::id {_id};
+
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
 
-        template < typename enum_t,
-                 enum_t _id,
-                 typename target_t,
-                 bool b_is_terminal >
+        /// A symbol represents
+        /// a possible token for
+        /// a grammar. This symbol
+        /// has an identifier
+        /// and can be terminal or
+        /// not. Moreover, it has a
+        /// target type that represent
+        /// its type for an interpretor
+        /// or a compiler.
+        template < typename enum_t, /// Type of the id
+                 enum_t _id, /// Id of the symbol
+                 typename target_t, /// Target type of the symbol
+                 bool b_is_terminal > /// True if the symbol is a terminal
         struct symbol:
-            public tpl::id_type<enum_t, _id>,
+            public id_type<enum_t, _id>,
             public target<target_t>
         {
             static constexpr bool is_terminal {b_is_terminal};
@@ -64,7 +86,7 @@ namespace brain
             public symbol<enum_t, _id, target_t, true>
         {
             static constexpr const char* regex {_regex};
-            static constexpr bool indicative {indicative_t::value};
+            static constexpr bool indicative {meta::v_<indicative_t>};
             static const std::regex regex_std;
         };
 
@@ -88,22 +110,22 @@ namespace brain
                  typename indicative_t ,
                  typename target_t >
         const std::regex terminal<enum_t, _id, _regex, indicative_t, target_t>::regex_std
-        (terminal<enum_t, _id, _regex, indicative_t, target_t>::regex);
+        {terminal<enum_t, _id, _regex, indicative_t, target_t>::regex};
 
         template < typename terminal_t,
                  typename enum_t >
-        constexpr bool is_empty = fct::equals(terminal_t::id,
-                                              enum_t::empty);
+        constexpr bool is_empty =
+            terminal_t::id == enum_t::empty;
 
         template < typename terminal_t,
                  typename enum_t >
-        constexpr bool is_bullshit = fct::equals(terminal_t::id,
-                                     enum_t::bullshit);
+        constexpr bool is_bullshit =
+            terminal_t::id == enum_t::bullshit;
 
         template < typename terminal_t,
                  typename enum_t >
-        constexpr bool is_ignored = fct::equals(terminal_t::id,
-                                                enum_t::ignored);
+        constexpr bool is_ignored =
+            terminal_t::id == enum_t::ignored;
 
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
@@ -121,18 +143,28 @@ namespace brain
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
 
-        enum class production_type : char {AND = '&', OR = '|', LIST = 'o'};
+        enum class production_type :
+        char
+        {
+            AND = '&',
+            OR = '|',
+            LIST = 'o'
+        };
 
         template < typename enum_t,
                  production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
         struct production:
-            public tpl::id_type<enum_t, symbol_t::id>
+            public id_type<enum_t, symbol_t::id>
         {
             static constexpr production_type type {_type};
-            using symbol_type = symbol_t;
-            using symbols_list = tpl::type_map<enum_t, symbols_t...>;
+
+            using symbol_type =
+                symbol_t;
+
+            using symbols_list =
+                meta::list<symbols_t...>;
         };
 
         template < typename enum_t,
@@ -152,9 +184,14 @@ namespace brain
                  typename ... production_t >
         struct grammar
         {
-            using enum_type = enum_t;
-            using root_production_type = root_production_t;
-            using productions_list = tpl::type_map<enum_t, production_t...>;
+            using enum_type =
+                enum_t;
+
+            using root_production_type =
+                root_production_t;
+
+            using productions_list =
+                meta::list<production_t...>;
         };
 
         //--//--//--//--//--//--//--//--//--//--//
@@ -170,62 +207,84 @@ namespace brain
          */
         template<typename enum_t>
         class token:
-            nat::object
+            object
         {
-                using token_def = token<enum_t>;
+                using token_def =
+                    token<enum_t>;
 
             public:
-                enum_t id = enum_t::ignored;
+                enum_t id =
+                    enum_t::ignored;
+
                 std::string value;
 
             public:
-                token(): nat::object() {}
-
-                token(enum_t _id,
-                      const std::string& v = std::string()):
-                    nat::object(),
-                    id(_id),
-                    value(v) {}
-
-                token(const token_def& other):
-                    nat::object(other),
-                    id(other.id),
-                    value(other.value) {}
-
-                token(token_def && other):
-                    nat::object(other),
-                    id(fct::mv(other.id)),
-                    value(fct::mv(other.value)) {}
-
-                virtual ~token() {}
-
-            public:
-                token_def& operator=(const token_def& other)
+                token():
+                    object()
                 {
-                    if(fct::not_equals(this, &other))
-                    {
-                        this->nat::object::operator=(other);
-                        fct::assign(id, other.id);
-                        fct::assign(value, other.value);
-                    }
-
-                    return fct::inner(this);
                 }
 
-                token_def& operator=(token_def && other)
+                token(
+                    enum_t _id,
+                    const std::string& v = std::string()):
+                    object(),
+                    id(_id),
+                    value(v)
                 {
-                    if(fct::not_equals(this, &other))
+                }
+
+
+                token(
+                    const token_def& other):
+                    object(other),
+                    id(other.id),
+                    value(other.value)
+                {
+                }
+
+
+                token(
+                    token_def && other):
+                    object(other),
+                    id(std::move(other.id)),
+                    value(std::move(other.value))
+                {
+                }
+
+                virtual ~token() = default;
+
+            public:
+                token_def& operator=(
+                    const token_def& other)
+                {
+                    if(this != &other)
                     {
-                        this->nat::object::operator=(other);
-                        fct::assign(id, fct::mv(other.id));
-                        fct::assign(value, fct::mv(other.value));
+                        this->object::operator=(other);
+                        id = other.id;
+                        value = other.value;
                     }
 
-                    return fct::inner(this);
+                    return *this;
+                }
+
+
+                token_def& operator=(
+                    token_def && other)
+                {
+                    if(this != &other)
+                    {
+                        this->object::operator=(other);
+                        id = std::move(other.id);
+                        value = std::move(other.value);
+                    }
+
+                    return *this;
                 }
 
                 operator bool() const
-                { return fct::not_equals(id, enum_t::bullshit); }
+                {
+                    return id !=  enum_t::bullshit;
+                }
         };
 
         /**
@@ -238,10 +297,7 @@ namespace brain
         auto make_token(enum_t id,
                         const std::string& value)
         {
-            token<enum_t> t;
-            fct::assign(t.id, id);
-            fct::assign(t.value, value);
-            return t;
+            return  token<enum_t> {id, value};
         }
 
         /**
@@ -255,77 +311,93 @@ namespace brain
         class node:
             public token<enum_t>
         {
-                using node_def = node<enum_t>;
                 using token_def = token<enum_t>;
 
             public:
-                //nat::object_sptr m_object;
-                std::vector<node_def> childs;
+                //object_sptr m_object;
+                std::vector<node> childs;
 
             public:
-                node(): token_def() {}
+                node(): token_def()
+                {
+                }
 
-                node(const enum_t& _id):
-                    token_def(_id) {}
+
+                node(
+                    const enum_t& _id):
+                    token_def(_id)
+                {
+                }
+
 
                 /*node(const enum_t& _id,
                      const std::string& v,
-                     nat::object_ptr && _object):
+                     object_ptr && _object):
                     token_def(_id, v),
-                    m_object(fct::mv(_object)) {}*/
+                    m_object(std::move(_object)) {}*/
 
-                node(const enum_t& _id,
-                     const std::string& v):
+                node(
+                    const enum_t& _id,
+                    const std::string& v):
                     token_def(_id, v) {}
 
-                node(const enum_t& _id,
-                     std::initializer_list<node<enum_t>> && _childs):
+                node(
+                    const enum_t& _id,
+                    std::initializer_list<node<enum_t>> && _childs):
                     token_def(_id),
                     childs(_childs) {}
 
                 /*node(const enum_t& _id,
                      std::initializer_list<node<enum_t>> && _childs,
-                     nat::object_ptr && _object):
+                     object_ptr && _object):
                     token_def(_id),
                     childs(_childs),
-                    m_object(fct::mv(_object)) {}*/
+                    m_object(std::move(_object)) {}*/
 
-                node(node_def && other):
+                node(
+                    node && other):
                     token_def(other),
-                    //m_object(fct::mv(other.m_object)),
-                    childs(fct::mv(other.childs)) {}
+                    //m_object(std::move(other.m_object)),
+                    childs(std::move(other.childs))
+                {
+                }
 
-                node(const node_def& other):
+                node(
+                    const node& other):
                     token_def(other),
                     // m_object(other.m_object),
-                    childs(other.childs) {}
+                    childs(other.childs)
+                {
+                }
 
 
                 virtual ~node() {}
 
             public:
-                node_def& operator=(node_def && other)
+                node& operator=(
+                    node && other)
                 {
-                    if(fct::not_equals(this, &other))
+                    if(this != &other)
                     {
                         this->token_def::operator=(other);
-                        //fct::assign(m_object, fct::mv(other.m_object));
-                        fct::assign(childs, fct::mv(other.childs));
+                        //fct::assign(m_object, std::move(other.m_object));
+                        childs = std::move(other.childs);
                     }
 
-                    return fct::inner(this);
+                    return *this;
                 }
 
-                node_def& operator=(const node_def & other)
+                node& operator=(
+                    const node& other)
                 {
-                    if(fct::not_equals(this, &other))
+                    if(this = &other)
                     {
                         this->token_def::operator=(other);
                         //fct::assign(m_object, other.m_object);
-                        fct::assign(childs, other.childs);
+                        childs = other.childs;
                     }
 
-                    return fct::inner(this);
+                    return *this;
                 }
         };
 

@@ -22,7 +22,9 @@ namespace brain
     namespace meta
     {
 
-        struct nil {};
+        struct nil
+        {
+        };
 
 
         /// //////////////////////////////////// ///
@@ -478,6 +480,7 @@ namespace brain
                  typename other_t >
         using modulus_t =
             defer_t<modulus_t_, type_t, other_t>;
+
 
         /// /////////////////////// ///
         /// Logical wrapper feature ///
@@ -1114,7 +1117,8 @@ namespace brain
                 others_t... >
 
         {
-            using type = t_<concat_t_<list<types1_t..., types2_t...>, others_t...>>;
+            using type =
+                t_<concat_t_<list<types1_t..., types2_t...>, others_t...>>;
         };
 
 
@@ -1138,7 +1142,8 @@ namespace brain
         template<typename type_t>
         struct pop_back_t_<list<type_t>>
         {
-            using type = list<>;
+            using type =
+                list<>;
         };
 
 
@@ -1150,8 +1155,9 @@ namespace brain
                  typename ... types_t >
         struct pop_back_t_<list<type_t, types_t...>>
         {
-            using type = concat_t < list<type_t>,
-                  t_<pop_back_t_<list<types_t...>> >>;
+            using type =
+                concat_t < list<type_t>,
+                t_<pop_back_t_<list<types_t...>> >>;
         };
 
 
@@ -1176,7 +1182,8 @@ namespace brain
                  typename ... types_t >
         struct to_list_t_<pack_t<types_t...>>
         {
-            using type = list<types_t...>;
+            using type =
+                list<types_t...>;
         };
 
 
@@ -1204,10 +1211,11 @@ namespace brain
                  typename predicate_t >
         struct find_one_if_t_<list<types_t...>, predicate_t>
         {
-            using type = at_t <
-                         unsigned_t<0>,
-                         concat_t<if_t <r_<predicate_t, types_t>, list<types_t>, list<>>...>
-                         >;
+            using type =
+                at_t <
+                unsigned_t<0>,
+                concat_t<if_t <r_<predicate_t, types_t>, list<types_t>, list<>>...>
+                >;
         };
 
 
@@ -1264,7 +1272,8 @@ namespace brain
                 list<keys_t...>,
                 list<values_t... >>
         {
-            using type = list<pair<keys_t, values_t>...>;
+            using type =
+                list<pair<keys_t, values_t>...>;
         };
 
 
@@ -1283,7 +1292,8 @@ namespace brain
         struct value_of_t_
         {
             template<typename type_t>
-            using predicate_ = std::is_same<key_t, first_t<type_t>>;
+            using predicate_ =
+                std::is_same<key_t, first_t<type_t>>;
 
             using type =
                 second_t<find_one_if_t<map_t, quote_r_<predicate_>>>;
@@ -1416,7 +1426,8 @@ namespace brain
                  typename = void >
         struct has_return_t_
         {
-            using type = std::false_type;
+            using type =
+                std::false_type;
         };
 
 
@@ -1428,7 +1439,8 @@ namespace brain
                 void_r < typename
                 type_t::template return_<> > >
         {
-            using type = std::true_type;
+            using type =
+                std::true_type;
         };
 
 
@@ -1542,7 +1554,8 @@ namespace brain
                  typename func_t >
         struct accumulate_t_<list<>, res_t, func_t>
         {
-            using type = res_t;
+            using type =
+                res_t;
         };
 
 
@@ -1728,10 +1741,11 @@ namespace brain
                  typename type_t >
         struct repeat_t_
         {
-            using type = concat_t <
-                         t_ < repeat_t_ < _nb / 2, type_t >> ,
-                         t_ < repeat_t_ < _nb / 2, type_t >> ,
-                         t_ < repeat_t_ < _nb % 2, type_t >>>;
+            using type =
+                concat_t <
+                t_ < repeat_t_ < _nb / 2, type_t >> ,
+                t_ < repeat_t_ < _nb / 2, type_t >> ,
+                t_ < repeat_t_ < _nb % 2, type_t >>>;
         };
 
 
@@ -1739,7 +1753,8 @@ namespace brain
         template <typename type_t>
         struct repeat_t_<0u, type_t>
         {
-            using type = list<>;
+            using type =
+                list<>;
         };
 
 
@@ -1747,7 +1762,8 @@ namespace brain
         template <typename type_t>
         struct repeat_t_<1u, type_t>
         {
-            using type = list<type_t>;
+            using type =
+                list<type_t>;
         };
 
 
@@ -1769,13 +1785,15 @@ namespace brain
         template < typename res_t ,
                  typename type_t,
                  typename ref_t >
-        using inc_if_t = if_t<std::is_same<ref_t, type_t>, inc_t<res_t>, res_t>;
+        using inc_if_t =
+            if_t<std::is_same<ref_t, type_t>, inc_t<res_t>, res_t>;
 
 
         /// TODO Sort + Doc
         template < typename list_t,
                  typename ref_t >
-        using count_t = accumulate_t<list_t, unsigned_t<0>, bind_back_r_<quote_r_<inc_if_t>, ref_t>>;
+        using count_t =
+            accumulate_t<list_t, unsigned_t<0>, bind_back_r_<quote_r_<inc_if_t>, ref_t>>;
 
 
         /// TODO Sort + Doc

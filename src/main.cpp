@@ -6,10 +6,8 @@
  */
 
 #include "test/utest/utest.hpp"
-#include "core/meta.hpp"
-#include "core/core.hpp"
-#include "core/serialize.hpp"
-#include "core/filtering.hpp"
+#include "compiler/supports.hpp"
+#include "compiler/utils.hpp"
 #include <iostream>
 
 using namespace brain;
@@ -45,5 +43,5 @@ int main()
 
    test::tree_maker_test */>> ();
 
-    return 0;
+    return (int) exitcode::WELL;
 }

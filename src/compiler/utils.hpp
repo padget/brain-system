@@ -1,61 +1,73 @@
 #ifndef __BRAIN_COMPILERUTILS_HPP
 #define  __BRAIN_COMPILERUTILS_HPP
 
-#include "../core/functionnal.hpp"
-
 namespace brain
 {
     namespace cpl
     {
-        /**
-         * @class token_maker
-         * @author bmathieu
-         * @date 14/09/2015
-         * @file utils.hpp
-         * @brief Build a array of token that represent's
-         * the logical translation of the source.
-         */
+        /// Build a array
+        /// of tokens that
+        /// represent's the
+        /// logical translation
+        /// of the source.
         template < typename enum_t ,
                  typename ... terminals_t >
         struct token_maker
         {
-            using enum_type = enum_t;
-            using token_type = token<enum_t>;
-            using tokens_type = std::vector<token_type>;
-            using statement_iterator = std::string::const_iterator;
+            using enum_type =
+                enum_t;
+
+
+            using token_type =
+                token<enum_t>;
+
+
+            using tokens_type =
+                std::vector<token_type>;
+
+
+            using statement_iterator =
+                std::string::const_iterator;
+
 
             template < typename terminal_t,
                      typename next_t,
                      typename ... other_t >
-            bool find_match(statement_iterator& begin,
-                            statement_iterator& end,
-                            std::smatch& m,
-                            token_type& max_match)
+            bool find_match(
+                statement_iterator& begin,
+                statement_iterator& end,
+                std::smatch& m,
+                token_type& max_match)
             {
-                return fct::logic_or(find_match<terminal_t>(begin, end, m, max_match),
-                                     find_match<next_t, other_t...>(begin, end, m, max_match));
+                return find_match<terminal_t>(begin, end, m, max_match)
+                       or find_match<next_t, other_t...>(begin, end, m, max_match);
             }
 
             template <typename terminal_t>
-            bool find_match(statement_iterator& begin,
-                            statement_iterator& end,
-                            std::smatch& m,
-                            token_type& max_match)
+            bool find_match(
+                statement_iterator& begin,
+                statement_iterator& end,
+                std::smatch& m,
+                token_type& max_match)
             {
                 if(std::regex_match(begin, end, m, terminal_t::regex_std)
-                        and fct::less(max_match.value.length(),
-                                      m.str().length()))
+                        and max_match.value.length() < m.str().length())
                 {
-                    fct::assign(max_match.id, terminal_t::id);
-                    fct::assign(max_match.value, fct::mv(m.str()));
+                    max_match.id =
+                        terminal_t::id;
+
+                    max_match.value =
+                        std::move(m.str());
+
                     return true;
                 }
 
                 return false;
             }
 
-            void operator()(const std::string& filename,
-                            tokens_type& tokens)
+            void operator()(
+                const std::string& filename,
+                tokens_type& tokens)
             {
                 auto && statement =
                     ifstream_to<std::string>(std::ifstream(filename)) + "\n";
@@ -67,31 +79,41 @@ namespace brain
                      buffer_end = statement.cbegin(),
                      end = statement.cend();
 
-                fct::s_inc(buffer_end);
+                buffer_end++;
 
-                while(fct::not_equals(buffer_end, end))
+                while(buffer_end != end)
                 {
                     bool && nothing_found =
-                        fct::logic_not(find_match<terminals_t...>
-                                       (buffer_begin, buffer_end, m, max_match));
+                        ! find_match<terminals_t...>(buffer_begin,
+                                                     buffer_end,
+                                                     m,
+                                                     max_match);
 
-                    if(fct::logic_and(nothing_found,
-                                      fct::not_empty(max_match.value)))
+                    if(nothing_found
+                            and not max_match.value.empty())
                     {
                         tokens.push_back(max_match);
-                        fct::assign(buffer_begin, std::prev(buffer_end));
-                        fct::assign(max_match, token_type());
+                        buffer_begin = std::prev(buffer_end);
+                        max_match = token_type();
                     }
 
                     else
-                        fct::s_inc(buffer_end);
+                        buffer_end++;
 
-                    if(fct::logic_and(fct::logic_not(nothing_found), fct::equals(buffer_end, end)))
+                    if(not nothing_found
+                            and buffer_end == end)
                         tokens.push_back(max_match);
                 }
 
-                auto && unary = [](auto && t) {return fct::equals(t.id, enum_t::ignored);};
-                tokens.erase(std::remove_if(std::begin(tokens), std::end(tokens), unary), std::end(tokens));
+                auto && unary = [](auto && t)
+                {
+                    return t.id == enum_t::ignored;
+                };
+
+                tokens.erase(std::remove_if(std::begin(tokens),
+                                            std::end(tokens),
+                                            unary),
+                             std::end(tokens));
             }
         };
 
@@ -140,11 +162,13 @@ namespace brain
                  typename productions_list_t >
         struct symbol_analyser
         {
-            using production_t = tpl::type_find<enum_t, tpl::id_of<symbol_t>, productions_list_t>;
+            using production_t =
+                tpl::type_find<enum_t, tpl::id_of<symbol_t>, productions_list_t>;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
                 if(symbol_t::is_terminal)
                     terminal_analyser<enum_t, symbol_t, symbol_t::is_terminal>()(iter, res);
@@ -172,8 +196,9 @@ namespace brain
         struct terminal_analyser<enum_t, symbol_t, true>
         {
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
                 while(fct::equals(fct::inner(iter).id,
                                   enum_t::ignored))
@@ -183,11 +208,11 @@ namespace brain
                                symbol_t::id))
                 {
                     fct::s_inc(iter);
-                    fct::assign(res, fct::mv(node<enum_t>(symbol_t::id, fct::inner(iter).value)));
+                    fct::assign(res, std::move(node<enum_t>(symbol_t::id, fct::inner(iter).value)));
                 }
 
                 else
-                    fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
             }
         };
 
@@ -201,9 +226,10 @@ namespace brain
             using target = typename symbol_t::target_type;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
-            { fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit))); }
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
+            { fct::assign(res, std::move(node<enum_t>(enum_t::bullshit))); }
         };
 
         /**
@@ -225,8 +251,9 @@ namespace brain
             using symbol_t = tpl::rtype_at<_idx, typename production_t::symbols_list>;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
                 node<enum_t> current_res;
                 symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, current_res);
@@ -242,11 +269,11 @@ namespace brain
                         fct::push_all(res.childs, next_res.childs);
 
                     else
-                        fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                        fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
                 }
 
                 else
-                    fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
             }
         };
 
@@ -258,20 +285,22 @@ namespace brain
                  typename productions_list_t >
         struct and_analyser<enum_t, production_t, productions_list_t, 0>
         {
-            using symbol_t = tpl::rtype_at<0, typename production_t::symbols_list>;
+            using symbol_t =
+                tpl::rtype_at<0, typename production_t::symbols_list>;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
                 node<enum_t> current_res;
                 symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, current_res);
 
                 if(current_res)
-                    fct::assign(res, fct::mv(node<enum_t>(production_t::id, {current_res})));
+                    fct::assign(res, std::move(node<enum_t>(production_t::id, {current_res})));
 
                 else
-                    fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
             }
         };
 
@@ -290,11 +319,13 @@ namespace brain
         struct list_analyser
         {
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
-                auto current = iter;
-                fct::assign(res, fct::mv(node<enum_t>(production_t::id)));
+                auto current =
+                    iter;
+                fct::assign(res, std::move(node<enum_t>(production_t::id)));
                 node<enum_t> current_res {node<enum_t>(enum_t::ignored)};
 
                 do
@@ -303,7 +334,7 @@ namespace brain
 
                     if(current_res)
                     {
-                        fct::push_all(res.childs, fct::mv(current_res.childs));
+                        fct::push_all(res.childs, std::move(current_res.childs));
                         fct::assign(iter, current);
                     }
                 }
@@ -327,11 +358,13 @@ namespace brain
                  size_t _idx = production_t::symbols_list::last_idx >
         struct or_analyser
         {
-            using symbol_t = tpl::rtype_at<_idx, typename production_t::symbols_list>;
+            using symbol_t =
+                tpl::rtype_at<_idx, typename production_t::symbols_list>;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
                 node<enum_t> current_res;
                 symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, res);
@@ -349,7 +382,8 @@ namespace brain
                  typename productions_list_t >
         struct or_analyser<enum_t, production_t, productions_list_t, 0>
         {
-            using symbol_t = tpl::rtype_at<0, typename production_t::symbols_list>;
+            using symbol_t =
+                tpl::rtype_at<0, typename production_t::symbols_list>;
 
             template <typename iterator_t>
             void operator()(iterator_t& iter,
@@ -369,13 +403,17 @@ namespace brain
                  typename productions_list_t >
         struct production_analyser
         {
-            using and_anl = and_analyser<enum_t, production_t, productions_list_t>;
-            using list_anl = list_analyser<enum_t, production_t, productions_list_t>;
-            using or_anl = or_analyser<enum_t, production_t, productions_list_t>;
+            using and_anl =
+                and_analyser<enum_t, production_t, productions_list_t>;
+            using list_anl =
+                list_analyser<enum_t, production_t, productions_list_t>;
+            using or_anl =
+                or_analyser<enum_t, production_t, productions_list_t>;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
             {
                 switch(production_t::type)
                 {
@@ -392,7 +430,7 @@ namespace brain
                         break;
 
                     default:
-                        fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                        fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
                         break;
                 }
             }
@@ -406,9 +444,12 @@ namespace brain
         struct production_analyser<enum_t, tpl::no_type, productions_list_t>
         {
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
-            { fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit))); }
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
+            {
+                fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+            }
         };
 
 
@@ -425,25 +466,34 @@ namespace brain
                  typename productions_list_t >
         struct node_maker
         {
-            using enum_type = enum_t;
-            using node_type = node<enum_type>;
-            using token_type = token<enum_type>;
-            using tokens_type = std::vector<token_type>;
-            using root_type = root_production_t;
-            using productions_list = productions_list_t;
+            using enum_type =
+                enum_t;
+            using node_type =
+                node<enum_type>;
+            using token_type =
+                token<enum_type>;
+            using tokens_type =
+                std::vector<token_type>;
+            using root_type =
+                root_production_t;
+            using productions_list =
+                productions_list_t;
 
-            void operator()(tokens_type & tokens, node<enum_t>& res)
+            void operator()(
+                tokens_type & tokens,
+                node<enum_t>& res)
             {
-                typename tokens_type::const_iterator b = tokens.cbegin();
+                typename tokens_type::const_iterator b =
+                    tokens.cbegin();
 
                 if(fct::not_equals(b , tokens.end()))
                     production_analyser<enum_t, root_type, productions_list>()(b, res);
 
                 else
-                    fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
 
                 if(fct::not_equals(b , tokens.end()))
-                    fct::assign(res, fct::mv(node<enum_t>(enum_t::bullshit)));
+                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
             }
         };
 
@@ -454,87 +504,120 @@ namespace brain
         template <typename to_t>
         struct converter
         {
-            auto operator()(const std::string& from)
-            { return static_cast<to_t>(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return static_cast<to_t>(from);
+            }
         };
 
 
         template<>
         struct converter<int>
         {
-            auto operator()(const std::string& from)
-            { return std::stoi(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stoi(from);
+            }
         };
 
 
         template<>
         struct converter<long>
         {
-            auto operator()(const std::string& from)
-            { return std::stol(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stol(from);
+            }
         };
 
 
         template<>
         struct converter<long long>
         {
-            auto operator()(const std::string& from)
-            { return std::stoll(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stoll(from);
+            }
         };
 
 
         template<>
         struct converter<unsigned>
         {
-            unsigned operator()(const std::string& from)
-            { return std::stoul(from); }
+            unsigned operator()(
+                const std::string& from)
+            {
+                return std::stoul(from);
+            }
         };
 
 
         template<>
         struct converter<unsigned long>
         {
-            auto operator()(const std::string& from)
-            { return std::stoul(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stoul(from);
+            }
         };
 
         template<>
         struct converter<unsigned long long>
         {
-            auto operator()(const std::string& from)
-            { return std::stoull(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stoull(from);
+            }
         };
 
 
         template<>
         struct converter<float>
         {
-            auto operator()(const std::string& from)
-            { return std::stof(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stof(from);
+            }
         };
 
         template<>
         struct converter<double>
         {
-            auto operator()(const std::string& from)
-            { return std::stod(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stod(from);
+            }
         };
 
         template<>
         struct converter<long double>
         {
-            auto operator()(const std::string& from)
-            { return std::stold(from); }
+            auto operator()(
+                const std::string& from)
+            {
+                return std::stold(from);
+            }
         };
 
         template < typename enum_t,
                  typename symbol_t >
         struct terminal_object_maker
         {
-            using node_type = node<enum_t>;
-            using target = typename symbol_t::target_type;
+            using node_type =
+                node<enum_t>;
+            using target =
+                typename symbol_t::target_type;
 
-            target operator()(const node_type& n)
+            target operator()(
+                const node_type& n)
             {
                 return fct::equals(n.id, symbol_t::id) ?
                        converter<target>()(n.value) :
@@ -549,10 +632,13 @@ namespace brain
                  typename production_t >
         struct nonterminal_object_maker
         {
-            using node_type = node<enum_t>;
-            using target = typename production_t::symbol_type::target_type;
+            using node_type =
+                node<enum_t>;
+            using target =
+                typename production_t::symbol_type::target_type;
 
-            target operator()(const node_type& n)
+            target operator()(
+                const node_type& n)
             {
                 node_displayer<enum_t>()(n);
 
@@ -570,14 +656,17 @@ namespace brain
                      size_t _idx = symbol_list_t::last_idx >
             struct make_for_each_symbol
             {
-                using current_symbol = tpl::rtype_at<_idx, symbol_list_t>;
+                using current_symbol =
+                    tpl::rtype_at<_idx, symbol_list_t>;
 
-                void operator()(const std::vector<node_type>& childs,
-                                typename symbol_list_t::elements& args)
+                void operator()(
+                    const std::vector<node_type>& childs,
+                    typename symbol_list_t::elements& args)
                 {
                     if(fct::equals(childs[_idx].id, current_symbol::id))
                     {
-                        std::get<_idx>(args) = terminal_object_maker<enum_t, current_symbol>()(childs[_idx]);
+                        std::get<_idx>(args) =
+                            terminal_object_maker<enum_t, current_symbol>()(childs[_idx]);
                         make_for_each_symbol<symbol_list_t, tpl::decr<_idx>>()(childs, args);
                     }
                 }
@@ -586,13 +675,15 @@ namespace brain
             template<typename symbol_list_t>
             struct make_for_each_symbol<symbol_list_t, 0>
             {
-                using current_symbol = tpl::rtype_at<0, symbol_list_t>;
+                using current_symbol =
+                    tpl::rtype_at<0, symbol_list_t>;
 
-                void operator()(const std::vector<node_type>& childs,
-                                typename symbol_list_t::elements& args)
+                void operator()(
+                    const std::vector<node_type>& childs,
+                    typename symbol_list_t::elements& args)
                 {
                     if(fct::equals(childs[0].id, current_symbol::id))
-                        std::get<0>(args) = fct::mv(terminal_object_maker<enum_t, current_symbol>()(childs[0]));
+                        std::get<0>(args) = std::move(terminal_object_maker<enum_t, current_symbol>()(childs[0]));
                 }
             };
         };
@@ -600,14 +691,21 @@ namespace brain
         template<typename grammar_t>
         struct tree_maker
         {
-            using grammar = grammar_t;
-            using root_production_type = typename grammar::root_production_type;
-            using root_symbol = typename root_production_type::symbol_type;
-            using target = typename root_symbol::target_type;
-            using enum_type = typename grammar_t::enum_type;
-            using node_type = node<enum_type>;
+            using grammar =
+                grammar_t;
+            using root_production_type =
+                typename grammar::root_production_type;
+            using root_symbol =
+                typename root_production_type::symbol_type;
+            using target =
+                typename root_symbol::target_type;
+            using enum_type =
+                typename grammar_t::enum_type;
+            using node_type =
+                node<enum_type>;
 
-            target operator()(const node_type& root_node)
+            target operator()(
+                const node_type& root_node)
             {
                 auto node_id = root_node.id;
 
@@ -633,7 +731,8 @@ namespace brain
                  size_t _idx = symbols_list_t::last_idx >
         struct symbol_displayer
         {
-            using symbol_t = tpl::rtype_at<_idx, symbols_list_t>;
+            using symbol_t =
+                tpl::rtype_at<_idx, symbols_list_t>;
 
             void operator()()
             {
@@ -650,7 +749,8 @@ namespace brain
                  production_type _type >
         struct symbol_displayer<enum_t, symbols_list_t, _type, 0>
         {
-            using symbol_t = tpl::rtype_at<0, symbols_list_t>;
+            using symbol_t =
+                tpl::rtype_at<0, symbols_list_t>;
 
             void operator()()
             { logger<enum_t>::trace("  ", static_cast<char>(_type), " --- ", (long)symbol_t::id); }
@@ -669,7 +769,8 @@ namespace brain
                  size_t _idx = productions_list_t::last_idx >
         struct production_displayer
         {
-            using production_t = tpl::rtype_at<_idx, productions_list_t>;
+            using production_t =
+                tpl::rtype_at<_idx, productions_list_t>;
 
             void operator()()
             {
@@ -686,7 +787,8 @@ namespace brain
                  typename productions_list_t >
         struct production_displayer<enum_t, productions_list_t, 0>
         {
-            using production_t = tpl::rtype_at<0, productions_list_t>;
+            using production_t =
+                tpl::rtype_at<0, productions_list_t>;
 
             void operator()()
             {
@@ -705,16 +807,22 @@ namespace brain
         template <typename grammar_t>
         struct grammar_displayer
         {
-            using root_production_type = typename grammar_t::root_production_type;
-            using enum_type = typename grammar_t::enum_type;
-            using productions_list = typename grammar_t::productions_list;
+            using root_production_type =
+                typename grammar_t::root_production_type;
+            using enum_type =
+                typename grammar_t::enum_type;
+            using productions_list =
+                typename grammar_t::productions_list;
 
             void operator()()
             {
-                logger<typename grammar_t::enum_type>::trace("-----", "grammar_displayer", "-----");
-                logger<typename grammar_t::enum_type>::trace("root symbol ", (long)root_production_type::id);
+                using log_t =
+                    typename grammar_t::enum_t;
+
+                logger<log_t>::trace("-----", "grammar_displayer", "-----");
+                logger<log_t>::trace("root symbol ", (long)root_production_type::id);
                 production_displayer<enum_type, productions_list>()();
-                logger<typename grammar_t::enum_type>::trace("-----", "grammar_displayer", "-----");
+                logger<log_t>::trace("-----", "grammar_displayer", "-----");
             }
         };
 
@@ -733,7 +841,8 @@ namespace brain
                  size_t _idx = production_t::symbols_list::last_idx >
         struct production_defined
         {
-            using symbol_type = tpl::type_at<_idx, typename production_t::symbols_list>;
+            using symbol_type =
+                tpl::type_at<_idx, typename production_t::symbols_list>;
             static constexpr bool value = (symbol_type::is_terminal
                                            or (not symbol_type::is_terminal
                                                and tpl::in_type_list_by_id<symbol_type, productions_list_t>::value))
@@ -752,7 +861,8 @@ namespace brain
                  typename productions_list_t >
         struct production_defined<production_t, productions_list_t, 0>
         {
-            using symbol_type = tpl::type_at<0, typename production_t::symbols_list>;
+            using symbol_type =
+                tpl::type_at<0, typename production_t::symbols_list>;
             static constexpr bool value = symbol_type::is_terminal
                                           or (not symbol_type::is_terminal
                                               and tpl::value_of<tpl::in_type_list_by_id<symbol_type, productions_list_t>>);
@@ -774,7 +884,8 @@ namespace brain
                  size_t _idx = productions_list_t::last_idx >
         struct productions_defined
         {
-            using production_t = tpl::type_at<0, productions_list_t>;
+            using production_t =
+                tpl::type_at<0, productions_list_t>;
             static constexpr bool value = tpl::value_of<production_defined<production_t, productions_list_t>>
                                           and tpl::value_of<productions_defined<productions_list_t, tpl::decr<_idx>>>;
         };
@@ -789,7 +900,8 @@ namespace brain
         template <typename productions_list_t>
         struct productions_defined<productions_list_t, 0>
         {
-            using production_t = tpl::type_at<0, productions_list_t>;
+            using production_t =
+                tpl::type_at<0, productions_list_t>;
             static constexpr bool value = tpl::value_of<production_defined<production_t, productions_list_t>>;
         };
 
@@ -806,7 +918,8 @@ namespace brain
         template<typename grammar_t>
         struct grammar_checker
         {
-            using productions_list = typename grammar_t::productions_list;
+            using productions_list =
+                typename grammar_t::productions_list;
 
             auto operator()()
             {

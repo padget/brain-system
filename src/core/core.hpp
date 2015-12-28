@@ -32,7 +32,6 @@
 #include "meta.hpp"
 #include "pattern.hpp"
 #include "property.hpp"
-#include "server_ptr.hpp"
 #include "logging.hpp"
 /*#define WIN32
 
@@ -196,7 +195,8 @@ namespace brain
     /// for all class in
     /// brain-system framework
     class object:
-        public serialize::serializable<char>
+        public serialize::serializable<char>,
+        public pattag::composite
     {
             /// Static incremental ID
             static unsigned long long s_id;
@@ -290,55 +290,7 @@ namespace brain
     unsigned long long object::s_id {default_v<unsigned long long>};
 
 
-    /*   namespace react
-       {
-           class reactive;
-
-           class operation
-           {
-               public:
-                   virtual void operator()(
-                       reactive*,
-                       const std::vector<reactive*>&) = 0;
-           };
-
-
-           class formule
-           {
-               public:
-                   property<reactive*> result;
-                   property<operation*, managing::unique> op;
-                   property<std::vector<reactive*>> args;
-
-               public:
-                   formule(
-                       reactive* _result,
-                       operation* _op,
-                       std::vector<reactive*> && _args):
-                       result {_result},
-                          op {_op},
-                   args {_args}
-                   {
-                   }
-
-
-               public:
-                   void compute()
-                   {
-                       (*op())(result(), args());
-                   }
-
-           };
-
-
-           class reactive
-           {
-               public:
-                   property<int> value;
-                   property<formule*> form;
-           };
-       }
-    */
+   
 
 
     namespace sys
@@ -609,6 +561,57 @@ namespace brain
                 }
         };
     }
+    
+    
+     /*   namespace react
+       {
+           class reactive;
+
+           class operation
+           {
+               public:
+                   virtual void operator()(
+                       reactive*,
+                       const std::vector<reactive*>&) = 0;
+           };
+
+
+           class formule
+           {
+               public:
+                   property<reactive*> result;
+                   property<operation*, managing::unique> op;
+                   property<std::vector<reactive*>> args;
+
+               public:
+                   formule(
+                       reactive* _result,
+                       operation* _op,
+                       std::vector<reactive*> && _args):
+                       result {_result},
+                          op {_op},
+                   args {_args}
+                   {
+                   }
+
+
+               public:
+                   void compute()
+                   {
+                       (*op())(result(), args());
+                   }
+
+           };
+
+
+           class reactive
+           {
+               public:
+                   property<int> value;
+                   property<formule*> form;
+           };
+       }
+    */
 
 
     enum class exitcode :
