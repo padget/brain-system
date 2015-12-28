@@ -149,6 +149,14 @@ namespace brain
         struct production_analyser;
 
 
+        template<typename id_t>
+        struct ids_equal_predicate
+        {
+
+            template<typename other_id_t>
+            using return_ =
+                meta::bool_t < id_<id_t> == id_ < other_id_t >>;
+        };
 
         /**
          * @class symbol_analyser
@@ -163,7 +171,9 @@ namespace brain
         struct symbol_analyser
         {
             using production_t =
-                tpl::type_find<enum_t, tpl::id_of<symbol_t>, productions_list_t>;
+                meta::find_one_if_t <
+                productions_list_t,
+                ids_equal_predicate<symbol_t >>;
 
             template <typename iterator_t>
             void operator()(
@@ -200,19 +210,17 @@ namespace brain
                 iterator_t& iter,
                 node<enum_t>& res)
             {
-                while(fct::equals(fct::inner(iter).id,
-                                  enum_t::ignored))
-                    fct::s_inc(iter);
+                while((*iter).id == enum_t::ignored)
+                    iter++;
 
-                if(fct::equals(fct::inner(iter).id,
-                               symbol_t::id))
+                if((*iter).id == id_<symbol_t>)
                 {
-                    fct::s_inc(iter);
-                    fct::assign(res, std::move(node<enum_t>(symbol_t::id, fct::inner(iter).value)));
+                    iter++;
+                    res = std::move(node<enum_t>(id_<symbol_t>, (*iter).value));
                 }
 
                 else
-                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                    res = std::move(node<enum_t>(enum_t::bullshit));
             }
         };
 
@@ -223,13 +231,16 @@ namespace brain
                  typename symbol_t >
         struct terminal_analyser<enum_t, symbol_t, false>
         {
-            using target = typename symbol_t::target_type;
+            using target =
+                typename symbol_t::target_type;
 
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
                 node<enum_t>& res)
-            { fct::assign(res, std::move(node<enum_t>(enum_t::bullshit))); }
+            {
+                res = std::move(node<enum_t>(enum_t::bullshit));
+            }
         };
 
         /**
@@ -248,7 +259,8 @@ namespace brain
                  size_t _idx = production_t::symbols_list::last_idx >
         struct and_analyser
         {
-            using symbol_t = tpl::rtype_at<_idx, typename production_t::symbols_list>;
+            using symbol_t =
+                meta::at_c < production_t::symbols_list::last_idx - _idx, typename production_t::symbols_list >;
 
             template <typename iterator_t>
             void operator()(
@@ -260,20 +272,22 @@ namespace brain
 
                 if(current_res)
                 {
-                    fct::assign(res, node<enum_t>(production_t::id, {current_res}));
+                    res = node<enum_t>(id_<production_t>, {current_res});
 
                     node<enum_t> next_res;
                     and_analyser < enum_t, production_t, productions_list_t, _idx - 1 > ()(iter, next_res);
 
                     if(next_res)
-                        fct::push_all(res.childs, next_res.childs);
+                        res.childs.insert(res.childs.end(),
+                                          next_res.childs.begin(),
+                                          next_res.childs.end());
 
                     else
-                        fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                        res = std::move(node<enum_t>(enum_t::bullshit));
                 }
 
                 else
-                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                    res = std::move(node<enum_t>(enum_t::bullshit));
             }
         };
 
@@ -286,7 +300,7 @@ namespace brain
         struct and_analyser<enum_t, production_t, productions_list_t, 0>
         {
             using symbol_t =
-                tpl::rtype_at<0, typename production_t::symbols_list>;
+                meta::at_c<production_t::symbols_list::last_idx, typename production_t::symbols_list>;
 
             template <typename iterator_t>
             void operator()(
@@ -297,10 +311,10 @@ namespace brain
                 symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, current_res);
 
                 if(current_res)
-                    fct::assign(res, std::move(node<enum_t>(production_t::id, {current_res})));
+                    res = std::move(node<enum_t>(id_<production_t>, {current_res}));
 
                 else
-                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                    res = std::move(node<enum_t>(enum_t::bullshit));
             }
         };
 
@@ -325,7 +339,7 @@ namespace brain
             {
                 auto current =
                     iter;
-                fct::assign(res, std::move(node<enum_t>(production_t::id)));
+                res = std::move(node<enum_t>(id_<production_t>));
                 node<enum_t> current_res {node<enum_t>(enum_t::ignored)};
 
                 do
@@ -334,8 +348,10 @@ namespace brain
 
                     if(current_res)
                     {
-                        fct::push_all(res.childs, std::move(current_res.childs));
-                        fct::assign(iter, current);
+                        res.childs.insert(res.childs.end(),
+                                          current_res.childs.begin(),
+                                          current_res.childs.end());
+                        iter = current;
                     }
                 }
                 while(current_res);
@@ -359,7 +375,7 @@ namespace brain
         struct or_analyser
         {
             using symbol_t =
-                tpl::rtype_at<_idx, typename production_t::symbols_list>;
+                meta::at_c < production_t::symbols_list::last_idx - _idx, typename production_t::symbols_list >;
 
             template <typename iterator_t>
             void operator()(
@@ -383,12 +399,15 @@ namespace brain
         struct or_analyser<enum_t, production_t, productions_list_t, 0>
         {
             using symbol_t =
-                tpl::rtype_at<0, typename production_t::symbols_list>;
+                meta::at_c<production_t::symbols_list::last_idx , typename production_t::symbols_list>;
 
             template <typename iterator_t>
-            void operator()(iterator_t& iter,
-                            node<enum_t>& res)
-            { symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, res); }
+            void operator()(
+                iterator_t& iter,
+                node<enum_t>& res)
+            {
+                symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, res);
+            }
         };
 
         /**
@@ -430,7 +449,7 @@ namespace brain
                         break;
 
                     default:
-                        fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                        res = std::move(node<enum_t>(enum_t::bullshit));
                         break;
                 }
             }
@@ -441,14 +460,14 @@ namespace brain
          */
         template < typename enum_t,
                  typename productions_list_t >
-        struct production_analyser<enum_t, tpl::no_type, productions_list_t>
+        struct production_analyser<enum_t, meta::nil, productions_list_t>
         {
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
                 node<enum_t>& res)
             {
-                fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                res = std::move(node<enum_t>(enum_t::bullshit));
             }
         };
 
@@ -486,14 +505,14 @@ namespace brain
                 typename tokens_type::const_iterator b =
                     tokens.cbegin();
 
-                if(fct::not_equals(b , tokens.end()))
+                if(b not_eq tokens.end())
                     production_analyser<enum_t, root_type, productions_list>()(b, res);
 
                 else
-                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                    res = std::move(node<enum_t>(enum_t::bullshit));
 
-                if(fct::not_equals(b , tokens.end()))
-                    fct::assign(res, std::move(node<enum_t>(enum_t::bullshit)));
+                if(b not_eq tokens.end())
+                    res = std::move(node<enum_t>(enum_t::bullshit));
             }
         };
 
@@ -619,7 +638,7 @@ namespace brain
             target operator()(
                 const node_type& n)
             {
-                return fct::equals(n.id, symbol_t::id) ?
+                return n.id == id_<symbol_t> ?
                        converter<target>()(n.value) :
                        target();
             }
@@ -642,10 +661,9 @@ namespace brain
             {
                 node_displayer<enum_t>()(n);
 
-                if(fct::not_empty(n.childs))
+                if(not n.childs.empty())
                 {
                     typename production_t::symbols_list::elements args;
-                    logger<ROOT>::debug("coucou ", typeid(args).name());
                     make_for_each_symbol<typename production_t::symbols_list>()(n.childs, args);
                 }
 
@@ -663,7 +681,7 @@ namespace brain
                     const std::vector<node_type>& childs,
                     typename symbol_list_t::elements& args)
                 {
-                    if(fct::equals(childs[_idx].id, current_symbol::id))
+                    if(childs[_idx].id == id_<current_symbol>)
                     {
                         std::get<_idx>(args) =
                             terminal_object_maker<enum_t, current_symbol>()(childs[_idx]);
@@ -682,8 +700,9 @@ namespace brain
                     const std::vector<node_type>& childs,
                     typename symbol_list_t::elements& args)
                 {
-                    if(fct::equals(childs[0].id, current_symbol::id))
-                        std::get<0>(args) = std::move(terminal_object_maker<enum_t, current_symbol>()(childs[0]));
+                    if(childs[0].id == current_symbol::id)
+                        std::get<0>(args) =
+                            std::move(terminal_object_maker<enum_t, current_symbol>()(childs[0]));
                 }
             };
         };
