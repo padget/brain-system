@@ -102,7 +102,8 @@ namespace brain
         public:
             /// Default constructor
             property(
-                const on_change_type& _on_change = on_change_cref<type_t>):
+                const on_change_type& _on_change =
+                    on_change_cref<type_t>):
                 on_change {_on_change}
             {
             }
@@ -111,7 +112,8 @@ namespace brain
             /// Constructor by cref
             property(
                 const type_t& _value,
-                const on_change_type& _on_change = on_change_cref<type_t>):
+                const on_change_type& _on_change =
+                    on_change_cref<type_t>):
                 m_value(_value),
                 on_change(_on_change)
             {
@@ -121,7 +123,8 @@ namespace brain
             /// Constructor by uref
             property(
                 type_t && _value,
-                const on_change_type& _on_change = on_change_cref<type_t>):
+                const on_change_type& _on_change =
+                    on_change_cref<type_t>):
                 m_value(_value),
                 on_change(_on_change)
             {
@@ -308,7 +311,8 @@ namespace brain
         public:
             /// Constructor by pointer
             property(
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 on_change(_on_change)
             {
             }
@@ -317,7 +321,8 @@ namespace brain
             /// Constructor by pointer
             property(
                 type_t* _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value(_value),
                 on_change(_on_change)
             {
@@ -328,7 +333,8 @@ namespace brain
             /// smart pointer
             property(
                 std::unique_ptr<type_t> && _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value(_value),
                 on_change(_on_change)
             {
@@ -342,7 +348,8 @@ namespace brain
             template<typename other_t>
             property(
                 std::unique_ptr<other_t> && _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value(_value),
                 on_change(_on_change)
             {
@@ -394,6 +401,8 @@ namespace brain
             }
 
 
+            /// Setter operator
+            /// on uref unique_ptr
             void operator()(
                 std::unique_ptr<type_t> && _value)
             {
@@ -402,6 +411,9 @@ namespace brain
             }
 
 
+            /// Setter operator
+            /// on uref unique ptr
+            /// for other_t
             template<typename other_t>
             void operator()(
                 std::unique_ptr<other_t> && _value)
@@ -449,6 +461,8 @@ namespace brain
             }
 
 
+            /// Setter operator
+            /// on uref unique_ptr
             void set(
                 std::unique_ptr<type_t> && _value)
             {
@@ -457,6 +471,9 @@ namespace brain
             }
 
 
+            /// Setter operator
+            /// on uref unique ptr
+            /// for other_t
             template<typename other_t>
             void set(
                 std::unique_ptr<other_t> && _value)
@@ -490,7 +507,8 @@ namespace brain
         public:
             /// Constructor by pointer
             property(
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 on_change(_on_change)
             {
             }
@@ -500,7 +518,8 @@ namespace brain
             /// based on pointer
             property(
                 type_t * _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value(_value),
                 on_change(_on_change)
             {
@@ -509,7 +528,8 @@ namespace brain
 
             property(
                 const std::shared_ptr<type_t>& _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value {_value},
                     on_change(_on_change)
             {
@@ -518,7 +538,8 @@ namespace brain
 
             property(
                 std::shared_ptr<type_t> && _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value {_value},
                     on_change(_on_change)
             {
@@ -528,7 +549,8 @@ namespace brain
             template<typename other_t>
             property(
                 const std::shared_ptr<other_t>& _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value {_value},
                     on_change(_on_change)
             {
@@ -538,7 +560,8 @@ namespace brain
             template<typename other_t>
             property(
                 std::shared_ptr<other_t> && _value,
-                const on_change_type& _on_change = on_change_ptr<type_t>):
+                const on_change_type& _on_change =
+                    on_change_ptr<type_t>):
                 m_value {_value},
                     on_change(_on_change)
             {
@@ -683,6 +706,29 @@ namespace brain
                 m_value = _value;
                 on_change(m_value);
             }
+    };
+
+
+    
+    /// TODO class ochange
+    
+
+
+    /// TODO getset
+    template < typename type_t,
+             managing _manage >
+    class getset;
+
+
+    template<typename type_t>
+    class getset<type_t, managing::none> final
+    {
+            using set_type =
+                std::function<void(const type_t&)>;
+
+
+            using get_type =
+                std::function<type_t&()>;
     };
 }
 

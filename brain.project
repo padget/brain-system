@@ -83,7 +83,6 @@ C:\users\benjamin\projets\code_lite_w\brain
       <VirtualDirectory Name="core">
         <File Name="src/core/core.hpp"/>
         <File Name="src/core/meta.hpp"/>
-        <File Name="src/core/server_ptr.hpp"/>
         <File Name="src/core/pattern.hpp"/>
         <File Name="src/core/property.hpp"/>
         <File Name="src/core/serialize.hpp"/>

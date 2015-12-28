@@ -283,7 +283,7 @@ namespace brain
                          "test of move constructor");
                 object o8;
                 o8.id(9);
-   }
+            }
         };
 
         struct property_value_test:
@@ -293,7 +293,7 @@ namespace brain
             virtual void test()
             {
                 {
-                    property<int> pi{[](const int& a){std::cout<< "coucou";}};
+                    property<int> pi {[](const int & a) {std::cout << "coucou";}};
                     pi(2);
                 }
 
@@ -462,34 +462,20 @@ namespace brain
             virtual void test()
             {
                 foo2 f;
-                serialize::stream<char> ss;
                 std::cout << marshall<char, serialize::xml_format>(f) << std::endl;
             }
         };
 
-        struct reactive_test:
+        struct system_test:
             public basic_test
         {
-                class affectation :
-                    public react::operation
-                {
-                        virtual void operator()(
-                            react::reactive* result,
-                            const std::vector<react::reactive*>& args)
-                        {
-                            if(args.size() == 1)
-                                result->value() = args[0]->value();
-                        }
-                };
-
-                virtual void test()
-                {
-                    react::reactive a, b;
-                    a.value(1);
-                    b.value(2);
-                    react::formule f {&a, new affectation(), {&b}};
-                    f.compute();
-                }
+            virtual void test()
+            {
+                sys::system s, s2;
+                std::cout << marshall<char, serialize::xml_format>(s) << std::endl;
+                std::cout << std::boolalpha;
+                std::cout << (s == s2) << std::endl;
+            }
         };
 
 

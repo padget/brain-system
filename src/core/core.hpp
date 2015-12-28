@@ -206,7 +206,7 @@ namespace brain
             /// id of the current
             /// object. It's generated
             /// with static ID.
-            property<unsigned long long> id {++s_id, [this](const unsigned long long & _value) {std::cout << "new value" << this->id();}};
+            property<unsigned long long> id {++s_id};
 
 
             /// Default constructor
@@ -290,77 +290,80 @@ namespace brain
     unsigned long long object::s_id {default_v<unsigned long long>};
 
 
-    namespace react
-    {
-        class reactive;
+    /*   namespace react
+       {
+           class reactive;
 
-        class operation
-        {
-            public:
-                virtual void operator()(
-                    reactive*,
-                    const std::vector<reactive*>&) = 0;
-        };
-
-
-        class formule
-        {
-            public:
-                property<operation*, managing::unique> op;
-                property<reactive*> result;
-                property<std::vector<reactive*>> args;
-
-            public:
-                formule(
-                    reactive* _result,
-                    operation* _op,
-                    std::vector<reactive*> && _args):
-                    result {_result},
-                       op {_op},
-                args {_args}
-                {
-                }
+           class operation
+           {
+               public:
+                   virtual void operator()(
+                       reactive*,
+                       const std::vector<reactive*>&) = 0;
+           };
 
 
-            public:
-                void compute()
-                {
-                    (*op())(result(), args());
-                }
+           class formule
+           {
+               public:
+                   property<reactive*> result;
+                   property<operation*, managing::unique> op;
+                   property<std::vector<reactive*>> args;
 
-        };
+               public:
+                   formule(
+                       reactive* _result,
+                       operation* _op,
+                       std::vector<reactive*> && _args):
+                       result {_result},
+                          op {_op},
+                   args {_args}
+                   {
+                   }
 
 
-        class reactive
-        {
-            public:
-                property<int> value;
-                property<formule*> form;
-        };
-    }
+               public:
+                   void compute()
+                   {
+                       (*op())(result(), args());
+                   }
+
+           };
+
+
+           class reactive
+           {
+               public:
+                   property<int> value;
+                   property<formule*> form;
+           };
+       }
+    */
 
 
     namespace sys
     {
-        /// Source is the source
-        /// of the event
-        class source:
-            public object
-        {
-        };
+        class system;
 
+
+        /// An event is sended
+        /// by several system
+        /// type for other
+        /// system. This is the
+        /// way of communication
+        /// between systems
         class event
         {
             public:
                 /// The source of
                 /// the event
-                property<source*> from;
+                property<system*> from;
 
 
             public:
                 /// Constructor with
-                /// the source
-                event(source* _from):
+                /// the source (mandatort)
+                event(system* _from):
                     from {_from}
                 {
                 }
@@ -397,75 +400,26 @@ namespace brain
         };
 
 
-        /// An event handler
-        /// represents the
-        template<typename event_t>
+        /// An handler can
+        /// intercept event
+        /// and react to them
         class handler
         {
-                using callback_sig =
-                    std::function<void(source&, event&)>;
-                using event_type =
-                    event_t;
-            public:
-
-        };
-    }
-
-
-    namespace sys
-    {
-        class system;
-        class event;
-
-
-        /* class event
-         {
-             public:
-                 reference<system> source;
-
-             public:
-                 inline event(
-                     reference<system> src) :
-                     source(src)
-                 {
-                 }
-
-
-                 event(
-                     const event&) noexcept = default;
-
-
-                 event(
-                     event &&) noexcept = default;
-
-
-                 virtual ~event() noexcept = default;
-
-             public:
-                 event& operator=(
-                     const event&) noexcept = default;
-
-
-                 event& operator=(
-                     event &&) noexcept = default;
-         };*/
-
-        /**
-         * @class event_receiptor
-         * @author Benjamin
-         * @date 27/09/2015
-         * @file core.hpp
-         * @brief Functor that receives the events from systems
-         */
-        class event_receiptor
-        {
+                /// Private receipt
+                /// function to
+                /// overload in order
+                /// to receipt correctly
+                /// an event (cast, integrity...)
                 virtual void receipt(
                     system&,
                     event&) const = 0 ;
 
 
             public:
-                virtual void operator()(
+                /// Operator that launch
+                /// the reception of the
+                /// event
+                inline void operator()(
                     system& s,
                     event& e) const
                 {
@@ -474,193 +428,186 @@ namespace brain
         };
 
 
-        /**
-         * @class basic_receiptor
-         * @author Benjamin
-         * @date 27/09/2015
-         * @file core.hpp
-         * @brief With an event_t and a system_t, defines a
-         * receiptor that's specific to the event_t and to
-         * system_t.
-         */
+        /// A basic_handler is
+        /// an object that cast
+        /// the event and the
+        /// system into the right
+        /// types of each.
         template < typename event_t,
                  typename system_t >
-        class basic_receiptor:
-            public event_receiptor
+        class basic_handler:
+            public handler
         {
             public:
-                virtual void act(system_t&, event_t&) const = 0;
+                /// Overload this function
+                /// to use the event and
+                /// system for the right
+                /// feature
+                virtual void react(
+                    system_t&,
+                    event_t&) const = 0;
 
-                virtual void receipt(system& s, event& e) const
+
+                /// Receipt system and
+                /// event and cast them
+                /// to system_t and event_t.
+                /// Finally launch the
+                /// overloaded react function
+                virtual void receipt(
+                    system& s,
+                    event& e) const final
                 {
+                    /// If effective types
+                    /// is the right types
+                    /// then they can be
+                    /// casted and used by
+                    /// overloaded react function
                     if(typeid(e) == typeid(event_t) and
                             typeid(s) == typeid(system_t))
                     {
-                        event_t& trs_e = dynamic_cast<event_t&>(e);
-                        system_t& trs_s = dynamic_cast<system_t&>(s);
-                        act(trs_s, trs_e);
+                        /// Cast event => event_t
+                        event_t& trs_e =
+                            dynamic_cast<event_t&>(e);
+
+                        /// Cast system => system_t
+                        system_t& trs_s =
+                            dynamic_cast<system_t&>(s);
+
+                        /// Launch overloaded react
+                        react(trs_s, trs_e);
                     }
                 }
         };
 
-        /**
-         * @class system
-         * @author Benjamin
-         * @date 27/09/2015
-         * @file core.hpp
-         * @brief A system is a component that can receive
-         * and send events.
-         */
+
+        /// A system is an
+        /// object that can
+        /// send and receive
+        /// several types of
+        /// events
         class system:
             public object
         {
-                using system_clt =
-                    ptr::client_ptr<system>;
-                using systems_clt =
-                    std::vector<system_clt>;
-                using event_receiptors =
-                    std::vector<property<event_receiptor*, managing::unique>>;
-
             public:
+                /// List of all handlers
+                /// that is enabled for
+                /// this system
+                property<std::vector<std::unique_ptr<handler>>> handlers;
+
+
                 /// True if a system is
                 /// autoconnected, false
                 /// else
                 property<bool> autoconnected {default_v<bool>};
 
 
-                /// List of all systems
-                /// that can be notified
-                /// by the current here
-                property<event_receiptors> receiptors;
+                /// List of all
+                /// systems that
+                /// can receive
+                /// an event from
+                /// the current
+                property<std::list<system*>> to_systems;
 
 
-                ///
-                property<systems_clt> systems;
+                /// List of all
+                /// system that
+                /// send an event
+                /// to the current
+                property<std::list<system*>> from_systems;
+
 
             public:
+                /// Destructor of system.
+                /// Unconnects this of all
+                /// systems from from_systems
+                virtual ~system()
+                {
+                    for(auto * sys : from_systems())
+                    {
+                        if(sys != nullptr)
+                            sys->remove_receiver(this);
+                    }
+                }
 
 
             public:
-                inline void addReceiver(const system_clt& receiver)
+                /// Connect a system
+                /// to the current one
+                inline void add_receiver(
+                    system* receiver)
                 {
-                    if(receiver)
-                        systems().push_back(receiver);
+                    /// If the receiver exists
+                    /// the receiver is added
+                    /// to the to_systems list
+                    /// and this is added to the
+                    /// from_systems list of receiver
+                    if(receiver != nullptr)
+                    {
+                        to_systems().push_back(receiver);
+                        receiver->from_systems().push_back(this);
+                    }
                 }
 
-                inline void addReceiver(system_clt && receiver)
+
+                /// Unconnect a system
+                /// to the current one
+                inline void remove_receiver(
+                    system* receiver)
                 {
-                    if(receiver)
-                        systems().push_back(receiver);
+                    /// If the receiver exists
+                    /// the receiver is removed
+                    /// from the to_systems list
+                    /// and this is removed from the
+                    /// from_systems list of receiver
+                    if(receiver != nullptr)
+                    {
+                        receiver->from_systems().remove(this);
+                        to_systems().remove(receiver);
+                    }
                 }
+
 
             public:
-                inline void receive(event& e)
+                /// receive an event
+                inline void receive(
+                    event& e)
                 {
-                    for(const auto & rec : receiptors())
-                        ;// rec(*this, e);
+                    /// For each handler,
+                    /// it handles the
+                    /// event e
+                    for(const auto & rec : handlers())
+                        (*rec)(*this, e);
                 }
 
-                inline void send(event& e)
+
+                /// Send an event
+                inline void send(
+                    event& e)
                 {
+                    /// If autoconnected
+                    /// then it receives
+                    /// the event itself
                     if(autoconnected())
-                        this->receive(e);
+                        receive(e);
 
-                    for(auto & system : systems())
-                    {
-                        if(system) system->receive(e);
-                    };
+                    /// For each connected
+                    /// system, it receives
+                    /// the event
+                    for(auto * sys : to_systems())
+                        if(sys != nullptr)
+                            sys->receive(e);
                 }
 
+
             public:
-                /*inline void bilink(std::initializer_list<system_clt> && _systems)
+                /// Serialize method
+                inline virtual void serialize(
+                    serialize::stream<char>& out) const
                 {
-                    fct::for_each(_systems, [this](auto & system)
-                    {
-                        this->addReceiver(system);
-                        system->addReceiver(this);
-                    });
-                }*/
+                    out << "system"
+                        << serialize::parent<char, object>(*this);
+                }
         };
-
-        /**
-         * @class system_with_receiptors
-         * @author Benjamin
-         * @date 27/09/2015
-         * @file core.hpp
-         * @brief Enable to generate a system_t with
-         * receiptors_t as receiptors.
-         */
-        /*   template < typename system_t,
-                    typename ... receiptors_t >
-           struct system_with_receiptors
-           {
-               auto operator()()
-               {
-                   ptr::server_ptr<sys::system> s(new system_t());
-                   receiptors_builder<receiptors_t...>()(s->receiptors());
-                   return s;
-               };
-
-               template<typename ... receips_t>
-               struct receiptors_builder;
-
-               template < typename receiptor_t,
-                        typename next_t,
-                        typename ... other_t >
-               struct receiptors_builder<receiptor_t, next_t, other_t...>
-               {
-                   void operator()(std::vector<event_receiptor_u>& receiptors)
-                   {
-                       receiptors.push_back(fct::unique<receiptor_t>());
-                       receiptors_builder<next_t, other_t...>()(receiptors);
-                   }
-               };
-
-               template <typename receiptor_t>
-               struct receiptors_builder<receiptor_t>
-               {
-                   void operator()(std::vector<event_receiptor_u>& receiptors)
-                   { receiptors.push_back(fct::unique<receiptor_t>()); }
-               };
-
-           };*/
-
-        /**
-         * @class compound_system
-         * @author Benjamin
-         * @date 27/09/2015
-         * @file core.hpp
-         * @brief A compound_system is a component that can receive
-         * and send events to subsystems.
-         */
-        /*class compound_system :
-            public system
-        {
-                using system_clt = ptr::client_ptr<system>;
-                using systems_clt = std::vector<system_clt>;
-
-            public:
-                property<systems_clt> sub_systems;
-
-            public:
-                BRAIN_ALL_DEFAULT(compound_system)
-
-            public:
-                void subsend(event& e)
-                {
-                    fct::for_each(sub_systems(), [&e](auto & system)
-                    { if(system) system->receive(e); });
-                }
-
-                /* void subbilink(std::initializer_list<system*> && systems)
-                 {
-                     fct::for_each(systems, [this](auto * system)
-                     {
-                         fct::push(sub_systems(), system);
-                         system->addReceiver(this);
-                     });
-                 }*/
-        /*};*/
     }
 
 
