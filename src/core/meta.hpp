@@ -1545,7 +1545,7 @@ namespace brain
 
         /// Specialisation for
         /// accumulate that takes
-        /// an empty_ list as first
+        /// an empty list as first
         /// parameter. It returns
         /// res_t itself. So this
         /// has no effect on the
@@ -1692,8 +1692,10 @@ namespace brain
         struct lambda < list<lambda_args_t...>,
                 func_t, list<func_args_t... >>
         {
-            using lambda_args_ = list<lambda_args_t...>;
-            using func_args_ = list<func_args_t...>;
+            using lambda_args_ =
+                list<lambda_args_t...>;
+            using func_args_ =
+                list<func_args_t...>;
 
             template<typename ... args_t>
             using return_ =

@@ -10,11 +10,12 @@ namespace brain
     {
         template<typename system_t>
         struct scanning_receiptor :
-            public sys::basic_receiptor <cpl::event<typename system_t::enum_type>, system_t>
+            public sys::basic_handler <cpl::event<typename system_t::enum_type>, system_t>
         {
             public:
-                virtual void act(system_t& s,
-                                 cpl::event<typename system_t::enum_type>& e) const
+                virtual void act(
+                    system_t& s,
+                    cpl::event<typename system_t::enum_type>& e) const
                 {
                     e.type(event_type::SCANNING_RETURNED);
                     e.message("Parsing wanted");
@@ -33,22 +34,26 @@ namespace brain
                 scanner() :
                     sys::system()
                 {
+                }
 
-                };
-
-                scanner(const scanner_def&) = default;
-                scanner(scanner_def &&) = default;
+                scanner(
+                    const scanner_def&) = default;
+                scanner(
+                    scanner_def &&) = default;
                 virtual ~scanner() noexcept = default;
 
             public:
-                virtual scanner_def& operator=(const scanner_def&) noexcept = default;
-                virtual scanner_def& operator=(scanner_def &&) noexcept = default;
+                virtual scanner_def& operator=(
+                    const scanner_def&) noexcept = default;
+                virtual scanner_def& operator=(
+                    scanner_def &&) noexcept = default;
 
             public:
 
                 template<typename token_maker_t>
-                static void build_tokens(const std::string& filename,
-                                         typename token_maker_t::tokens_type& tokens)
+                static void build_tokens(
+                    const std::string& filename,
+                    typename token_maker_t::tokens_type& tokens)
                 {
                     token_maker_t maker;
                     maker(filename, tokens);

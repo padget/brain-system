@@ -5,7 +5,6 @@
 #include <list>
 #include "supports.hpp"
 #include "event.hpp"
-#include "../core/functionnal.hpp"
 
 namespace brain
 {
@@ -19,14 +18,15 @@ namespace brain
                  typename grammar_t,
                  typename binds_t >
         class executer :
-            public system
+            public sys::system
         {
-                using executer_def = executer<enum_t, grammar_t, binds_t>;
+                using executer_def =
+                    executer<enum_t, grammar_t, binds_t>;
 
             public:
                 executer() noexcept
                 {
-                    bind_functor compiler_event_cb([](system & s, brain::event & e)
+                    /*bind_functor compiler_event_cb([](system & s, brain::event & e)
                     {
                         auto& ce = dynamic_cast<cpl::event<enum_t>&>(e);
 
@@ -39,16 +39,20 @@ namespace brain
                             }
                     });
 
-                    bind(typeid(cpl::event<enum_t>), compiler_event_cb);
+                    bind(typeid(cpl::event<enum_t>), compiler_event_cb);*/
                 }
 
-                executer(const executer_def&) = default;
-                executer(executer_def &&) = default;
+                executer(
+                    const executer_def&) = default;
+                executer(
+                    executer_def &&) = default;
                 virtual ~executer() noexcept = default;
 
             public:
-                virtual executer_def& operator=(const executer_def&) noexcept = default;
-                virtual executer_def& operator=(executer_def &&) noexcept = default;
+                virtual executer_def& operator=(
+                    const executer_def&) noexcept = default;
+                virtual executer_def& operator=(
+                    executer_def &&) noexcept = default;
 
             public:
                 virtual std::unique_ptr<system> clone() override

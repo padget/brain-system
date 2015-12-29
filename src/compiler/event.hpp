@@ -31,12 +31,12 @@ namespace brain
         class event :
             public sys::event
         {
-                nat::property<std::string> filename;
-                nat::property<std::vector<token<enum_t>>> tokens;
-                nat::property<std::tuple<bool, node<enum_t>>> node;
+                property<std::string> filename;
+                property<std::vector<token<enum_t>>> tokens;
+                property<std::tuple<bool, node<enum_t>>> node;
                 //nat::property<semobject_sptr> object;
-                nat::property<event_type> type;
-                nat::property<std::string> message;
+                property<event_type> type;
+                property<std::string> message;
 
             public:
                 inline event(sys::system& source, event_type t) :

@@ -8,6 +8,10 @@
 #include "test/utest/utest.hpp"
 #include "compiler/supports.hpp"
 #include "compiler/utils.hpp"
+#include "compiler/scanner.hpp"
+#include "compiler/parser.hpp"
+#include "compiler/compiler.hpp"
+#include "compiler/chain.hpp"
 #include <iostream>
 
 using namespace brain;

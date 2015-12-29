@@ -6,7 +6,6 @@
 #include "scanner.hpp"
 #include "supports.hpp"
 #include "event.hpp"
-#include "../core/functionnal.hpp"
 
 namespace brain
 {
@@ -15,7 +14,7 @@ namespace brain
         template < typename enum_t,
                  typename sconverter_t >
         class chain :
-            public system
+            public sys::system
         {
                 typename sconverter_t::res_type m_result;
 
@@ -27,7 +26,7 @@ namespace brain
                 {
                     autoconnected(true);
 
-                    bind_functor compiler_event_cb([](system & s, brain::event & e)
+                    /*bind_functor compiler_event_cb([](system & s, brain::event & e)
                     {
                         auto& ce = dynamic_cast<cpl::event<enum_t>&>(e);
                         auto& ch = dynamic_cast<chain_def&>(s);
@@ -67,7 +66,7 @@ namespace brain
 
                     });
 
-                    bind(typeid(cpl::event<enum_t>), compiler_event_cb);
+                    bind(typeid(cpl::event<enum_t>), compiler_event_cb);*/
                 }
 
                 chain(const chain_def&) = default;
@@ -86,7 +85,7 @@ namespace brain
                 void compile()
                 {
                     cpl::event<enum_t> e(this, event_type::SCANNING_WANTED);
-                    e.filename(args()[0]);
+                    /// e.filename(args()[0]);
                     send(e);
                 }
 
@@ -95,7 +94,7 @@ namespace brain
                 { return m_result; }
 
                 void result(typename sconverter_t::res_type && res)
-                { fct::assign(m_result, res); }
+                { m_result = res; }
         };
     }
 }

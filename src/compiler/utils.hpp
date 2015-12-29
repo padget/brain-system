@@ -39,8 +39,10 @@ namespace brain
                 std::smatch& m,
                 token_type& max_match)
             {
-                return find_match<terminal_t>(begin, end, m, max_match)
-                       or find_match<next_t, other_t...>(begin, end, m, max_match);
+                return find_match<terminal_t>
+                       (begin, end, m, max_match)
+                       or find_match<next_t, other_t...>
+                       (begin, end, m, max_match);
             }
 
             template <typename terminal_t>
@@ -850,6 +852,14 @@ namespace brain
             }
         };
 
+        template<typename id_t>
+        struct is_same_id
+        {
+            template<typename other_id_t>
+            using return_ =
+                meta::bool_t_<id_<id_t> == id_<other_id_t>>;
+        };
+
         /**
          * @class production_defined
          * @author bmathieu
@@ -867,10 +877,14 @@ namespace brain
         {
             using symbol_type =
                 meta::at_c<_idx, typename production_t::symbols_list>;
-            static constexpr bool value = (symbol_type::is_terminal
-                                           or (not symbol_type::is_terminal
-                                               and tpl::in_type_list_by_id<symbol_type, productions_list_t>::value))
-                                          and tpl::value_of<production_defined <production_t, productions_list_t, tpl::decr<_idx>>>;
+
+
+
+            static constexpr bool value =
+                (symbol_type::is_terminal
+                 or (not symbol_type::is_terminal
+                     and meta::size_<meta::filter_t<productions_list_t, is_same_id<symbol_type>>> == 1))
+                and meta::v_ < production_defined < production_t, productions_list_t, _idx - 1 >>;
         };
 
         template < typename production_t,
@@ -886,10 +900,11 @@ namespace brain
         struct production_defined<production_t, productions_list_t, 0>
         {
             using symbol_type =
-                tpl::type_at<0, typename production_t::symbols_list>;
-            static constexpr bool value = symbol_type::is_terminal
-                                          or (not symbol_type::is_terminal
-                                              and tpl::value_of<tpl::in_type_list_by_id<symbol_type, productions_list_t>>);
+                meta::at_c<0, typename production_t::symbols_list>;
+            static constexpr bool value =
+                symbol_type::is_terminal
+                or (not symbol_type::is_terminal
+                    and meta::size_<meta::filter_t<productions_list_t, is_same_id<symbol_type>>> == 1);
         };
 
         template < typename production_t,
@@ -909,9 +924,10 @@ namespace brain
         struct productions_defined
         {
             using production_t =
-                tpl::type_at<0, productions_list_t>;
-            static constexpr bool value = tpl::value_of<production_defined<production_t, productions_list_t>>
-                                          and tpl::value_of<productions_defined<productions_list_t, tpl::decr<_idx>>>;
+                meta::at_c<0, productions_list_t>;
+            static constexpr bool value =
+                meta::v_<production_defined<production_t, productions_list_t>>
+                and meta::v_ < productions_defined < productions_list_t, _idx - 1 >>;
         };
 
         template < typename productions_list_t,
@@ -925,8 +941,8 @@ namespace brain
         struct productions_defined<productions_list_t, 0>
         {
             using production_t =
-                tpl::type_at<0, productions_list_t>;
-            static constexpr bool value = tpl::value_of<production_defined<production_t, productions_list_t>>;
+                meta::at_c<0, productions_list_t>;
+            static constexpr bool value = meta::v_<production_defined<production_t, productions_list_t>>;
         };
 
         template <typename productions_list_t>
@@ -948,7 +964,7 @@ namespace brain
             auto operator()()
             {
                 auto there_is_no_problem = true;
-                there_is_no_problem &= tpl::value_of<productions_defined<productions_list>>;
+                there_is_no_problem &= meta::v_<productions_defined<productions_list>>;
                 return there_is_no_problem;
             }
         };
@@ -966,15 +982,22 @@ namespace brain
             void operator()(const node<enum_t>& n,
                             unsigned udec = 0)
             {
-                if(fct::equals(udec, 0u))
-                    logger<enum_t>::info("---- ", "node_displayer", " ----");
+                if(udec == 0u)
+                    logger<enum_t>::info("---- ",
+                                         "node_displayer",
+                                         " ----");
 
-                logger<enum_t>::info(std::string(udec, ' '), (long)n.id);
+                logger<enum_t>::info(std::string(udec, ' '),
+                                     (long)n.id);
 
-                fct::for_each(n.childs, [udec](auto && n) {node_displayer()(n, udec + 3u);});
+                for(const auto & child : n.childs)
+                    node_displayer()(child,
+                                     udec + 3u);
 
-                if(fct::equals(udec, 0u))
-                    logger<enum_t>::info("---- ", "node_displayer", " ----");
+                if(udec == 0u)
+                    logger<enum_t>::info("---- ",
+                                         "node_displayer",
+                                         " ----");
             }
         };
 

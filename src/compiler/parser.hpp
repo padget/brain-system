@@ -2,7 +2,6 @@
 #define PARSER_HPP_INCLUDED
 
 #include "event.hpp"
-#include "../core/functionnal.hpp"
 #ifndef COMPILER_DEBUG
 //#define COMPILER_DEBUG
 #endif
@@ -15,7 +14,8 @@ namespace brain
         class parser:
             public sys::system
         {
-                using parser_def = parser<grammar_t>;
+                using parser_def =
+                    parser<grammar_t>;
 
             public:
                 parser()
@@ -36,19 +36,24 @@ namespace brain
                     bind(typeid(cpl::event<enum_t>), compiler_event_cb);*/
                 }
 
-                parser(const parser_def&) = default;
-                parser(parser_def &&) = default;
+                parser(
+                    const parser_def&) = default;
+                parser(
+                    parser_def &&) = default;
                 virtual ~parser() noexcept = default;
 
             public:
-                virtual parser_def& operator=(const parser_def&) noexcept = default;
-                virtual parser_def& operator=(parser_def &&) noexcept = default;
+                virtual parser_def& operator=(
+                    const parser_def&) noexcept = default;
+                virtual parser_def& operator=(
+                    parser_def &&) noexcept = default;
 
             public:
 
                 template<typename node_maker_t>
-                static void build_node(typename node_maker_t::tokens_type& tokens,
-                                       typename node_maker_t::node_type& node)
+                static void build_node(
+                    typename node_maker_t::tokens_type& tokens,
+                    typename node_maker_t::node_type& node)
                 { node_maker_t()(tokens, node); }
         };
     }
