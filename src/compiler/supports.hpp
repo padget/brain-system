@@ -24,19 +24,30 @@ namespace brain
         };
 
 
-        ///
+        /// An id_type is
+        /// an object that
+        /// has the id member
         template < typename id_t,
                  id_t _id >
         struct id_type
         {
+            /// Effective id
+            /// of id_type
             static id_t id;
         };
 
+
+        /// Static declaration of
+        /// id from id_type template
         template < typename id_t,
                  id_t _id >
         id_t id_type<id_t, _id>::id {_id};
 
 
+        /// id_ operator
+        /// to recover the
+        /// id member of the
+        /// id_t type
         template<typename id_t>
         auto id_ =
             id_t::id;
@@ -62,29 +73,44 @@ namespace brain
             public id_type<enum_t, _id>,
             public target<target_t>
         {
-            static constexpr bool is_terminal {b_is_terminal};
+            /// Static boolean
+            /// that identifies
+            /// if the symbol is
+            /// a terminal symbol
+            /// or not.
+            static constexpr
+            bool is_terminal {b_is_terminal};
         };
 
+
+        /// Static initialization
+        /// of the is_terminal
+        /// member of symbol
+        /// template
         template < typename enum_t,
                  enum_t _id,
                  typename target_t,
                  bool b_is_terminal >
         constexpr bool symbol<enum_t, _id, target_t, b_is_terminal>::is_terminal;
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
 
-        struct indicative :
-            public std::true_type
-        {
-        };
+        /// Alias of std::true_type
+        /// that indicate if a
+        /// symbol is indicatif
+        /// for a compiler
+        using indicative =
+            std::true_type;
 
-        struct non_indicative :
-            public std::false_type
-        {
-        };
 
+        /// Alias of std::true_type
+        /// that indicate if a
+        /// symbol isn't indicatif
+        /// for a compiler
+        using non_indicative =
+            std::false_type;
+
+
+        /// 
         template < typename enum_t,
                  enum_t _id,
                  const char* _regex,
@@ -123,17 +149,17 @@ namespace brain
         template < typename terminal_t,
                  typename enum_t >
         constexpr bool is_empty =
-            terminal_t::id == enum_t::empty;
+            id_<terminal_t> == enum_t::empty;
 
         template < typename terminal_t,
                  typename enum_t >
         constexpr bool is_bullshit =
-            terminal_t::id == enum_t::bullshit;
+            id_<terminal_t> == enum_t::bullshit;
 
         template < typename terminal_t,
                  typename enum_t >
         constexpr bool is_ignored =
-            terminal_t::id == enum_t::ignored;
+            id_<terminal_t> == enum_t::ignored;
 
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
@@ -309,7 +335,7 @@ namespace brain
             return  token<enum_t> {id, value};
         }
 
-        /// Replace the id and 
+        /// Replace the id and
         /// value of res by new
         /// value and id
         template<typename enum_t>
