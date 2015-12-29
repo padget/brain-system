@@ -290,7 +290,7 @@ namespace brain
     unsigned long long object::s_id {default_v<unsigned long long>};
 
 
-   
+
 
 
     namespace sys
@@ -561,56 +561,56 @@ namespace brain
                 }
         };
     }
-    
-    
-     /*   namespace react
-       {
-           class reactive;
-
-           class operation
-           {
-               public:
-                   virtual void operator()(
-                       reactive*,
-                       const std::vector<reactive*>&) = 0;
-           };
 
 
-           class formule
-           {
-               public:
-                   property<reactive*> result;
-                   property<operation*, managing::unique> op;
-                   property<std::vector<reactive*>> args;
+    /*   namespace react
+      {
+          class reactive;
 
-               public:
-                   formule(
-                       reactive* _result,
-                       operation* _op,
-                       std::vector<reactive*> && _args):
-                       result {_result},
-                          op {_op},
-                   args {_args}
-                   {
-                   }
+          class operation
+          {
+              public:
+                  virtual void operator()(
+                      reactive*,
+                      const std::vector<reactive*>&) = 0;
+          };
 
 
-               public:
-                   void compute()
-                   {
-                       (*op())(result(), args());
-                   }
+          class formule
+          {
+              public:
+                  property<reactive*> result;
+                  property<operation*, managing::unique> op;
+                  property<std::vector<reactive*>> args;
 
-           };
+              public:
+                  formule(
+                      reactive* _result,
+                      operation* _op,
+                      std::vector<reactive*> && _args):
+                      result {_result},
+                         op {_op},
+                  args {_args}
+                  {
+                  }
 
 
-           class reactive
-           {
-               public:
-                   property<int> value;
-                   property<formule*> form;
-           };
-       }
+              public:
+                  void compute()
+                  {
+                      (*op())(result(), args());
+                  }
+
+          };
+
+
+          class reactive
+          {
+              public:
+                  property<int> value;
+                  property<formule*> form;
+          };
+      }
     */
 
 
@@ -1196,7 +1196,9 @@ namespace brain
 
 
     template<typename T>
-    std::ostream& operator<< (std::ostream& out, const std::vector<T>& vec)
+    std::ostream& operator<< (
+        std::ostream& out,
+        const std::vector<T>& vec)
     {
         for(const auto & t : vec)
             out << t;

@@ -14,30 +14,20 @@ namespace brain
                  typename ... terminals_t >
         struct token_maker
         {
-            using enum_type =
-                enum_t;
-
-
-            using token_type =
-                token<enum_t>;
-
-
-            using tokens_type =
-                std::vector<token_type>;
-
-
-            using statement_iterator =
-                std::string::const_iterator;
-
-
+            /// Returns true if
+            /// terminal_t regex
+            /// matches with an
+            /// expression between
+            /// begin and end. Stores
+            /// the result in m
             template < typename terminal_t,
                      typename next_t,
                      typename ... other_t >
             bool find_match(
-                statement_iterator& begin,
-                statement_iterator& end,
+                std::string::const_iterator& begin,
+                std::string::const_iterator& end,
                 std::smatch& m,
-                token_type& max_match)
+                token<enum_t>& max_match)
             {
                 return find_match<terminal_t>
                        (begin, end, m, max_match)
@@ -45,77 +35,137 @@ namespace brain
                        (begin, end, m, max_match);
             }
 
+
+            /// Specialisation for find_match
+            /// method for one terminal_t
             template <typename terminal_t>
             bool find_match(
-                statement_iterator& begin,
-                statement_iterator& end,
+                std::string::const_iterator& begin,
+                std::string::const_iterator& end,
                 std::smatch& m,
-                token_type& max_match)
+                token<enum_t>& max_match)
             {
+                /// If a match is found
+                /// and if the max match
+                /// length is less than
+                /// the found match, the
+                /// current match become
+                /// the max match and true
+                /// is returned
                 if(std::regex_match(begin, end, m, terminal_t::regex_std)
                         and max_match.value.length() < m.str().length())
                 {
-                    max_match.id =
-                        terminal_t::id;
-
-                    max_match.value =
-                        std::move(m.str());
+                    make_token(max_match,
+                               terminal_t::id,
+                               std::move(m.str()));
 
                     return true;
                 }
 
-                return false;
+                /// Else false is
+                /// returned
+                else
+                    return false;
             }
 
+
+            /// Fill the vector of
+            /// tokens by analysing
+            /// of the stream
             void operator()(
                 const std::string& filename,
-                tokens_type& tokens)
+                std::vector<token<enum_t>>& tokens)
             {
+                /// Statement is the
+                /// result of the
+                /// conversion from the
+                /// stream into string
                 auto && statement =
                     ifstream_to<std::string>(std::ifstream(filename)) + "\n";
 
+                /// Temporary smatch
                 std::smatch m;
-                token_type max_match;
 
+                /// Temporary max_match
+                /// via a token<enum_t>
+                token<enum_t> max_match;
+
+                /// Temporary buffer
+                /// iterators for
+                /// exploring the
+                /// statement
                 auto buffer_begin = statement.cbegin(),
-                     buffer_end = statement.cbegin(),
-                     end = statement.cend();
+                     buffer_end   = statement.cbegin(),
+                     end          = statement.cend();
 
+                /// Initiliase the
+                /// buffer_end
                 buffer_end++;
 
+                /// While the buffer_end is
+                /// not equals to end ...
                 while(buffer_end != end)
                 {
+                    /// Find existing matches
+                    /// and store the result
+                    /// into max_match and
+                    /// into nothing_found
                     bool && nothing_found =
                         ! find_match<terminals_t...>(buffer_begin,
                                                      buffer_end,
                                                      m,
                                                      max_match);
 
-                    if(nothing_found
-                            and not max_match.value.empty())
+                    /// If a match is found
+                    /// and max_match not empty
+                    /// then
+                    if(not nothing_found and /// WARN not nothing_found or nothing_found
+                            not max_match.value.empty())
                     {
+                        /// The max_match is added
+                        /// to the tokens vector
                         tokens.push_back(max_match);
+                        /// The buffer_begin
+                        /// becomes the predecessor
+                        /// of buffer_end
                         buffer_begin = std::prev(buffer_end);
-                        max_match = token_type();
+                        /// Finally the max_match
+                        /// is reinitialized with
+                        /// a default token
+                        max_match    = token<enum_t>();
                     }
 
+                    /// Else the buffer_end
+                    /// is incremented into
+                    /// the statement
                     else
                         buffer_end++;
 
-                    if(not nothing_found
-                            and buffer_end == end)
+                    /// If the analyse is
+                    /// ended and if there
+                    /// is a match found,
+                    /// this match is added
+                    /// to the tokens vector
+                    if(buffer_end == end and
+                            not nothing_found)
                         tokens.push_back(max_match);
                 }
 
-                auto && unary = [](auto && t)
+                /// Predicate that
+                /// identifies if
+                /// a token is
+                /// ignored or not
+                auto && is_ignored = [](auto && t)
                 {
                     return t.id == enum_t::ignored;
                 };
 
-                tokens.erase(std::remove_if(std::begin(tokens),
-                                            std::end(tokens),
-                                            unary),
-                             std::end(tokens));
+                /// Erases all tokens
+                /// that are enum_t::ignored
+                tokens.erase(std::remove_if(tokens.begin(),
+                                            tokens.end(),
+                                            is_ignored),
+                             tokens.end());
             }
         };
 
@@ -151,32 +201,43 @@ namespace brain
         struct production_analyser;
 
 
+        /// Meta function that
+        /// returns true_type
+        /// if the id_t and
+        /// other_id_t are equal
         template<typename id_t>
         struct ids_equal_predicate
         {
-
             template<typename other_id_t>
             using return_ =
                 meta::bool_t <id_<id_t> == id_ <other_id_t>>;
         };
 
-        /**
-         * @class symbol_analyser
-         * @author bmathieu
-         * @date 14/09/2015
-         * @file utils.hpp
-         * @brief Analyse a symbol (non_terminal or terminal).
-         */
+
+        /// Analyses the symbol_t
+        /// by scanning the statement
+        /// with its definition
+        /// in the production list.
         template < typename enum_t,
                  typename symbol_t,
                  typename productions_list_t >
         struct symbol_analyser
         {
+            /// Extraction of the
+            /// first type of the
+            /// list of production
+            /// that has its id equal
+            /// to the symbol_t id :
+            /// Extraction of the
+            /// definition of the
+            /// symbol_t in grammar
             using production_t =
                 meta::find_one_if_t <
                 productions_list_t,
                 ids_equal_predicate<symbol_t >>;
 
+
+            ///
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,

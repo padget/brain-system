@@ -13,6 +13,9 @@ namespace brain
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
 
+        /// A target represents
+        /// the futur type of
+        /// the symbol
         template<typename target_t>
         struct target
         {
@@ -299,10 +302,24 @@ namespace brain
          * @return a token with id and value
          */
         template<typename enum_t>
-        auto make_token(enum_t id,
-                        const std::string& value)
+        auto make_token(
+            enum_t id,
+            const std::string& value)
         {
             return  token<enum_t> {id, value};
+        }
+
+        /// Replace the id and 
+        /// value of res by new
+        /// value and id
+        template<typename enum_t>
+        void make_token(
+            token<enum_t>& res,
+            enum_t id,
+            const std::string& value)
+        {
+            res.id = std::move(id);
+            res.value = std::move(value);
         }
 
         /**
@@ -335,12 +352,6 @@ namespace brain
                 }
 
 
-                /*node(const enum_t& _id,
-                     const std::string& v,
-                     object_ptr && _object):
-                    token_def(_id, v),
-                    m_object(std::move(_object)) {}*/
-
                 node(
                     const enum_t& _id,
                     const std::string& v):
@@ -352,17 +363,10 @@ namespace brain
                     token_def(_id),
                     childs(_childs) {}
 
-                /*node(const enum_t& _id,
-                     std::initializer_list<node<enum_t>> && _childs,
-                     object_ptr && _object):
-                    token_def(_id),
-                    childs(_childs),
-                    m_object(std::move(_object)) {}*/
 
                 node(
                     node && other):
                     token_def(other),
-                    //m_object(std::move(other.m_object)),
                     childs(std::move(other.childs))
                 {
                 }
@@ -370,7 +374,6 @@ namespace brain
                 node(
                     const node& other):
                     token_def(other),
-                    // m_object(other.m_object),
                     childs(other.childs)
                 {
                 }
