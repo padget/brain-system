@@ -8,11 +8,6 @@ namespace brain
 {
     namespace cpl
     {
-
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-
         /// A target represents
         /// the futur type of
         /// the symbol
@@ -110,7 +105,12 @@ namespace brain
             std::false_type;
 
 
-        /// 
+        /// A terminal is 
+        /// a symbol that 
+        /// has a regex and 
+        /// that is not defined
+        /// by a production
+        /// in a grammar
         template < typename enum_t,
                  enum_t _id,
                  const char* _regex,
@@ -119,18 +119,36 @@ namespace brain
         struct terminal :
             public symbol<enum_t, _id, target_t, true>
         {
+            /// Static char* that
+            /// represent the containt
+            /// of the regex
             static constexpr const char* regex {_regex};
+            
+            
+            /// Static boolean that 
+            /// indicates if the 
+            /// termainal is indicative
+            /// or not
             static constexpr bool indicative {meta::v_<indicative_t>};
+            
+            
+            /// Static standart regex
             static const std::regex regex_std;
         };
 
+
+        /// Static initilisation 
+        /// of regex
         template < typename enum_t,
                  enum_t _id,
                  const char* _regex,
-                 typename indicative_t ,
+                 typename indicative_t,
                  typename target_t >
         constexpr const char* terminal<enum_t, _id, _regex, indicative_t, target_t>::regex;
 
+
+        /// Static initialisation
+        /// of indicative
         template < typename enum_t,
                  enum_t _id,
                  const char* _regex,
@@ -138,6 +156,9 @@ namespace brain
                  typename target_t >
         constexpr bool terminal<enum_t, _id, _regex, indicative_t, target_t>::indicative;
 
+
+        /// Static initialisation
+        /// of regex_std
         template < typename enum_t,
                  enum_t _id,
                  const char* _regex,
@@ -148,18 +169,18 @@ namespace brain
 
         template < typename terminal_t,
                  typename enum_t >
-        constexpr bool is_empty =
-            id_<terminal_t> == enum_t::empty;
+        using is_empty =
+            meta::bool_t<id_<terminal_t> == enum_t::empty>;
 
         template < typename terminal_t,
                  typename enum_t >
-        constexpr bool is_bullshit =
-            id_<terminal_t> == enum_t::bullshit;
+        using is_bullshit =
+            meta::bool_t<id_<terminal_t> == enum_t::bullshit>;
 
         template < typename terminal_t,
                  typename enum_t >
-        constexpr bool is_ignored =
-            id_<terminal_t> == enum_t::ignored;
+        using is_ignored =
+            meta::bool_t<id_<terminal_t> == enum_t::ignored>;
 
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
