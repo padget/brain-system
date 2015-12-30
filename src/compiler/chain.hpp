@@ -11,15 +11,15 @@ namespace brain
 {
     namespace cpl
     {
-        template < typename enum_t,
+        template < typename config_t,
                  typename sconverter_t >
         class chain :
             public sys::system
         {
                 typename sconverter_t::res_type m_result;
 
-                using chain_def = chain<enum_t, sconverter_t>;
-
+                using config_type =
+                    config_t;
             public:
                 chain() :
                     system()
@@ -69,22 +69,21 @@ namespace brain
                     bind(typeid(cpl::event<enum_t>), compiler_event_cb);*/
                 }
 
-                chain(const chain_def&) = default;
-                chain(chain_def &&) = default;
+                chain(const chain&) = default;
+                chain(chain &&) = default;
                 virtual ~chain() noexcept = default;
 
             public:
-                virtual chain_def& operator=(const chain_def&) noexcept = default;
-                virtual chain_def& operator=(chain_def &&) noexcept = default;
+                virtual chain& operator=(
+                    const chain&) noexcept = default;
+                virtual chain& operator=(
+                    chain &&) noexcept = default;
 
-            public:
-                virtual std::unique_ptr<system> clone() override
-                { return std::make_unique<chain_def>(*this); }
 
             public:
                 void compile()
                 {
-                    cpl::event<enum_t> e(this, event_type::SCANNING_WANTED);
+                    cpl::event<config_t> e(this, event_type::SCANNING_WANTED);
                     /// e.filename(args()[0]);
                     send(e);
                 }

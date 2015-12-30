@@ -1,6 +1,8 @@
 #ifndef __BRAIN_COMPILERUTILS_HPP
 #define  __BRAIN_COMPILERUTILS_HPP
 
+#include "supports.hpp"
+
 namespace brain
 {
     namespace cpl
@@ -10,7 +12,8 @@ namespace brain
         /// represent's the
         /// logical translation
         /// of the source.
-        template < typename enum_t ,
+        template < typename config_t ,
+                 typename char_t,
                  typename ... terminals_t >
         struct token_maker
         {
@@ -27,7 +30,7 @@ namespace brain
                 std::string::const_iterator& begin,
                 std::string::const_iterator& end,
                 std::smatch& m,
-                token<enum_t>& max_match)
+                token<config_t>& max_match)
             {
                 return find_match<terminal_t>
                        (begin, end, m, max_match)
@@ -43,7 +46,7 @@ namespace brain
                 std::string::const_iterator& begin,
                 std::string::const_iterator& end,
                 std::smatch& m,
-                token<enum_t>& max_match)
+                token<config_t>& max_match)
             {
                 /// If a match is found
                 /// and if the max match
@@ -74,21 +77,21 @@ namespace brain
             /// of the stream
             void operator()(
                 const std::string& filename,
-                std::vector<token<enum_t>>& tokens)
+                std::vector<token<config_t>>& tokens)
             {
                 /// Statement is the
                 /// result of the
                 /// conversion from the
                 /// stream into string
                 auto && statement =
-                    ifstream_to<std::string>(std::ifstream(filename)) + "\n";
+                    ifstream_to<std::basic_string<char_<config_t>>>(std::ifstream(filename)) + "\n";
 
                 /// Temporary smatch
                 std::smatch m;
 
                 /// Temporary max_match
-                /// via a token<enum_t>
-                token<enum_t> max_match;
+                /// via a token<enum_<config_t>>
+                token<config_t> max_match;
 
                 /// Temporary buffer
                 /// iterators for
@@ -132,7 +135,7 @@ namespace brain
                         /// Finally the max_match
                         /// is reinitialized with
                         /// a default token
-                        max_match    = token<enum_t>();
+                        max_match    = token<config_t>();
                     }
 
                     /// Else the buffer_end
@@ -157,11 +160,11 @@ namespace brain
                 /// ignored or not
                 auto && is_ignored = [](auto && t)
                 {
-                    return t.id == enum_t::ignored;
+                    return t.id == enum_<config_t>::ignored;
                 };
 
                 /// Erases all tokens
-                /// that are enum_t::ignored
+                /// that are enum_<config_t>::ignored
                 tokens.erase(std::remove_if(tokens.begin(),
                                             tokens.end(),
                                             is_ignored),
@@ -173,29 +176,29 @@ namespace brain
         //--//--//--// NODE MANANGER /--//--//--//
         //--//--//--//--//--//--//--//--//--//--//
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_list_t,
                  typename productions_list_t,
                  size_t _idx >
         struct and_analyser;
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_list_t,
                  typename productions_list_t,
                  size_t _idx >
         struct or_analyser;
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_t,
                  typename productions_t >
         struct symbol_analyser;
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_t,
                  bool is_terminal >
         struct terminal_analyser;
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t >
         struct production_analyser;
@@ -218,7 +221,7 @@ namespace brain
         /// by scanning the statement
         /// with its definition
         /// in the production list.
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_t,
                  typename productions_list_t >
         struct symbol_analyser
@@ -241,13 +244,13 @@ namespace brain
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
                 if(symbol_t::is_terminal)
-                    terminal_analyser<enum_t, symbol_t, symbol_t::is_terminal>()(iter, res);
+                    terminal_analyser<config_t, symbol_t, symbol_t::is_terminal>()(iter, res);
 
                 else
-                    production_analyser<enum_t, production_t, productions_list_t>()(iter, res);
+                    production_analyser<config_t, production_t, productions_list_t>()(iter, res);
             }
         };
 
@@ -264,45 +267,43 @@ namespace brain
          * Moreover, if the node.id corresponds to the terminal_t::id, then
          * the iterator that encapsulates the node is incremented by one.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_t >
-        struct terminal_analyser<enum_t, symbol_t, true>
+        struct terminal_analyser<config_t, symbol_t, true>
         {
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                while((*iter).id == enum_t::ignored)
+                while((*iter).id == enum_<config_t>::ignored)
                     iter++;
 
                 if((*iter).id == id_<symbol_t>)
                 {
                     iter++;
-                    res = std::move(node<enum_t>(id_<symbol_t>, (*iter).value));
+                    res = std::move(node<config_t>(id_<symbol_t>, (*iter).value));
                 }
 
                 else
-                    res = std::move(node<enum_t>(enum_t::bullshit));
+                    res = std::move(node<config_t>(enum_<config_t>::bullshit));
             }
         };
 
         /**
          * @brief Partial specialisation of terminal_analyser for the case false.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_t >
-        struct terminal_analyser<enum_t, symbol_t, false>
+        struct terminal_analyser<config_t, symbol_t, false>
         {
-            using target =
-                typename symbol_t::target_type;
 
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                res = std::move(node<enum_t>(enum_t::bullshit));
+                res = std::move(node<config_t>(enum_<config_t>::bullshit));
             }
         };
 
@@ -316,7 +317,7 @@ namespace brain
          * Return true if the type '_idx' (reversing loop) corresponds to the id
          * of the given node id and the next too.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t,
                  size_t _idx = production_t::symbols_list::last_idx >
@@ -328,17 +329,17 @@ namespace brain
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                node<enum_t> current_res;
-                symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, current_res);
+                node<config_t> current_res;
+                symbol_analyser<config_t, symbol_t, productions_list_t>()(iter, current_res);
 
                 if(current_res)
                 {
-                    res = node<enum_t>(id_<production_t>, {current_res});
+                    res = node<config_t>(id_<production_t>, {current_res});
 
-                    node<enum_t> next_res;
-                    and_analyser < enum_t, production_t, productions_list_t, _idx - 1 > ()(iter, next_res);
+                    node<config_t> next_res;
+                    and_analyser < config_t, production_t, productions_list_t, _idx - 1 > ()(iter, next_res);
 
                     if(next_res)
                         res.childs.insert(res.childs.end(),
@@ -346,21 +347,21 @@ namespace brain
                                           next_res.childs.end());
 
                     else
-                        res = std::move(node<enum_t>(enum_t::bullshit));
+                        res = std::move(node<config_t>(enum_<config_t>::bullshit));
                 }
 
                 else
-                    res = std::move(node<enum_t>(enum_t::bullshit));
+                    res = std::move(node<config_t>(enum_<config_t>::bullshit));
             }
         };
 
         /**
          * @brief Partial specialisation of and_analyse for the case '_idx' equals 0.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t >
-        struct and_analyser<enum_t, production_t, productions_list_t, 0>
+        struct and_analyser<config_t, production_t, productions_list_t, 0>
         {
             using symbol_t =
                 meta::at_c<production_t::symbols_list::last_idx, typename production_t::symbols_list>;
@@ -368,16 +369,16 @@ namespace brain
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                node<enum_t> current_res;
-                symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, current_res);
+                node<config_t> current_res;
+                symbol_analyser<enum_<config_t>, symbol_t, productions_list_t>()(iter, current_res);
 
                 if(current_res)
-                    res = std::move(node<enum_t>(id_<production_t>, {current_res}));
+                    res = std::move(node<config_t>(id_<production_t>, {current_res}));
 
                 else
-                    res = std::move(node<enum_t>(enum_t::bullshit));
+                    res = std::move(node<config_t>(enum_<config_t>::bullshit));
             }
         };
 
@@ -390,7 +391,7 @@ namespace brain
          *
          * Return always true because a list can be empty
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t >
         struct list_analyser
@@ -398,16 +399,16 @@ namespace brain
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
                 auto current =
                     iter;
-                res = std::move(node<enum_t>(id_<production_t>));
-                node<enum_t> current_res {node<enum_t>(enum_t::ignored)};
+                res = std::move(node<config_t>(id_<production_t>));
+                node<config_t> current_res {node<config_t>(enum_<config_t>::ignored)};
 
                 do
                 {
-                    and_analyser<enum_t, production_t, productions_list_t>()(current, current_res);
+                    and_analyser<config_t, production_t, productions_list_t>()(current, current_res);
 
                     if(current_res)
                     {
@@ -431,7 +432,7 @@ namespace brain
          * Return true if the type '_idx' (reversing loop) corresponds to the id
          * of the given node id or one of the nexts.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t,
                  size_t _idx = production_t::symbols_list::last_idx >
@@ -443,23 +444,23 @@ namespace brain
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                node<enum_t> current_res;
-                symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, res);
+                node<config_t> current_res;
+                symbol_analyser<config_t, symbol_t, productions_list_t>()(iter, res);
 
                 if(not res)
-                    or_analyser < enum_t, production_t, productions_list_t, _idx - 1 > ()(iter, res);
+                    or_analyser < config_t, production_t, productions_list_t, _idx - 1 > ()(iter, res);
             }
         };
 
         /**
          * @brief Partial specialisation of or_analyse for the case '_idx' equals 0.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t >
-        struct or_analyser<enum_t, production_t, productions_list_t, 0>
+        struct or_analyser<config_t, production_t, productions_list_t, 0>
         {
             using symbol_t =
                 meta::at_c<production_t::symbols_list::last_idx , typename production_t::symbols_list>;
@@ -467,9 +468,9 @@ namespace brain
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                symbol_analyser<enum_t, symbol_t, productions_list_t>()(iter, res);
+                symbol_analyser<config_t, symbol_t, productions_list_t>()(iter, res);
             }
         };
 
@@ -480,22 +481,22 @@ namespace brain
          * @file utils.hpp
          * @brief Analyse a production (AND, OR, LIST)
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t,
                  typename productions_list_t >
         struct production_analyser
         {
             using and_anl =
-                and_analyser<enum_t, production_t, productions_list_t>;
+                and_analyser<config_t, production_t, productions_list_t>;
             using list_anl =
-                list_analyser<enum_t, production_t, productions_list_t>;
+                list_analyser<config_t, production_t, productions_list_t>;
             using or_anl =
-                or_analyser<enum_t, production_t, productions_list_t>;
+                or_analyser<config_t, production_t, productions_list_t>;
 
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
                 switch(production_t::type)
                 {
@@ -512,7 +513,7 @@ namespace brain
                         break;
 
                     default:
-                        res = std::move(node<enum_t>(enum_t::bullshit));
+                        res = std::move(node<config_t>(enum_<config_t>::bullshit));
                         break;
                 }
             }
@@ -521,16 +522,16 @@ namespace brain
         /**
          * @brief Partial specialisation of production_analyser for the case no_type
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename productions_list_t >
-        struct production_analyser<enum_t, meta::nil, productions_list_t>
+        struct production_analyser<config_t, meta::nil, productions_list_t>
         {
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
-                res = std::move(node<enum_t>(enum_t::bullshit));
+                res = std::move(node<config_t>(enum_<config_t>::bullshit));
             }
         };
 
@@ -543,17 +544,15 @@ namespace brain
          * @brief Build the node tree from an array of token and
          * in accordance with a grammar ('productions_list_t').
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename root_production_t,
                  typename productions_list_t >
         struct node_maker
         {
-            using enum_type =
-                enum_t;
             using node_type =
-                node<enum_type>;
+                node<config_t>;
             using token_type =
-                token<enum_type>;
+                token<config_t>;
             using tokens_type =
                 std::vector<token_type>;
             using root_type =
@@ -563,19 +562,19 @@ namespace brain
 
             void operator()(
                 tokens_type & tokens,
-                node<enum_t>& res)
+                node<config_t>& res)
             {
                 typename tokens_type::const_iterator b =
                     tokens.cbegin();
 
                 if(b not_eq tokens.end())
-                    production_analyser<enum_t, root_type, productions_list>()(b, res);
+                    production_analyser<config_t, root_type, productions_list>()(b, res);
 
                 else
-                    res = std::move(node<enum_t>(enum_t::bullshit));
+                    res = std::move(node<config_t>(enum_<config_t>::bullshit));
 
                 if(b not_eq tokens.end())
-                    res = std::move(node<enum_t>(enum_t::bullshit));
+                    res = std::move(node<config_t>(enum_<config_t>::bullshit));
             }
         };
 
@@ -689,12 +688,12 @@ namespace brain
             }
         };
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbol_t >
         struct terminal_object_maker
         {
             using node_type =
-                node<enum_t>;
+                node<config_t>;
             using target =
                 typename symbol_t::target_type;
 
@@ -707,22 +706,22 @@ namespace brain
             }
         };
 
-        template<typename enum_t>
+        template<typename config_t>
         struct node_displayer;
 
-        template < typename enum_t,
+        template < typename config_t,
                  typename production_t >
         struct nonterminal_object_maker
         {
             using node_type =
-                node<enum_t>;
+                node<config_t>;
             using target =
                 typename production_t::symbol_type::target_type;
 
             target operator()(
                 const node_type& n)
             {
-                node_displayer<enum_t>()(n);
+                node_displayer<enum_<config_t>>()(n);
 
                 if(not n.childs.empty())
                 {
@@ -747,7 +746,7 @@ namespace brain
                     if(childs[_idx].id == id_<current_symbol>)
                     {
                         std::get<_idx>(args) =
-                            terminal_object_maker<enum_t, current_symbol>()(childs[_idx]);
+                            terminal_object_maker<enum_<config_t>, current_symbol>()(childs[_idx]);
                         make_for_each_symbol < symbol_list_t, _idx - 1 > ()(childs, args);
                     }
                 }
@@ -765,7 +764,7 @@ namespace brain
                 {
                     if(childs[0].id == id_<current_symbol>)
                         std::get<0>(args) =
-                            std::move(terminal_object_maker<enum_t, current_symbol>()(childs[0]));
+                            std::move(terminal_object_maker<enum_<config_t>, current_symbol>()(childs[0]));
                 }
             };
         };
@@ -807,7 +806,7 @@ namespace brain
          * @brief Display the content of the symbol and the next
          * in the list.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbols_list_t,
                  production_type _type,
                  size_t _idx = symbols_list_t::last_idx >
@@ -818,28 +817,28 @@ namespace brain
 
             void operator()()
             {
-                logger<enum_t>::trace("  ", static_cast<char>(_type), " --- ", (long) symbol_t::id);
-                symbol_displayer < enum_t, symbols_list_t, _type, _idx - 1 > ()();
+                logger<enum_<config_t>>::trace("  ", static_cast<char>(_type), " --- ", (long) symbol_t::id);
+                symbol_displayer < enum_<config_t>, symbols_list_t, _type, _idx - 1 > ()();
             }
         };
 
         /**
          * @brief Partial specialisation of symbol_displayer for case 0
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename symbols_list_t,
                  production_type _type >
-        struct symbol_displayer<enum_t, symbols_list_t, _type, 0>
+        struct symbol_displayer<config_t, symbols_list_t, _type, 0>
         {
             using symbol_t =
                 meta::at_c<symbols_list_t::last_idx, symbols_list_t>;
 
             void operator()()
             {
-                logger<enum_t>::trace("  ",
-                                      static_cast<char>(_type),
-                                      " --- ",
-                                      (long)symbol_t::id);
+                logger<enum_<config_t>>::trace("  ",
+                                               static_cast<char>(_type),
+                                               " --- ",
+                                               (long)symbol_t::id);
             }
         };
 
@@ -851,7 +850,7 @@ namespace brain
          * @brief Display the content of the production and the next
          * in the list.
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename productions_list_t,
                  size_t _idx = productions_list_t::last_idx >
         struct production_displayer
@@ -861,26 +860,26 @@ namespace brain
 
             void operator()()
             {
-                logger<enum_t>::trace(" - production ", (long)production_t::id);
-                symbol_displayer <enum_t, typename production_t::symbols_list, production_t::type>()();
-                production_displayer < enum_t, productions_list_t, _idx - 1 > ()();
+                logger<enum_<config_t>>::trace(" - production ", (long)production_t::id);
+                symbol_displayer <enum_<config_t>, typename production_t::symbols_list, production_t::type>()();
+                production_displayer < enum_<config_t>, productions_list_t, _idx - 1 > ()();
             }
         };
 
         /**
          * @brief Partial specialisation of production_displayer for case 0
          */
-        template < typename enum_t,
+        template < typename config_t,
                  typename productions_list_t >
-        struct production_displayer<enum_t, productions_list_t, 0>
+        struct production_displayer<config_t, productions_list_t, 0>
         {
             using production_t =
                 meta::at_c<productions_list_t::last_idx, productions_list_t>;
 
             void operator()()
             {
-                logger<enum_t>::trace(" - production ", (long)production_t::id);
-                symbol_displayer <enum_t, typename production_t::symbols_list, production_t::type>()();
+                logger<enum_<config_t>>::trace(" - production ", (long)production_t::id);
+                symbol_displayer <enum_<config_t>, typename production_t::symbols_list, production_t::type>()();
             }
         };
 
@@ -904,7 +903,7 @@ namespace brain
             void operator()()
             {
                 using log_t =
-                    typename grammar_t::enum_t;
+                    enum_<config_<grammar_t>>;
 
                 logger<log_t>::trace("-----", "grammar_displayer", "-----");
                 logger<log_t>::trace("root symbol ", (long)root_production_type::id);
@@ -1037,28 +1036,28 @@ namespace brain
          * @file utils.hpp
          * @brief Displays node and childs recursively
          */
-        template<typename enum_t>
+        template<typename config_t>
         struct node_displayer
         {
-            void operator()(const node<enum_t>& n,
+            void operator()(const node<config_t>& n,
                             unsigned udec = 0)
             {
                 if(udec == 0u)
-                    logger<enum_t>::info("---- ",
-                                         "node_displayer",
-                                         " ----");
+                    logger<enum_<config_t>>::info("---- ",
+                                                  "node_displayer",
+                                                  " ----");
 
-                logger<enum_t>::info(std::string(udec, ' '),
-                                     (long)n.id);
+                logger<enum_<config_t>>::info(std::string(udec, ' '),
+                                              (long)n.id);
 
                 for(const auto & child : n.childs)
                     node_displayer()(child,
                                      udec + 3u);
 
                 if(udec == 0u)
-                    logger<enum_t>::info("---- ",
-                                         "node_displayer",
-                                         " ----");
+                    logger<enum_<config_t>>::info("---- ",
+                                                  "node_displayer",
+                                                  " ----");
             }
         };
 

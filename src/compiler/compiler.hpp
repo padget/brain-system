@@ -14,14 +14,13 @@ namespace brain
 //--//--//--// Déclaration des systèmes de compilation      //
 //--//--//--//--//--//--//--//--//--//--//--//--//--//--//--//
 
-        template < typename enum_t,
-                 typename grammar_t,
+        template < typename grammar_t,
                  typename binds_t >
         class executer :
             public sys::system
         {
-                using executer_def =
-                    executer<enum_t, grammar_t, binds_t>;
+                using config_type =
+                    config_<grammar_t>;
 
             public:
                 executer() noexcept
@@ -43,21 +42,16 @@ namespace brain
                 }
 
                 executer(
-                    const executer_def&) = default;
+                    const executer&) = default;
                 executer(
-                    executer_def &&) = default;
+                    executer &&) = default;
                 virtual ~executer() noexcept = default;
 
             public:
-                virtual executer_def& operator=(
-                    const executer_def&) noexcept = default;
-                virtual executer_def& operator=(
-                    executer_def &&) noexcept = default;
-
-            public:
-                virtual std::unique_ptr<system> clone() override
-                { return std::make_unique<executer_def>(*this); }
-
+                virtual executer& operator=(
+                    const executer&) noexcept = default;
+                virtual executer& operator=(
+                    executer &&) noexcept = default;
         };
     }
 }

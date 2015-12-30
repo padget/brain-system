@@ -8,35 +8,68 @@ namespace brain
 {
     namespace cpl
     {
-        /// A target represents
-        /// the futur type of
-        /// the symbol
-        template<typename target_t>
-        struct target
+        /// A config conditions
+        /// all compilation
+        template < typename enum_t,
+                 typename char_t >
+        struct config
         {
-            using target_type =
-                target_t;
+            /// Alias for enum_<config_t>
+            using enum_type =
+                enum_t;
+
+
+            /// Alias for char_t
+            using char_type =
+                char_t;
         };
+
+
+        /// Alias that returns
+        /// type_t::config_type
+        template<typename type_t>
+        using config_ =
+            typename type_t::config_type;
+
+
+        /// Alias that returns
+        /// type_t::char_type
+        template<typename type_t>
+        using char_ =
+            typename type_t::char_type;
+
+
+        /// Alias that returns
+        /// type_t::enum_type
+        template<typename type_t>
+        using enum_ =
+            typename type_t::enum_type;
 
 
         /// An id_type is
         /// an object that
         /// has the id member
-        template < typename id_t,
-                 id_t _id >
+        template < typename config_t,
+                 enum_<config_t> _id >
         struct id_type
         {
             /// Effective id
             /// of id_type
-            static id_t id;
+            static enum_<config_t> id;
+
+
+            /// Alias for
+            /// config_t
+            using config_type =
+                config_t;
         };
 
 
         /// Static declaration of
         /// id from id_type template
-        template < typename id_t,
-                 id_t _id >
-        id_t id_type<id_t, _id>::id {_id};
+        template < typename config_t,
+                 enum_<config_t> _id >
+        enum_<config_t> id_type<config_t, _id>::id {_id};
 
 
         /// id_ operator
@@ -47,9 +80,6 @@ namespace brain
         auto id_ =
             id_t::id;
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
 
         /// A symbol represents
         /// a possible token for
@@ -60,21 +90,18 @@ namespace brain
         /// target type that represent
         /// its type for an interpretor
         /// or a compiler.
-        template < typename enum_t, /// Type of the id
-                 enum_t _id, /// Id of the symbol
-                 typename target_t, /// Target type of the symbol
+        template < typename config_t, /// Type of the id
+                 enum_<config_t> _id, /// Id of the symbol
                  bool b_is_terminal > /// True if the symbol is a terminal
         struct symbol:
-            public id_type<enum_t, _id>,
-            public target<target_t>
+            public id_type<config_t, _id>
         {
             /// Static boolean
             /// that identifies
             /// if the symbol is
             /// a terminal symbol
             /// or not.
-            static constexpr
-            bool is_terminal {b_is_terminal};
+            static constexpr bool is_terminal {b_is_terminal};
         };
 
 
@@ -82,462 +109,364 @@ namespace brain
         /// of the is_terminal
         /// member of symbol
         /// template
-        template < typename enum_t,
-                 enum_t _id,
-                 typename target_t,
+        template < typename config_t,
+                 enum_<config_t> _id,
                  bool b_is_terminal >
-        constexpr bool symbol<enum_t, _id, target_t, b_is_terminal>::is_terminal;
+        constexpr bool symbol<config_t, _id, b_is_terminal>::is_terminal;
 
 
-        /// Alias of std::true_type
-        /// that indicate if a
-        /// symbol is indicatif
-        /// for a compiler
-        using indicative =
-            std::true_type;
-
-
-        /// Alias of std::true_type
-        /// that indicate if a
-        /// symbol isn't indicatif
-        /// for a compiler
-        using non_indicative =
-            std::false_type;
-
-
-        /// A terminal is 
-        /// a symbol that 
-        /// has a regex and 
+        /// A terminal is
+        /// a symbol that
+        /// has a regex and
         /// that is not defined
         /// by a production
         /// in a grammar
-        template < typename enum_t,
-                 enum_t _id,
-                 const char* _regex,
-                 typename indicative_t,
-                 typename target_t = void >
+        template < typename config_t,
+                 enum_<config_t> _id,
+                 const meta::basic_string<char_<config_t>>& _regex >
         struct terminal :
-            public symbol<enum_t, _id, target_t, true>
+            public symbol<config_t, _id, true>
         {
             /// Static char* that
             /// represent the containt
             /// of the regex
-            static constexpr const char* regex {_regex};
-            
-            
-            /// Static boolean that 
-            /// indicates if the 
-            /// termainal is indicative
-            /// or not
-            static constexpr bool indicative {meta::v_<indicative_t>};
-            
-            
+            static constexpr meta::basic_string<char_<config_t>> regex {_regex};
+
+
             /// Static standart regex
             static const std::regex regex_std;
         };
 
 
-        /// Static initilisation 
+        /// Static initilisation
         /// of regex
-        template < typename enum_t,
-                 enum_t _id,
-                 const char* _regex,
-                 typename indicative_t,
-                 typename target_t >
-        constexpr const char* terminal<enum_t, _id, _regex, indicative_t, target_t>::regex;
-
-
-        /// Static initialisation
-        /// of indicative
-        template < typename enum_t,
-                 enum_t _id,
-                 const char* _regex,
-                 typename indicative_t ,
-                 typename target_t >
-        constexpr bool terminal<enum_t, _id, _regex, indicative_t, target_t>::indicative;
+        template < typename config_t,
+                 enum_<config_t> _id,
+                 const meta::basic_string<char_<config_t>>& _regex >
+        constexpr meta::basic_string<char_<config_t>> terminal<config_t, _id, _regex>::regex;
 
 
         /// Static initialisation
         /// of regex_std
-        template < typename enum_t,
-                 enum_t _id,
-                 const char* _regex,
-                 typename indicative_t ,
-                 typename target_t >
-        const std::regex terminal<enum_t, _id, _regex, indicative_t, target_t>::regex_std
-        {terminal<enum_t, _id, _regex, indicative_t, target_t>::regex};
+        template < typename config_t,
+                 enum_<config_t> _id,
+                 const meta::basic_string<char_<config_t>>& _regex >
+        const std::regex terminal<config_t, _id, _regex>::regex_std
+        { terminal<config_t, _id, _regex>::regex };
 
-        template < typename terminal_t,
-                 typename enum_t >
+
+        /// Operator that
+        /// determines if
+        /// the symbols is
+        /// empty
+        template < typename symbol_t,
+                 typename config_t >
         using is_empty =
-            meta::bool_t<id_<terminal_t> == enum_t::empty>;
+            meta::bool_t<id_<symbol_t> == enum_<config_t>::empty>;
 
-        template < typename terminal_t,
-                 typename enum_t >
+
+        /// Operator that
+        /// determines if
+        /// the symbols is
+        /// empty
+        template < typename symbol_t,
+                 typename config_t >
         using is_bullshit =
-            meta::bool_t<id_<terminal_t> == enum_t::bullshit>;
+            meta::bool_t<id_<symbol_t> == enum_<config_t>::bullshit>;
 
-        template < typename terminal_t,
-                 typename enum_t >
+
+        /// Operator that
+        /// determines if
+        /// the symbols is
+        /// empty
+        template < typename symbol_t,
+                 typename config_t >
         using is_ignored =
-            meta::bool_t<id_<terminal_t> == enum_t::ignored>;
+            meta::bool_t<id_<symbol_t> == enum_<config_t>::ignored>;
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
 
-        template < typename enum_t,
-                 enum_t _id ,
-                 typename target_t = void >
+        /// Non terminal
+        /// definition
+        template < typename config_t,
+                 enum_<config_t> _id >
         struct non_terminal:
-            public symbol<enum_t, _id, target_t, false>
+            public symbol<config_t, _id, false>
         {
         };
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
 
+        /// Production type
         enum class production_type :
         char
         {
-            AND = '&',
-            OR = '|',
-            LIST = 'o'
+            AND = '&', /// Sequence of symbols
+            OR = '|', /// One of the symbols
+            LIST = 'o' /// Loop of a sequence symbol
         };
 
-        template < typename enum_t,
+
+        /// Definition of
+        /// production. A production
+        /// represent a rule for
+        /// a grammar. It has a type,
+        /// a symbol that is defined
+        /// by the production and
+        /// a list of symbols that
+        /// defines the production
+        template < typename config_t,
                  production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
         struct production:
-            public id_type<enum_t, symbol_t::id>
+            public id_type<config_t, symbol_t::id>
         {
+            /// Alias for
+            /// config_t
+            using config_type =
+                config_t;
+
+
+            /// Static type of
+            /// a production
             static constexpr production_type type {_type};
 
+
+            /// Symbol that is
+            /// defined by this
+            /// production
             using symbol_type =
                 symbol_t;
 
+
+            /// List of symbols
+            /// that defines the
+            /// production
             using symbols_list =
                 meta::list<symbols_t...>;
         };
 
-        template < typename enum_t,
+
+        /// Static initialization
+        /// member type
+        template < typename config_t,
                  production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
         constexpr production_type
-        production<enum_t, _type, symbol_t, symbols_t...>::type;
+        production<config_t, _type, symbol_t, symbols_t...>::type;
 
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-
-        template < typename enum_t,
+        /// Definition of a
+        /// Grammar. A grammar
+        /// has a root production
+        /// and a list of other
+        /// production that defines
+        /// the containt of the
+        /// former.
+        template < typename config_t,
                  typename root_production_t,
                  typename ... production_t >
         struct grammar
         {
-            using enum_type =
-                enum_t;
+            /// Alias for
+            /// config_t
+            using config_type =
+                config_t;
 
+
+            /// Root production
+            /// of the grammar
             using root_production_type =
                 root_production_t;
 
+
+            /// List of production
+            /// that defines the
+            /// grammar. The root
+            /// must be contained
+            /// in this list
             using productions_list =
                 meta::list<production_t...>;
         };
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
 
-        /**
-         * @class token
-         * @author bmathieu
-         * @date 17/09/2015
-         * @file supports.hpp
-         * @brief Token for scanning step
-         */
-        template<typename enum_t>
+
+        /// A token is an
+        /// object that contains
+        /// the result of the
+        /// source scanning.
+        template < typename config_t>
         class token:
             object
         {
-                using token_def =
-                    token<enum_t>;
+            public:
+                /// Alias for
+                /// config_t
+                using config_type =
+                    config_t;
+
+
+                /// Id of the token.
+                /// Defaulted initialized
+                /// with enum_<config_t>::ignored
+                property<enum_<config_t>> symbol_id {enum_<config_t>::ignored};
+
+
+                /// The intrinsec value
+                /// in the source
+                property<std::basic_string<char_<config_t>>> value;
+
 
             public:
-                enum_t id =
-                    enum_t::ignored;
+                /// Default constructor
+                token() = default;
 
-                std::string value;
 
-            public:
-                token():
-                    object()
-                {
-                }
-
+                /// Constructor by giving
+                /// of an id and the value
+                /// of the token
                 token(
-                    enum_t _id,
-                    const std::string& v = std::string()):
+                    enum_<config_t> _id,
+                    const std::basic_string<char_<config_t>>& v =
+                        std::basic_string<char_<config_t>>()):
                     object(),
-                    id(_id),
+                    symbol_id(_id),
                     value(v)
                 {
                 }
 
 
+                /// Copy constructor
                 token(
-                    const token_def& other):
-                    object(other),
-                    id(other.id),
-                    value(other.value)
-                {
-                }
+                    const token&) = default;
 
 
+                /// Move constructor
                 token(
-                    token_def && other):
-                    object(other),
-                    id(std::move(other.id)),
-                    value(std::move(other.value))
-                {
-                }
+                    token &&) = default;
 
+
+                /// Default destructor
                 virtual ~token() = default;
 
+
             public:
-                token_def& operator=(
-                    const token_def& other)
-                {
-                    if(this != &other)
-                    {
-                        this->object::operator=(other);
-                        id = other.id;
-                        value = other.value;
-                    }
-
-                    return *this;
-                }
+                /// default copy
+                /// operator=
+                token& operator=(
+                    const token&) = default;
 
 
-                token_def& operator=(
-                    token_def && other)
-                {
-                    if(this != &other)
-                    {
-                        this->object::operator=(other);
-                        id = std::move(other.id);
-                        value = std::move(other.value);
-                    }
+                /// default copy
+                /// operator=
+                token& operator=(
+                    token &&) = default;
 
-                    return *this;
-                }
 
+            public:
+                /// Return true if
+                /// the symbol_id is
+                /// not equal to bullshit
                 operator bool() const
                 {
-                    return id !=  enum_t::bullshit;
+                    return symbol_id() !=  enum_<config_t>::bullshit;
                 }
         };
 
-        /**
-         * @brief Build a token with an id and a value
-         * @param id ID of the token in enum_t
-         * @param value Value of the token from source
-         * @return a token with id and value
-         */
-        template<typename enum_t>
+
+        /// Builds a token given
+        /// that an id and a
+        /// value
+        template < typename config_t>
         auto make_token(
-            enum_t id,
-            const std::string& value)
+            enum_<config_t> id,
+            const std::basic_string<char_<config_t>>& value =
+                std::basic_string<char_<config_t>>())
         {
-            return  token<enum_t> {id, value};
+            return token<config_t> {id, value};
         }
 
-        /// Replace the id and
+
+        /// Replaces the id and
         /// value of res by new
         /// value and id
-        template<typename enum_t>
+        template < typename config_t>
         void make_token(
-            token<enum_t>& res,
-            enum_t id,
-            const std::string& value)
+            token<config_t>& res,
+            enum_<config_t> id,
+            const std::basic_string<char_<config_t>>& value =
+                std::basic_string<char_<config_t>>())
         {
-            res.id = std::move(id);
-            res.value = std::move(value);
+            res.symbol_id(std::move(id));
+            res.value(std::move(value));
         }
 
-        /**
-         * @class node
-         * @author bmathieu
-         * @date 17/09/2015
-         * @file supports.hpp
-         * @brief Node for parsing step
-         */
-        template<typename enum_t>
+
+        /// Node is a translation
+        /// of tokens into a tree
+        /// given that a grammar
+        template < typename config_t>
         class node:
-            public token<enum_t>
+            public token<config_t>
         {
-                using token_def = token<enum_t>;
+            public:
+                /// List of childs
+                /// in a tree structure
+                property<std::vector<node>> childs;
 
             public:
-                //object_sptr m_object;
-                std::vector<node> childs;
+                /// Default constructor
+                node() = default;
+
+
+                /// Constructor by
+                /// id and value
+                node(
+                    const enum_<config_t>& _id,
+                    const std::basic_string<char_<config_t>>& _value =
+                        std::basic_string<char_<config_t>>()):
+                    token<config_t>(_id, _value)
+                {
+                }
+
+
+                /// Constructor by id
+                /// and childs
+                node(
+                    const enum_<config_t>& _id,
+                    std::initializer_list<node> && _childs):
+                    token<config_t>(_id),
+                    childs(_childs)
+                {
+                }
+
+
+                /// Move constructor
+                node(
+                    node &&) = default;
+
+
+                /// Copy constructor
+                node(
+                    const node&) = default;
+
+
+                /// Default destructor
+                virtual ~node() = default;
+
 
             public:
-                node(): token_def()
-                {
-                }
-
-
-                node(
-                    const enum_t& _id):
-                    token_def(_id)
-                {
-                }
-
-
-                node(
-                    const enum_t& _id,
-                    const std::string& v):
-                    token_def(_id, v) {}
-
-                node(
-                    const enum_t& _id,
-                    std::initializer_list<node<enum_t>> && _childs):
-                    token_def(_id),
-                    childs(_childs) {}
-
-
-                node(
-                    node && other):
-                    token_def(other),
-                    childs(std::move(other.childs))
-                {
-                }
-
-                node(
-                    const node& other):
-                    token_def(other),
-                    childs(other.childs)
-                {
-                }
-
-
-                virtual ~node() {}
-
-            public:
+                /// Default move
+                /// operator=
                 node& operator=(
-                    node && other)
-                {
-                    if(this != &other)
-                    {
-                        this->token_def::operator=(other);
-                        //fct::assign(m_object, std::move(other.m_object));
-                        childs = std::move(other.childs);
-                    }
+                    node &&) = default;
 
-                    return *this;
-                }
 
+                /// Default copy
+                /// operator=
                 node& operator=(
-                    const node& other)
-                {
-                    if(this = &other)
-                    {
-                        this->token_def::operator=(other);
-                        //fct::assign(m_object, other.m_object);
-                        childs = other.childs;
-                    }
-
-                    return *this;
-                }
+                    const node&) = default;
         };
-
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-        namespace reg
-        {
-            template<char c>
-            struct character
-            {
-                static constexpr char value = c;
-            };
-
-            template<char c>
-            constexpr char character<c>::value;
-
-            // Minor
-            using a = character < 'a' >;
-            using b = character < 'b' >;
-            using c = character < 'c' >;
-            using d = character < 'd' >;
-            using e = character < 'e' >;
-            using f = character < 'f' >;
-            using g = character < 'g' >;
-            using h = character < 'h' >;
-            using i = character < 'i' >;
-            using j = character < 'j' >;
-            using k = character < 'k' >;
-            using l = character < 'l' >;
-            using m = character < 'm' >;
-            using n = character < 'n' >;
-            using o = character < 'o' >;
-            using p = character < 'p' >;
-            using q = character < 'q' >;
-            using r = character < 'r' >;
-            using s = character < 's' >;
-            using t = character < 't' >;
-            using u = character < 'u' >;
-            using v = character < 'v' >;
-            using w = character < 'w' >;
-            using x = character < 'x' >;
-            using y = character < 'y' >;
-            using z = character < 'z' >;
-
-            //Major
-            using A = character < 'A' >;
-            using B = character < 'B' >;
-            using C = character < 'C' >;
-            using D = character < 'D' >;
-            using E = character < 'E' >;
-            using F = character < 'F' >;
-            using G = character < 'G' >;
-            using H = character < 'H' >;
-            using I = character < 'I' >;
-            using J = character < 'J' >;
-            using K = character < 'K' >;
-            using L = character < 'L' >;
-            using M = character < 'M' >;
-            using N = character < 'N' >;
-            using O = character < 'O' >;
-            using P = character < 'P' >;
-            using Q = character < 'Q' >;
-            using R = character < 'R' >;
-            using S = character < 'S' >;
-            using T = character < 'T' >;
-            using U = character < 'U' >;
-            using V = character < 'V' >;
-            using W = character < 'W' >;
-            using X = character < 'X' >;
-            using Y = character < 'Y' >;
-            using Z = character < 'Z' >;
-
-            //figure
-            using zero = character < '0' >;
-            using one = character < '1' >;
-            using two = character < '2' >;
-            using three = character < '3' >;
-            using four = character < '4' >;
-            using five = character < '5' >;
-            using six = character < '6' >;
-            using seven = character < '7' >;
-            using eight = character < '8' >;
-            using nine = character < '9' >;
-        }
     }
 }
 

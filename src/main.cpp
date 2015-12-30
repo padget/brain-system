@@ -26,6 +26,7 @@ using namespace std;
 /// C++ compiler.
 int main()
 {
+    
     launch < test::test_suite < meta::test::member_test,
            meta::test::literal_test,
            meta::test::constkw_test,

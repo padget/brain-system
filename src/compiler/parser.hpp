@@ -17,6 +17,9 @@ namespace brain
                 using parser_def =
                     parser<grammar_t>;
 
+                using config_type =
+                    config_<grammar_t>;
+
             public:
                 parser()
                 {

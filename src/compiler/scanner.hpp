@@ -10,12 +10,12 @@ namespace brain
     {
         template<typename system_t>
         struct scanning_receiptor :
-            public sys::basic_handler <cpl::event<typename system_t::enum_type>, system_t>
+            public sys::basic_handler <cpl::event<config_<system_t>>, system_t>
         {
             public:
                 virtual void act(
                     system_t& s,
-                    cpl::event<typename system_t::enum_type>& e) const
+                    cpl::event<config_<system_t>>& e) const
                 {
                     e.type(event_type::SCANNING_RETURNED);
                     e.message("Parsing wanted");
@@ -23,30 +23,12 @@ namespace brain
                 }
         };
 
-        template <typename enum_t>
+        template < typename config_t >
         class scanner:
             public sys::system
         {
-                using scanner_def = scanner<enum_t>;
-                using enum_type = enum_t;
-
-            public:
-                scanner() :
-                    sys::system()
-                {
-                }
-
-                scanner(
-                    const scanner_def&) = default;
-                scanner(
-                    scanner_def &&) = default;
-                virtual ~scanner() noexcept = default;
-
-            public:
-                virtual scanner_def& operator=(
-                    const scanner_def&) noexcept = default;
-                virtual scanner_def& operator=(
-                    scanner_def &&) noexcept = default;
+                using config_type =
+                    config_t;
 
             public:
 
