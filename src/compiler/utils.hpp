@@ -12,8 +12,7 @@ namespace brain
         /// represent's the
         /// logical translation
         /// of the source.
-        template < typename config_t ,
-                 typename char_t,
+        template < typename config_t,
                  typename ... terminals_t >
         struct token_maker
         {
@@ -56,7 +55,7 @@ namespace brain
                 /// the max match and true
                 /// is returned
                 if(std::regex_match(begin, end, m, terminal_t::regex_std)
-                        and max_match.value.length() < m.str().length())
+                        and max_match.value().length() < m.str().length())
                 {
                     make_token(max_match,
                                terminal_t::id,
@@ -123,7 +122,7 @@ namespace brain
                     /// and max_match not empty
                     /// then
                     if(not nothing_found and /// WARN not nothing_found or nothing_found
-                            not max_match.value.empty())
+                            not max_match.value().empty())
                     {
                         /// The max_match is added
                         /// to the tokens vector
@@ -135,7 +134,7 @@ namespace brain
                         /// Finally the max_match
                         /// is reinitialized with
                         /// a default token
-                        max_match    = token<config_t>();
+                        max_match    = make_token<config_t>(enum_<config_t>::ignored);
                     }
 
                     /// Else the buffer_end
@@ -160,7 +159,7 @@ namespace brain
                 /// ignored or not
                 auto && is_ignored = [](auto && t)
                 {
-                    return t.id == enum_<config_t>::ignored;
+                    return t.symbol_id() == enum_<config_t>::ignored;
                 };
 
                 /// Erases all tokens

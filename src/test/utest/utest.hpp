@@ -696,14 +696,14 @@ namespace brain
                 virtual void test()
                 {
                     std::string filename = "resources/test/test.lql";
+                    logger<ROOT>::info("explored file ", filename);
                     lql_scanner scan;
-                    token_maker::tokens_type tokens;
-                    cpl::scanner<LQL>::build_tokens<token_maker>(filename, tokens);
-
+                    std::vector<cpl::token<lqlconfig>> tokens;
+                    logger<ROOT>::info("begin scanning");
+                    cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
+                    logger<ROOT>::info("end scanning");
                     for(const auto & token : tokens)
-                        logger<scanner_test>::debug((long) token.id, ' ', token.value);
-
-                    return true;
+                        logger<scanner_test>::debug((long)token.symbol_id(), ' ', token.value());
                 }
 
         };

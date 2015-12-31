@@ -133,25 +133,29 @@ namespace brain
 
             /// Constructor by copy cref
             property(
-                const property& other):
-                m_value(other.m_value),
-                on_change(other.on_change)
-            {
-            }
+                const property&) = default;
 
 
             /// Constructor by copy cref
             property(
-                property && other):
-                m_value(std::move(other.m_value)),
-                on_change(std::move(other.on_change))
-            {
-            }
+                property &&) = default;
 
 
             /// Default destructor
             ~property() = default;
 
+
+        public:
+            /// Default copy
+            /// operator=
+            property& operator=(
+                const property&) = default;
+
+
+            /// Default move
+            /// operator=
+            property& operator=(
+                property &&) = default;
 
         public:
             /// Getter on ref
@@ -709,9 +713,9 @@ namespace brain
     };
 
 
-    
+
     /// TODO class ochange
-    
+
 
 
     /// TODO getset

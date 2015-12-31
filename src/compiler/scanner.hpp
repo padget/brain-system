@@ -35,7 +35,7 @@ namespace brain
                 template<typename token_maker_t>
                 static void build_tokens(
                     const std::string& filename,
-                    typename token_maker_t::tokens_type& tokens)
+                    std::vector<token<config_t>>& tokens)
                 {
                     token_maker_t maker;
                     maker(filename, tokens);

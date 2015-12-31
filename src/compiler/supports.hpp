@@ -134,7 +134,7 @@ namespace brain
 
 
             /// Static standart regex
-            static const std::regex regex_std;
+            static const std::basic_regex<char_<config_t>> regex_std;
         };
 
 
@@ -151,8 +151,8 @@ namespace brain
         template < typename config_t,
                  enum_<config_t> _id,
                  const meta::basic_string<char_<config_t>>& _regex >
-        const std::regex terminal<config_t, _id, _regex>::regex_std
-        { terminal<config_t, _id, _regex>::regex };
+        const std::basic_regex<char_<config_t>> terminal<config_t, _id, _regex>::regex_std
+        {terminal<config_t, _id, _regex>::regex.get()};
 
 
         /// Operator that
@@ -295,7 +295,7 @@ namespace brain
         /// object that contains
         /// the result of the
         /// source scanning.
-        template < typename config_t>
+        template <typename config_t>
         class token:
             object
         {
@@ -377,7 +377,7 @@ namespace brain
         /// Builds a token given
         /// that an id and a
         /// value
-        template < typename config_t>
+        template <typename config_t>
         auto make_token(
             enum_<config_t> id,
             const std::basic_string<char_<config_t>>& value =
@@ -390,7 +390,7 @@ namespace brain
         /// Replaces the id and
         /// value of res by new
         /// value and id
-        template < typename config_t>
+        template <typename config_t>
         void make_token(
             token<config_t>& res,
             enum_<config_t> id,
@@ -405,7 +405,7 @@ namespace brain
         /// Node is a translation
         /// of tokens into a tree
         /// given that a grammar
-        template < typename config_t>
+        template <typename config_t>
         class node:
             public token<config_t>
         {
