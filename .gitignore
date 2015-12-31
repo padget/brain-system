@@ -1,3 +1,7 @@
 Debug/
 Release/
 brain.exe
+brain.workspace
+.codelite/
+.git/
+.clang/
