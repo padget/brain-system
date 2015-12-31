@@ -1706,17 +1706,17 @@ namespace brain
         /// Compile time string ///
         /// /////////////////// ///
 
-            
+
         /// Compile time string
         /// definition
         template<typename char_t>
         class basic_string
         {
-        private:
+            private:
                 /// Inner value
                 const char_t* const m_value;
-                
-                
+
+
                 /// Size of the m_value
                 const std::size_t m_size;
 
@@ -1732,8 +1732,8 @@ namespace brain
                 {
                 }
 
-                /// Overload of 
-                /// operator[] 
+                /// Overload of
+                /// operator[]
                 constexpr char_t operator[](
                     std::size_t n)
                 {
@@ -1741,8 +1741,8 @@ namespace brain
                            m_value[n] :
                            throw std::out_of_range("");
                 }
-                
-                
+
+
                 /// Returns the size
                 /// of m_value;
                 constexpr std::size_t size()
@@ -1750,15 +1750,15 @@ namespace brain
                     return m_size;
                 }
 
-                
-                /// Returns the 
+
+                /// Returns the
                 /// m_value pointer
                 constexpr const char_t* const get() const
                 {
                     return m_value;
                 }
         };
-        
+
 
         /// String alias for
         /// basic_string<char>
@@ -1770,14 +1770,14 @@ namespace brain
         /// basic_string<wchar_t>
         using wstring =
             basic_string<wchar_t>;
-            
-            
+
+
         /// WString alias for
         /// basic_string<char16_t>
         using u16string	 =
             basic_string<char16_t>;
-            
-            
+
+
         /// WString alias for
         /// basic_string<char32_t>
         using u32string =
@@ -1909,6 +1909,49 @@ namespace brain
         struct inherit:
             public types_t ...
         {
+        };
+
+
+        /// //////////////// ///
+        /// Runtime features ///
+        /// //////////////// ///
+
+
+        /// Foreach
+        template < typename types_t,
+                 template<typename> typename func_t,
+                 typename accum_t >
+        struct for_each_type;
+
+
+        template < typename first_t,
+                 typename next_t,
+                 typename ... types_t,
+                 template<typename> typename func_t ,
+                 typename accum_t >
+        struct for_each_type<list<first_t, next_t, types_t...>, func_t, accum_t>
+        {
+            template<typename ... args_t>
+            constexpr auto operator()(
+                args_t && ... args)
+            {
+                return accum_t()(func_t<first_t>()(args...),
+                                 for_each_type<list<next_t, types_t...>, func_t, accum_t>()(args...));
+            }
+        };
+
+
+        template < typename last_t,
+                 template<typename> typename func_t,
+                 typename accum_t >
+        struct for_each_type<list<last_t>, func_t, accum_t>
+        {
+            template<typename ... args_t>
+            constexpr auto operator()(
+                args_t && ... args)
+            {
+                return func_t<last_t>()(args...);
+            }
         };
 
 

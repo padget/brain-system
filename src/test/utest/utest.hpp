@@ -251,6 +251,41 @@ namespace brain
                     add_step(v_<std::is_same<filter_t<a_list, is_int>, list<int, int>>>, "");
                 }
             };
+
+
+            struct runtime_test :
+                public brain::test::basic_test
+            {
+                struct accum_test
+                {
+                    bool operator()(
+                        bool && l,
+                        bool && r)
+                    {
+                        return l or r;
+                    }
+                };
+
+                template<typename type_t>
+                struct func_test
+                {
+                    bool operator()()
+                    {
+                        return v_<std::is_same<type_t, int>>;
+                    }
+                };
+
+                virtual void test()
+                {
+                    using a_list =
+                        list<int, double, std::string>;
+
+                    add_step(for_each_type<a_list, func_test, accum_test>()(),
+                             "Test of for_each_type Runtime with true case");
+                    add_step(!for_each_type<list<double, std::string>, func_test, accum_test>()(),
+                             "Test of for_each_type Runtime with false case");
+                }
+            };
         }
     }
 
@@ -702,6 +737,7 @@ namespace brain
                     logger<ROOT>::info("begin scanning");
                     cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
                     logger<ROOT>::info("end scanning");
+
                     for(const auto & token : tokens)
                         logger<scanner_test>::debug((long)token.symbol_id(), ' ', token.value());
                 }

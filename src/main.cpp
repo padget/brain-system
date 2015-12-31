@@ -34,6 +34,7 @@ int main()
            meta::test::function_test,
            meta::test::math_test,
            meta::test::conditional_test,
+           meta::test::runtime_test,
            test::property_value_test,
            test::property_cvalue_test,
            test::property_pointer_test,

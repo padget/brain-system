@@ -105,8 +105,6 @@ C:\users\benjamin\projets\code_lite_w\brain
         <VirtualDirectory Name="utest">
           <File Name="src/test/utest/utest.hpp"/>
         </VirtualDirectory>
-        <File Name="src/test/Socket.cpp" ExcludeProjConfig="Debug;Release"/>
-        <File Name="src/test/Socket.hpp"/>
       </VirtualDirectory>
     </VirtualDirectory>
   </VirtualDirectory>

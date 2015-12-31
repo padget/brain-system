@@ -22,7 +22,7 @@ namespace brain
             /// expression between
             /// begin and end. Stores
             /// the result in m
-            template < typename terminal_t,
+            /*template < typename terminal_t,
                      typename next_t,
                      typename ... other_t >
             bool find_match(
@@ -35,7 +35,7 @@ namespace brain
                        (begin, end, m, max_match)
                        or find_match<next_t, other_t...>
                        (begin, end, m, max_match);
-            }
+            }*/
 
 
             /// Specialisation for find_match
@@ -112,29 +112,46 @@ namespace brain
                     /// and store the result
                     /// into max_match and
                     /// into nothing_found
-                    bool && nothing_found =
-                        ! find_match<terminals_t...>(buffer_begin,
-                                                     buffer_end,
-                                                     m,
-                                                     max_match);
+                    /* bool && nothing_found =
+                         ! find_match<terminals_t...>(buffer_begin,
+                                                      buffer_end,
+                                                      m,
+                                                      max_match);
+                    */
+                    using terminals =
+                        meta::list<terminals_t...>;
 
-                    /// If a match is found
+                    using find_match_loop =
+                        meta::for_each_type <
+                        terminals,
+                        find_match,
+                        std::logical_or >;
+
+                    bool && nothing_found =
+                        ! find_match_loop()(buffer_begin,
+                                            buffer_end,
+                                            m,
+                                            max_match);
+
+                    /// If no match is found
                     /// and max_match not empty
                     /// then
-                    if(not nothing_found and /// WARN not nothing_found or nothing_found
+                    if(nothing_found and /// WARN not nothing_found or nothing_found
                             not max_match.value().empty())
                     {
                         /// The max_match is added
                         /// to the tokens vector
                         tokens.push_back(max_match);
+
                         /// The buffer_begin
                         /// becomes the predecessor
                         /// of buffer_end
                         buffer_begin = std::prev(buffer_end);
+
                         /// Finally the max_match
                         /// is reinitialized with
                         /// a default token
-                        max_match    = make_token<config_t>(enum_<config_t>::ignored);
+                        max_match = make_token<config_t>(enum_<config_t>::ignored);
                     }
 
                     /// Else the buffer_end
@@ -171,9 +188,6 @@ namespace brain
             }
         };
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--// NODE MANANGER /--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
 
         template < typename config_t,
                  typename symbol_list_t,
