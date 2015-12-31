@@ -46,39 +46,13 @@ namespace brain
             typename type_t::enum_type;
 
 
-        /// An id_type is
-        /// an object that
-        /// has the id member
-        template < typename config_t,
-                 enum_<config_t> _id >
-        struct id_type
-        {
-            /// Effective id
-            /// of id_type
-            static constexpr enum_<config_t> id {_id};
-
-
-            /// Alias for
-            /// config_t
-            using config_type =
-                config_t;
-        };
-
-
-        /// Static declaration of
-        /// id from id_type template
-        template < typename config_t,
-                 enum_<config_t> _id >
-        constexpr enum_<config_t> id_type<config_t, _id>::id;
-
-
         /// id_ operator
         /// to recover the
         /// id member of the
         /// id_t type
         template<typename id_t>
-        auto id_ =
-            id_t::id;
+        constexpr enum_<config_<id_t> > id_ =
+            id_t::symbol_id;
 
 
         /// A symbol represents
@@ -93,9 +67,11 @@ namespace brain
         template < typename config_t, /// Type of the id
                  enum_<config_t> _id, /// Id of the symbol
                  bool b_is_terminal > /// True if the symbol is a terminal
-        struct symbol:
-            public id_type<config_t, _id>
+        struct symbol
         {
+            using config_type =
+                config_t;
+            static constexpr enum_<config_t> symbol_id {_id};
             /// Static boolean
             /// that identifies
             /// if the symbol is
@@ -103,6 +79,12 @@ namespace brain
             /// or not.
             static constexpr bool is_terminal {b_is_terminal};
         };
+
+
+        template < typename config_t,
+                 enum_<config_t> _id,
+                 bool b_is_terminal >
+        constexpr enum_<config_t> symbol<config_t, _id, b_is_terminal>::symbol_id;
 
 
         /// Static initialization
@@ -213,17 +195,17 @@ namespace brain
         /// by the production and
         /// a list of symbols that
         /// defines the production
-        template < typename config_t,
-                 production_type _type,
+        template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
-        struct production:
-            public id_type<config_t, symbol_t::id>
+        struct production
         {
+            static constexpr enum_<config_<symbol_t>> symbol_id {id_<symbol_t>};
+
             /// Alias for
             /// config_t
             using config_type =
-                config_t;
+                config_<symbol_t>;
 
 
             /// Static type of
@@ -245,15 +227,20 @@ namespace brain
                 meta::list<symbols_t...>;
         };
 
+        template < production_type _type,
+                 typename symbol_t,
+                 typename ... symbols_t >
+        constexpr  enum_<config_<symbol_t> >
+        production<_type, symbol_t, symbols_t...>::symbol_id;
+
 
         /// Static initialization
         /// member type
-        template < typename config_t,
-                 production_type _type,
+        template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
         constexpr production_type
-        production<config_t, _type, symbol_t, symbols_t...>::type;
+        production<_type, symbol_t, symbols_t...>::type;
 
 
         /// Definition of a

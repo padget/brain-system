@@ -711,9 +711,9 @@ namespace brain
         using lql_expressions_nt = cpl::non_terminal<lqlconfig, LQL::expressions>;
         using lql_component_nt   = cpl::non_terminal<lqlconfig, LQL::component>;
 
-        using lql_component   = cpl::production<lqlconfig, cpl::production_type::OR, lql_component_nt, lql_number_t, lql_string_t, lql_expressions_nt>;
-        using lql_expression  = cpl::production<lqlconfig, cpl::production_type::AND, lql_expression_nt, lql_lbracket_t, lql_name_t, lql_component_nt, lql_rbracket_t>;
-        using lql_expressions = cpl::production<lqlconfig, cpl::production_type::LIST, lql_expressions_nt, lql_expression_nt>;
+        using lql_component   = cpl::production<cpl::production_type::OR, lql_component_nt, lql_number_t, lql_string_t, lql_expressions_nt>;
+        using lql_expression  = cpl::production<cpl::production_type::AND, lql_expression_nt, lql_lbracket_t, lql_name_t, lql_component_nt, lql_rbracket_t>;
+        using lql_expressions = cpl::production<cpl::production_type::LIST, lql_expressions_nt, lql_expression_nt>;
 
         using grammar = cpl::grammar<lqlconfig, lql_expressions, lql_component, lql_expression, lql_expressions>;
         using token_maker = cpl::token_maker<lqlconfig, lql_name_t, lql_string_t, lql_ignored_t, lql_number_t, lql_lbracket_t, lql_rbracket_t>;
@@ -763,33 +763,33 @@ namespace brain
             }
 
         };
-        /*
-                              struct tree_maker_test :
-                                  public basic_test
-                              {
-                                  virtual bool test()
-                                  {
-                                      cpl::node<LQL> n {LQL::number, "12"};
 
-                                      logger<LQL>::debug(typeid(cpl::terminal_object_maker<LQL, lql_number_t>()(n)).name());
+        /*                 struct tree_maker_test :
+                             public basic_test
+                         {
+                             virtual bool test()
+                             {
+                                 cpl::node<LQL> n {LQL::number, "12"};
+
+                                 logger<LQL>::debug(typeid(cpl::terminal_object_maker<LQL, lql_number_t>()(n)).name());
 
 
 
-                                      cpl::node<LQL> open {LQL::lbracket, "("};
-                                      cpl::node<LQL> num {LQL::number, "12"};
-                                      cpl::node<LQL> nam {LQL::name, "a_name"};
-                                      cpl::node<LQL> close {LQL::rbracket, ")"};
-                                      cpl::node<LQL> mother{LQL::expression, {open, nam, num, close}};
+                                 cpl::node<LQL> open {LQL::lbracket, "("};
+                                 cpl::node<LQL> num {LQL::number, "12"};
+                                 cpl::node<LQL> nam {LQL::name, "a_name"};
+                                 cpl::node<LQL> close {LQL::rbracket, ")"};
+                                 cpl::node<LQL> mother{LQL::expression, {open, nam, num, close}};
 
-                                      cpl::node_displayer<LQL>()(mother);
+                                 cpl::node_displayer<LQL>()(mother);
 
-                                      cpl::nonterminal_object_maker<LQL, lql_expression>()(mother);
+                                 cpl::nonterminal_object_maker<LQL, lql_expression>()(mother);
 
-                                      return true;
-                                  }
-                              };
+                                 return true;
+                             }
+                         };
 
-                        }*/
+                   }*/
     }
 }
 
