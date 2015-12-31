@@ -16,60 +16,40 @@ namespace brain
                  typename ... terminals_t >
         struct token_maker
         {
-            /// Returns true if
-            /// terminal_t regex
-            /// matches with an
-            /// expression between
-            /// begin and end. Stores
-            /// the result in m
-            /*template < typename terminal_t,
-                     typename next_t,
-                     typename ... other_t >
-            bool find_match(
-                std::string::const_iterator& begin,
-                std::string::const_iterator& end,
-                std::smatch& m,
-                token<config_t>& max_match)
-            {
-                return find_match<terminal_t>
-                       (begin, end, m, max_match)
-                       or find_match<next_t, other_t...>
-                       (begin, end, m, max_match);
-            }*/
-
-
             /// Specialisation for find_match
             /// method for one terminal_t
             template <typename terminal_t>
-            bool find_match(
-                std::string::const_iterator& begin,
-                std::string::const_iterator& end,
-                std::smatch& m,
-                token<config_t>& max_match)
+            struct find_match
             {
-                /// If a match is found
-                /// and if the max match
-                /// length is less than
-                /// the found match, the
-                /// current match become
-                /// the max match and true
-                /// is returned
-                if(std::regex_match(begin, end, m, terminal_t::regex_std)
-                        and max_match.value().length() < m.str().length())
+                bool operator()(
+                    std::string::const_iterator& begin,
+                    std::string::const_iterator& end,
+                    std::smatch& m,
+                    token<config_t>& max_match)
                 {
-                    make_token(max_match,
-                               terminal_t::id,
-                               std::move(m.str()));
+                    /// If a match is found
+                    /// and if the max match
+                    /// length is less than
+                    /// the found match, the
+                    /// current match become
+                    /// the max match and true
+                    /// is returned
+                    if(std::regex_match(begin, end, m, terminal_t::regex_std)
+                            and max_match.value().length() < m.str().length())
+                    {
+                        make_token(max_match,
+                                   terminal_t::id,
+                                   std::move(m.str()));
 
-                    return true;
+                        return true;
+                    }
+
+                    /// Else false is
+                    /// returned
+                    else
+                        return false;
                 }
-
-                /// Else false is
-                /// returned
-                else
-                    return false;
-            }
-
+            };
 
             /// Fill the vector of
             /// tokens by analysing
@@ -108,25 +88,20 @@ namespace brain
                 /// not equals to end ...
                 while(buffer_end != end)
                 {
-                    /// Find existing matches
-                    /// and store the result
-                    /// into max_match and
-                    /// into nothing_found
-                    /* bool && nothing_found =
-                         ! find_match<terminals_t...>(buffer_begin,
-                                                      buffer_end,
-                                                      m,
-                                                      max_match);
-                    */
+
                     using terminals =
                         meta::list<terminals_t...>;
 
                     using find_match_loop =
-                        meta::for_each_type <
+                        meta::loop_rt <
                         terminals,
                         find_match,
-                        std::logical_or >;
+                        std::logical_or<bool> >;
 
+                    /// Find existing matches
+                    /// and store the result
+                    /// into max_match and
+                    /// into nothing_found
                     bool && nothing_found =
                         ! find_match_loop()(buffer_begin,
                                             buffer_end,
@@ -253,7 +228,10 @@ namespace brain
                 ids_equal_predicate<symbol_t >>;
 
 
-            ///
+            /// Analsye the current
+            /// symbol by distinguing
+            /// the terminal and the
+            /// non terminals
             template <typename iterator_t>
             void operator()(
                 iterator_t& iter,
@@ -333,11 +311,11 @@ namespace brain
         template < typename config_t,
                  typename production_t,
                  typename productions_list_t,
-                 size_t _idx = production_t::symbols_list::last_idx >
+                 size_t _idx = meta::size_<typename production_t::symbols_list> >
         struct and_analyser
         {
             using symbol_t =
-                meta::at_c < production_t::symbols_list::last_idx - _idx, typename production_t::symbols_list >;
+                meta::at_c < meta::size_<typename production_t::symbols_list> - _idx, typename production_t::symbols_list >;
 
             template <typename iterator_t>
             void operator()(
@@ -377,7 +355,7 @@ namespace brain
         struct and_analyser<config_t, production_t, productions_list_t, 0>
         {
             using symbol_t =
-                meta::at_c<production_t::symbols_list::last_idx, typename production_t::symbols_list>;
+                meta::at_c<meta::size_<typename production_t::symbols_list>, typename production_t::symbols_list>;
 
             template <typename iterator_t>
             void operator()(
@@ -448,11 +426,11 @@ namespace brain
         template < typename config_t,
                  typename production_t,
                  typename productions_list_t,
-                 size_t _idx = production_t::symbols_list::last_idx >
+                 size_t _idx = meta::size_<typename production_t::symbols_list> >
         struct or_analyser
         {
             using symbol_t =
-                meta::at_c < production_t::symbols_list::last_idx - _idx, typename production_t::symbols_list >;
+                meta::at_c < meta::size_<typename production_t::symbols_list> - _idx, typename production_t::symbols_list >;
 
             template <typename iterator_t>
             void operator()(
@@ -476,7 +454,7 @@ namespace brain
         struct or_analyser<config_t, production_t, productions_list_t, 0>
         {
             using symbol_t =
-                meta::at_c<production_t::symbols_list::last_idx , typename production_t::symbols_list>;
+                meta::at_c<meta::size_<typename production_t::symbols_list> , typename production_t::symbols_list>;
 
             template <typename iterator_t>
             void operator()(
@@ -1061,9 +1039,9 @@ namespace brain
                                                   " ----");
 
                 logger<enum_<config_t>>::info(std::string(udec, ' '),
-                                              (long)n.id);
+                                              (long)n.symbol_id());
 
-                for(const auto & child : n.childs)
+                for(const auto & child : n.childs())
                     node_displayer()(child,
                                      udec + 3u);
 

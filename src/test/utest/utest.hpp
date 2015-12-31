@@ -280,10 +280,10 @@ namespace brain
                     using a_list =
                         list<int, double, std::string>;
 
-                    add_step(for_each_type<a_list, func_test, accum_test>()(),
-                             "Test of for_each_type Runtime with true case");
-                    add_step(!for_each_type<list<double, std::string>, func_test, accum_test>()(),
-                             "Test of for_each_type Runtime with false case");
+                    add_step(loop_rt<a_list, func_test, accum_test>()(),
+                             "Test of loop_rt Runtime with true case");
+                    add_step(!loop_rt<list<double, std::string>, func_test, accum_test>()(),
+                             "Test of loop_rt Runtime with false case");
                 }
             };
         }
@@ -743,54 +743,53 @@ namespace brain
                 }
 
         };
+
+        struct parser_test :
+            public basic_test
+        {
+            virtual void test()
+            {
+                std::string filename = "resources/test/test.lql";
+                lql_scanner scan;
+                std::vector<cpl::token<lqlconfig>> tokens;
+                cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
+
+                for(const auto & token : tokens)
+                    logger<scanner_test>::debug((long) token.symbol_id(), ' ', token.value);
+
+                node_maker::node_type node;
+                cpl::parser<grammar>::build_node<node_maker>(tokens, node);
+                cpl::node_displayer<lqlconfig>()(node);
+            }
+
+        };
         /*
-                      struct parser_test :
-                          public basic_test
-                      {
-                          virtual bool test()
-                          {
-                              std::string filename = "resources/test/test.lql";
-                              lql_scanner scan;
-                              token_maker::tokens_type tokens;
-                              cpl::scanner<LQL>::build_tokens<token_maker>(filename, tokens);
+                              struct tree_maker_test :
+                                  public basic_test
+                              {
+                                  virtual bool test()
+                                  {
+                                      cpl::node<LQL> n {LQL::number, "12"};
 
-                              for(const auto & token : tokens)
-                                  logger<scanner_test>::debug((long) token.id, ' ', token.value);
-
-                              node_maker::node_type node;
-                              cpl::parser<grammar>::build_node<node_maker>(tokens, node);
-                              cpl::node_displayer<LQL>()(node);
-                              return true;
-                          }
-
-                      };
-
-                      struct tree_maker_test :
-                          public basic_test
-                      {
-                          virtual bool test()
-                          {
-                              cpl::node<LQL> n {LQL::number, "12"};
-
-                              logger<LQL>::debug(typeid(cpl::terminal_object_maker<LQL, lql_number_t>()(n)).name());
+                                      logger<LQL>::debug(typeid(cpl::terminal_object_maker<LQL, lql_number_t>()(n)).name());
 
 
 
-                              cpl::node<LQL> open {LQL::lbracket, "("};
-                              cpl::node<LQL> num {LQL::number, "12"};
-                              cpl::node<LQL> nam {LQL::name, "a_name"};
-                              cpl::node<LQL> close {LQL::rbracket, ")"};
-                              cpl::node<LQL> mother{LQL::expression, {open, nam, num, close}};
+                                      cpl::node<LQL> open {LQL::lbracket, "("};
+                                      cpl::node<LQL> num {LQL::number, "12"};
+                                      cpl::node<LQL> nam {LQL::name, "a_name"};
+                                      cpl::node<LQL> close {LQL::rbracket, ")"};
+                                      cpl::node<LQL> mother{LQL::expression, {open, nam, num, close}};
 
-                              cpl::node_displayer<LQL>()(mother);
+                                      cpl::node_displayer<LQL>()(mother);
 
-                              cpl::nonterminal_object_maker<LQL, lql_expression>()(mother);
+                                      cpl::nonterminal_object_maker<LQL, lql_expression>()(mother);
 
-                              return true;
-                          }
-                      };
+                                      return true;
+                                  }
+                              };
 
-                }*/
+                        }*/
     }
 }
 

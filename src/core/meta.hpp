@@ -1921,7 +1921,7 @@ namespace brain
         template < typename types_t,
                  template<typename> typename func_t,
                  typename accum_t >
-        struct for_each_type;
+        struct loop_rt;
 
 
         template < typename first_t,
@@ -1929,14 +1929,14 @@ namespace brain
                  typename ... types_t,
                  template<typename> typename func_t ,
                  typename accum_t >
-        struct for_each_type<list<first_t, next_t, types_t...>, func_t, accum_t>
+        struct loop_rt<list<first_t, next_t, types_t...>, func_t, accum_t>
         {
             template<typename ... args_t>
             constexpr auto operator()(
                 args_t && ... args)
             {
                 return accum_t()(func_t<first_t>()(args...),
-                                 for_each_type<list<next_t, types_t...>, func_t, accum_t>()(args...));
+                                 loop_rt<list<next_t, types_t...>, func_t, accum_t>()(args...));
             }
         };
 
@@ -1944,7 +1944,7 @@ namespace brain
         template < typename last_t,
                  template<typename> typename func_t,
                  typename accum_t >
-        struct for_each_type<list<last_t>, func_t, accum_t>
+        struct loop_rt<list<last_t>, func_t, accum_t>
         {
             template<typename ... args_t>
             constexpr auto operator()(

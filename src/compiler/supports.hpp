@@ -55,7 +55,7 @@ namespace brain
         {
             /// Effective id
             /// of id_type
-            static enum_<config_t> id;
+            static constexpr enum_<config_t> id {_id};
 
 
             /// Alias for
@@ -69,7 +69,7 @@ namespace brain
         /// id from id_type template
         template < typename config_t,
                  enum_<config_t> _id >
-        enum_<config_t> id_type<config_t, _id>::id {_id};
+        constexpr enum_<config_t> id_type<config_t, _id>::id;
 
 
         /// id_ operator
