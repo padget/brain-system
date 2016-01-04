@@ -26,7 +26,6 @@ using namespace std;
 /// C++ compiler.
 int main()
 {
-    
     launch < test::test_suite < meta::test::member_test,
            meta::test::literal_test,
            meta::test::constkw_test,
@@ -39,16 +38,17 @@ int main()
            test::property_cvalue_test,
            test::property_pointer_test,
            test::object_test,
-           test::marshalling_test, 
-           test::system_test, 
-           test::scanner_test/*,
-          test::reference_test,
-          test::system_test,
-          test::smart_ptr_test,
-          test::scanner_test,
-          test::parser_test,
+           test::marshalling_test,
+           test::system_test,
+           test::scanner_test,
+           test::parser_test/*,
+            test::reference_test,
+            test::system_test,
+            test::smart_ptr_test,
+            test::scanner_test,
+            test::parser_test,
 
-   test::tree_maker_test */>> ();
+     test::tree_maker_test */ >> ();
 
     return (int) exitcode::WELL;
 }

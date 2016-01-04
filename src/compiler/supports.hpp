@@ -51,8 +51,8 @@ namespace brain
         /// id member of the
         /// id_t type
         template<typename id_t>
-        constexpr enum_<config_<id_t> > id_ =
-            id_t::symbol_id;
+        constexpr enum_<config_<id_t>> id_ =
+                                        id_t::symbol_id;
 
 
         /// A symbol represents
@@ -79,6 +79,11 @@ namespace brain
             /// or not.
             static constexpr bool is_terminal {b_is_terminal};
         };
+
+
+        template<typename symbol_t>
+        using is_terminal_t =
+            meta::bool_t<symbol_t::is_terminal>;
 
 
         template < typename config_t,
@@ -230,8 +235,8 @@ namespace brain
         template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
-        constexpr  enum_<config_<symbol_t> >
-        production<_type, symbol_t, symbols_t...>::symbol_id;
+        constexpr  enum_<config_<symbol_t>>
+                                         production<_type, symbol_t, symbols_t...>::symbol_id;
 
 
         /// Static initialization
@@ -454,6 +459,34 @@ namespace brain
                 node& operator=(
                     const node&) = default;
         };
+
+
+        /// Builds a token given
+        /// that an id and a
+        /// value
+        template <typename config_t>
+        auto make_node(
+            enum_<config_t> id,
+            const std::basic_string<char_<config_t>>& value =
+                std::basic_string<char_<config_t>>())
+        {
+            return node<config_t> {id, value};
+        }
+
+
+        /// Replaces the id and
+        /// value of res by new
+        /// value and id
+        template <typename config_t>
+        void make_node(
+            node<config_t>& res,
+            enum_<config_t> id,
+            const std::basic_string<char_<config_t>>& value =
+                std::basic_string<char_<config_t>>())
+        {
+            make_token(res, id, value);
+        }
+
     }
 }
 

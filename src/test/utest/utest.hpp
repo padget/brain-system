@@ -712,12 +712,12 @@ namespace brain
         using lql_component_nt   = cpl::non_terminal<lqlconfig, LQL::component>;
 
         using lql_component   = cpl::production<cpl::production_type::OR, lql_component_nt, lql_number_t, lql_string_t, lql_expressions_nt>;
-        using lql_expression  = cpl::production<cpl::production_type::AND, lql_expression_nt, lql_lbracket_t, lql_name_t, lql_component_nt, lql_rbracket_t>;
+        using lql_expression  = cpl::production <cpl::production_type::AND, lql_expression_nt, lql_lbracket_t, lql_name_t, lql_component_nt, lql_rbracket_t>;
         using lql_expressions = cpl::production<cpl::production_type::LIST, lql_expressions_nt, lql_expression_nt>;
 
-        using grammar = cpl::grammar<lqlconfig, lql_expressions, lql_component, lql_expression, lql_expressions>;
+        using grammar = cpl::grammar<lqlconfig, lql_expressions, lql_expression, lql_expressions, lql_component>;
         using token_maker = cpl::token_maker<lqlconfig, lql_name_t, lql_string_t, lql_ignored_t, lql_number_t, lql_lbracket_t, lql_rbracket_t>;
-        using node_maker = cpl::node_maker<lqlconfig, grammar::root_production_type, grammar::productions_list>;
+        using node_maker = cpl::node_maker<grammar>;
         using lql_scanner = cpl::scanner<lqlconfig>;
         using lql_parser = cpl::parser<grammar>;
 
@@ -747,6 +747,10 @@ namespace brain
         struct parser_test :
             public basic_test
         {
+            template<typename type_t>
+            using predicate =
+                cpl::node_maker<grammar>::ids_equal_predicate<type_t>;
+
             virtual void test()
             {
                 std::string filename = "resources/test/test.lql";
@@ -755,7 +759,7 @@ namespace brain
                 cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
 
                 for(const auto & token : tokens)
-                    logger<scanner_test>::debug((long) token.symbol_id(), ' ', token.value);
+                    logger<scanner_test>::debug((long) token.symbol_id(), ' ', token.value());
 
                 node_maker::node_type node;
                 cpl::parser<grammar>::build_node<node_maker>(tokens, node);

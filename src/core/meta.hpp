@@ -879,7 +879,8 @@ namespace brain
                  typename current_t >
         struct at_t_<target_t, current_t, list<>>
         {
-            using type = nil;
+            using type =
+                nil;
         };
 
 
@@ -1216,6 +1217,9 @@ namespace brain
                 unsigned_t<0>,
                 concat_t<if_t <r_<predicate_t, types_t>, list<types_t>, list<>>...>
                 >;
+
+            static_assert(!v_<std::is_same<nil, type>>,
+                          "the type is equals to nil !! ");
         };
 
 
@@ -1917,13 +1921,25 @@ namespace brain
         /// //////////////// ///
 
 
+
+        template<typename type_t>
+        struct neutral_accumulator
+        {
+            void operator()(
+                type_t && l,
+                type_t && r)
+            {
+            }
+        };
+
         /// Foreach
         template < typename types_t,
                  template<typename> typename func_t,
-                 typename accum_t >
+                 typename accum_t = void >
         struct loop_rt;
 
 
+        /// Foreach
         template < typename first_t,
                  typename next_t,
                  typename ... types_t,
@@ -1941,6 +1957,7 @@ namespace brain
         };
 
 
+        ///
         template < typename last_t,
                  template<typename> typename func_t,
                  typename accum_t >
@@ -1955,8 +1972,37 @@ namespace brain
         };
 
 
+        /// Foreach void
+        /// specialization
+        template < typename first_t,
+                 typename next_t,
+                 typename ... types_t,
+                 template<typename> typename func_t >
+        struct loop_rt<list<first_t, next_t, types_t...>, func_t, void>
+        {
+            template<typename ... args_t>
+            constexpr void operator()(
+                args_t && ... args)
+            {
+                func_t<first_t>()(args...);
+                loop_rt<list<next_t, types_t...>, func_t, void>()(args...);
+            }
+        };
 
 
+        /// Foreach void
+        /// specialization
+        template < typename last_t,
+                 template<typename> typename func_t >
+        struct loop_rt<list<last_t>, func_t, void>
+        {
+            template<typename ... args_t>
+            constexpr void operator()(
+                args_t && ... args)
+            {
+                func_t<last_t>()(args...);
+            }
+        };
     }
 }
 
