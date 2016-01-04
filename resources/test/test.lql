@@ -1,1 +1,9 @@
-(person(name 'benjamin'))
+(person
+ (name 'benjamin')
+ (prenom 'mathieu')
+ (adresse
+  (rue  '8 avenue Général Champon')
+  (ville 'Grenoble')
+  (Pays 'France')
+ )
+)

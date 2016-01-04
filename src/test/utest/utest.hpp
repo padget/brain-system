@@ -757,10 +757,6 @@ namespace brain
                 lql_scanner scan;
                 std::vector<cpl::token<lqlconfig>> tokens;
                 cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
-
-                for(const auto & token : tokens)
-                    logger<scanner_test>::debug((long) token.symbol_id(), ' ', token.value());
-
                 node_maker::node_type node;
                 cpl::parser<grammar>::build_node<node_maker>(tokens, node);
                 cpl::node_displayer<lqlconfig>()(node);

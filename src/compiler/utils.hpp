@@ -54,6 +54,7 @@ namespace brain
                 }
             };
 
+
             /// Fill the vector of
             /// tokens by analysing
             /// of the stream
@@ -260,11 +261,12 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<symbol_t>>& res)
+                    node<config_<symbol_t>>& res,
+                    unsigned udec = 0u)
                 {
                     /// it is the
                     /// production_analyser
-                    production_analyser<production_t>()(iter, res);
+                    production_analyser<production_t>()(iter, res, udec);
                 }
             };
 
@@ -282,14 +284,27 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<symbol_t>>& res)
+                    node<config_<symbol_t>>& res,
+                    unsigned udec = 0u)
                 {
 
                     /// the symbol_t is
                     /// a terminal, the
                     /// terminal_analyser
                     /// is triggered
-                    terminal_analyser<symbol_t>()(iter, res);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "begin terminal ",
+                                        (long)id_<symbol_t>,
+                                        " value : '",
+                                        (*iter).value(),
+                                        "'");
+                    terminal_analyser<symbol_t>()(iter, res, udec);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "end terminal ",
+                                        (long)id_<symbol_t>,
+                                        " value : '",
+                                        (*iter).value(),
+                                        "'");
                 }
             };
 
@@ -310,9 +325,11 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<symbol_t>>& res)
+                    node<config_<symbol_t>>& res,
+                    unsigned udec = 0u)
                 {
-                    logger<ROOT>::debug("Examining of ",
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "Examining of ",
                                         (long)(*iter).symbol_id(),
                                         " vs theorical ",
                                         (long)id_<symbol_t>);
@@ -326,19 +343,19 @@ namespace brain
                     /// a node is built
                     if((*iter).symbol_id() == id_<symbol_t>)
                     {
-                        logger<ROOT>::debug("Build terminal node : ",
-                                            (long)(*iter).symbol_id(),
-                                            (*iter).value());
+                        logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                            "incremental terminal");
                         make_node(res, id_<symbol_t>, (*iter).value());
                         iter++;
-                        logger<ROOT>::debug("future Build terminal node : ",
-                                            (long)(*iter).symbol_id(),
-                                            (*iter).value());
-
                     }
 
                     else
+                    {
                         make_node(res, enum_<config_<symbol_t>>::bullshit);
+                        logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                            "terminal bullshit");
+
+                    }
                 }
             };
 
@@ -356,14 +373,12 @@ namespace brain
                     template <typename iterator_t>
                     void operator()(
                         iterator_t& iter,
-                        node<config_<production_t>>& res)
+                        node<config_<production_t>>& res,
+                        unsigned udec = 0u)
                     {
                         node<config_<production_t>> potential_child;
-                        symbol_analyser<symbol_t>()(iter, potential_child);
-
-
-                        if(potential_child)
-                            res.childs().push_back(potential_child);
+                        symbol_analyser<symbol_t>()(iter, potential_child, udec + 1);
+                        res.childs().push_back(potential_child);
                     }
                 };
 
@@ -375,9 +390,30 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res)
+                    node<config_<production_t>>& res,
+                    unsigned udec = 0u)
                 {
-                    loop_rt()(iter, res);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "begin and ",
+                                        (long)id_<production_t>);
+                    loop_rt()(iter, res, udec);
+                    bool no_bullshit {true};
+
+                    if(!res.childs().empty())
+                    {
+                        logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                            "Childs not empty");
+
+                        for(const auto & child : res.childs())
+                            if(!child) no_bullshit = false;
+
+                        if(no_bullshit)
+                            make_node(res, id_<production_t>);
+                    }
+
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "end and ",
+                                        (long)id_<production_t>);
                 }
             };
 
@@ -397,16 +433,32 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res)
+                    node<config_<production_t>>& res,
+                    unsigned udec = 0u)
                 {
                     auto current =
                         iter;
                     make_node(res, id_<production_t>);
                     node<config_<production_t>> current_res {enum_<config_<production_t>>::bullshit};
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "begin list ",
+                                        (long)id_<production_t>);
 
                     do
                     {
-                        and_analyser<production_t>()(current, current_res);
+                        make_node(current_res,
+                                      enum_<config_<production_t>>::bullshit);
+                                      
+                        logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                            "list iteration ",
+                                            (*current).value());
+                        and_analyser<production_t>()(current, current_res, udec);
+
+                        logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                            "after list iteration ",
+                                            (*current).value(),
+                                            " current res : ", (long)current_res.symbol_id());
+
 
                         if(current_res)
                         {
@@ -415,6 +467,10 @@ namespace brain
                         }
                     }
                     while(current_res);
+
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "end list ",
+                                        (long)id_<production_t>);
                 }
             };
 
@@ -442,13 +498,14 @@ namespace brain
                     void operator()(
                         iterator_t& iter,
                         node<config_<production_t>>& res,
-                        bool& found)
+                        bool& found,
+                        unsigned udec = 0u)
                     {
                         if(not found)
                         {
                             node<config_<production_t>> potential_res;
 
-                            symbol_analyser<symbol_t>()(iter, potential_res);
+                            symbol_analyser<symbol_t>()(iter, potential_res, udec + 1);
 
                             if(potential_res)
                             {
@@ -467,10 +524,17 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res)
+                    node<config_<production_t>>& res,
+                    unsigned udec = 0u)
                 {
                     bool found {false};
-                    loop_rt()(iter, res, found);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "begin or ",
+                                        (long)id_<production_t>);
+                    loop_rt()(iter, res, found, udec);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '),
+                                        "end or ",
+                                        (long)id_<production_t>);
                 }
             };
 
@@ -495,20 +559,21 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res)
+                    node<config_<production_t>>& res,
+                    unsigned udec = 0u)
                 {
                     switch(production_t::type)
                     {
                         case production_type::AND:
-                            and_anl()(iter, res);
+                            and_anl()(iter, res, udec);
                             break;
 
                         case production_type::LIST:
-                            list_anl()(iter, res);
+                            list_anl()(iter, res, udec);
                             break;
 
                         case production_type::OR:
-                            or_anl()(iter, res);
+                            or_anl()(iter, res, udec);
                             break;
 
                         default:
