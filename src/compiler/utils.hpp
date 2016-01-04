@@ -341,7 +341,7 @@ namespace brain
                     /// the iterator is
                     /// incremented and
                     /// a node is built
-                    if((*iter).symbol_id() == id_<symbol_t>)
+                    if(iter != iterator_t() and (*iter).symbol_id() == id_<symbol_t>)
                     {
                         logger<ROOT>::debug(std::string(3 * udec, ' '),
                                             "incremental terminal");
@@ -354,8 +354,10 @@ namespace brain
                         make_node(res, enum_<config_<symbol_t>>::bullshit);
                         logger<ROOT>::debug(std::string(3 * udec, ' '),
                                             "terminal bullshit");
-
                     }
+
+                    if(iter == iterator_t())
+                        logger<ROOT>::info("ENDING");
                 }
             };
 
@@ -374,11 +376,20 @@ namespace brain
                     void operator()(
                         iterator_t& iter,
                         node<config_<production_t>>& res,
+                        bool& no_bullshit,
                         unsigned udec = 0u)
                     {
-                        node<config_<production_t>> potential_child;
-                        symbol_analyser<symbol_t>()(iter, potential_child, udec + 1);
-                        res.childs().push_back(potential_child);
+                        if(no_bullshit)
+                        {
+                            node<config_<production_t>> potential_child;
+                            symbol_analyser<symbol_t>()(iter, potential_child, udec + 1);
+
+                            if(potential_child)
+                                res.childs().push_back(potential_child);
+
+                            else
+                                no_bullshit = false;
+                        }
                     }
                 };
 
@@ -393,23 +404,20 @@ namespace brain
                     node<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
+                    bool no_bullshit {true};
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
                                         "begin and ",
                                         (long)id_<production_t>);
-                    loop_rt()(iter, res, udec);
-                    bool no_bullshit {true};
+                    loop_rt()(iter,
+                              res,
+                              no_bullshit,
+                              udec);
 
-                    if(!res.childs().empty())
-                    {
-                        logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                            "Childs not empty");
+                    if(!res.childs().empty() and no_bullshit)
+                        make_node(res, id_<production_t>);
 
-                        for(const auto & child : res.childs())
-                            if(!child) no_bullshit = false;
-
-                        if(no_bullshit)
-                            make_node(res, id_<production_t>);
-                    }
+                    else
+                        make_node(res, enum_<config_<production_t>>::bullshit);
 
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
                                         "end and ",
@@ -447,8 +455,8 @@ namespace brain
                     do
                     {
                         make_node(current_res,
-                                      enum_<config_<production_t>>::bullshit);
-                                      
+                                  enum_<config_<production_t>>::bullshit, {});
+
                         logger<ROOT>::debug(std::string(3 * udec, ' '),
                                             "list iteration ",
                                             (*current).value());
@@ -462,7 +470,7 @@ namespace brain
 
                         if(current_res)
                         {
-                            res.childs().push_back(current_res);
+                            res.childs().insert(res.childs().end(), current_res.childs().begin(), current_res.childs().end());
                             iter = current;
                         }
                     }
@@ -1052,7 +1060,8 @@ namespace brain
                                                   " ----");
 
                 logger<enum_<config_t>>::info(std::string(udec, ' '),
-                                              (long)n.symbol_id());
+                                              (long)n.symbol_id(),
+                                              " ", n.value());
 
                 for(const auto & child : n.childs())
                     node_displayer()(child,

@@ -493,6 +493,17 @@ namespace brain
             make_token(res, id, value);
         }
 
+
+        template<typename config_t>
+        void make_node(node<config_t>& res,
+                       enum_<config_t> id,
+                       const std::initializer_list<node<config_t>>& childs,
+                       const std::basic_string<char_<config_t>>& value =
+                           std::basic_string<char_<config_t>>())
+        {
+            make_token(res, id, value);
+            res.childs(childs);
+        }
     }
 }
 
