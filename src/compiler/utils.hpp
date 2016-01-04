@@ -152,7 +152,7 @@ namespace brain
                 /// identifies if
                 /// a token is
                 /// ignored or not
-                auto && is_ignored = [](auto && t)
+                auto && is_ignored = [](const auto & t)
                 {
                     return t.symbol_id() == enum_<config_t>::ignored;
                 };
@@ -163,10 +163,19 @@ namespace brain
                                             tokens.end(),
                                             is_ignored),
                              tokens.end());
+
+                logger<ROOT>::debug("tokens after erasing");
+
+                for(const auto & t : tokens)
+                    logger<ROOT>::debug("token : ",
+                                        (long)t.symbol_id(),
+                                        " ",
+                                        t.value());
             }
         };
 
 
+        ///
         template<typename grammar_t>
         struct node_maker
         {
@@ -275,6 +284,7 @@ namespace brain
                     iterator_t& iter,
                     node<config_<symbol_t>>& res)
                 {
+
                     /// the symbol_t is
                     /// a terminal, the
                     /// terminal_analyser
@@ -284,22 +294,47 @@ namespace brain
             };
 
 
-            ///
+            /// Analyse terminal
+            /// symbol. Don't work
+            /// on non terminal symbol
             template <typename symbol_t>
             struct terminal_analyser
             {
+
+                static_assert(meta::v_<is_terminal_t<symbol_t>>,
+                              "terminal_analyser : The symbol_t::is_terminal must be true");
+
+                /// Analyse a terminal
+                /// symbol and build
+                /// the corresponding node
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
                     node<config_<symbol_t>>& res)
                 {
-                    while((*iter).symbol_id() == enum_<config_<symbol_t>>::ignored)
-                        iter++;
+                    logger<ROOT>::debug("Examining of ",
+                                        (long)(*iter).symbol_id(),
+                                        " vs theorical ",
+                                        (long)id_<symbol_t>);
 
+                    /// If the current
+                    /// symbol_id is the
+                    /// same as the current
+                    /// analysed symbol_t
+                    /// the iterator is
+                    /// incremented and
+                    /// a node is built
                     if((*iter).symbol_id() == id_<symbol_t>)
                     {
-                        iter++;
+                        logger<ROOT>::debug("Build terminal node : ",
+                                            (long)(*iter).symbol_id(),
+                                            (*iter).value());
                         make_node(res, id_<symbol_t>, (*iter).value());
+                        iter++;
+                        logger<ROOT>::debug("future Build terminal node : ",
+                                            (long)(*iter).symbol_id(),
+                                            (*iter).value());
+
                     }
 
                     else
@@ -364,34 +399,22 @@ namespace brain
                     iterator_t& iter,
                     node<config_<production_t>>& res)
                 {
-                    try
+                    auto current =
+                        iter;
+                    make_node(res, id_<production_t>);
+                    node<config_<production_t>> current_res {enum_<config_<production_t>>::bullshit};
+
+                    do
                     {
-                        auto current =
-                            iter;
-                        make_node(res, id_<production_t>);
-                        std::cout << "COUCOU1" << std::endl;
-                        node<config_<production_t>> current_res {enum_<config_<production_t>>::bullshit};
-                        std::cout << "COUCOU2" << std::endl;
+                        and_analyser<production_t>()(current, current_res);
 
-                        do
+                        if(current_res)
                         {
-
-                            and_analyser<production_t>()(current, current_res);
-                            std::cout << "COUCOU3" << std::endl;
-
-                            node_displayer<config_<production_t>>()(current_res);
-
-                            if(current_res)
-                            {
-                                res.childs().push_back(current_res);
-                                iter = current;
-                            }
+                            res.childs().push_back(current_res);
+                            iter = current;
                         }
-                        while(current_res);
                     }
-
-                    catch(std::exception& e)
-                    {std::cout << e.what() << std::endl;}
+                    while(current_res);
                 }
             };
 
@@ -412,21 +435,27 @@ namespace brain
                     typename production_t::symbols_list;
 
 
-
                 template<typename symbol_t>
                 struct for_one_symbol_of_the_production
                 {
                     template <typename iterator_t>
                     void operator()(
                         iterator_t& iter,
-                        node<config_<production_t>>& res)
+                        node<config_<production_t>>& res,
+                        bool& found)
                     {
-                        node<config_<production_t>> potential_res;
-                        symbol_analyser<symbol_t>()(iter, potential_res);
+                        if(not found)
+                        {
+                            node<config_<production_t>> potential_res;
 
+                            symbol_analyser<symbol_t>()(iter, potential_res);
 
-                        if(potential_res)
-                            res = std::move(potential_res);
+                            if(potential_res)
+                            {
+                                found = true;
+                                res = std::move(potential_res);
+                            }
+                        }
                     }
                 };
 
@@ -440,7 +469,8 @@ namespace brain
                     iterator_t& iter,
                     node<config_<production_t>>& res)
                 {
-                    loop_rt()(iter, res);
+                    bool found {false};
+                    loop_rt()(iter, res, found);
                 }
             };
 
@@ -747,7 +777,7 @@ namespace brain
                 logger<enum_<config_t>>::trace("  ",
                                                static_cast<char>(_type),
                                                " --- ",
-                                               (long)symbol_t::id);
+                                               (long) symbol_t::id);
             }
         };
 

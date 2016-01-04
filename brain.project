@@ -56,7 +56,6 @@ C:\users\benjamin\projets\code_lite_w\brain
       </VirtualDirectory>
       <VirtualDirectory Name="test">
         <File Name="resources/test/test.lql"/>
-        <File Name="resources/test/test.cpl"/>
       </VirtualDirectory>
     </VirtualDirectory>
     <File Name="brain.cbp"/>

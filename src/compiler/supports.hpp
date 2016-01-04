@@ -81,11 +81,8 @@ namespace brain
         };
 
 
-        template<typename symbol_t>
-        using is_terminal_t =
-            meta::bool_t<symbol_t::is_terminal>;
-
-
+        /// Static initialisation
+        /// of symbol_id member
         template < typename config_t,
                  enum_<config_t> _id,
                  bool b_is_terminal >
@@ -100,6 +97,14 @@ namespace brain
                  enum_<config_t> _id,
                  bool b_is_terminal >
         constexpr bool symbol<config_t, _id, b_is_terminal>::is_terminal;
+
+
+        /// Return true_type
+        /// if the symbol_t is
+        /// marked as a terminal
+        template<typename symbol_t>
+        using is_terminal_t =
+            meta::bool_t<symbol_t::is_terminal>;
 
 
         /// A terminal is
@@ -139,7 +144,7 @@ namespace brain
                  enum_<config_t> _id,
                  const meta::basic_string<char_<config_t>>& _regex >
         const std::basic_regex<char_<config_t>> terminal<config_t, _id, _regex>::regex_std
-        {terminal<config_t, _id, _regex>::regex.get()};
+        { terminal<config_t, _id, _regex>::regex.get() };
 
 
         /// Operator that
@@ -232,11 +237,12 @@ namespace brain
                 meta::list<symbols_t...>;
         };
 
+
+        /// Static initialisation
         template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
-        constexpr  enum_<config_<symbol_t>>
-                                         production<_type, symbol_t, symbols_t...>::symbol_id;
+        constexpr  enum_<config_<symbol_t>> production<_type, symbol_t, symbols_t...>::symbol_id;
 
 
         /// Static initialization

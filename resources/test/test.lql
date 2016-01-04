@@ -1,5 +1,1 @@
-(person
- (name 'benjamin')
-
- (prenom 'Bertrand')
-)
+(person(name 'benjamin'))
