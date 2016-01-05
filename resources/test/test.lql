@@ -1,11 +1,6 @@
 (person
- (name 'benjamin')
- (prenom 'mathieu')
- (adresse
-  (rue  '8 avenue Général Champon')
-  (ville 'Grenoble')
-  (Pays 'France')
- )
+ (name 'fred')
+ (prenom 'mcgreggor')
 )
 (adresse
  (numerorue 4)

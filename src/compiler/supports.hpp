@@ -301,7 +301,7 @@ namespace brain
         /// member in type_t
         template<typename type_t>
         struct has_config_type_t_ < type_t,
-                meta::void_r<typename type_t::enum_type >>
+                meta::void_r<typename type_t::config_type >>
         {
             using type =
                 std::true_type;
@@ -531,7 +531,7 @@ namespace brain
             /// List of symbols
             /// that defines the
             /// production
-            using symbols_list =
+            using symbols_type =
                 meta::list<symbols_t...>;
         };
 
@@ -568,7 +568,8 @@ namespace brain
         /// if type_t::symbol_type
         /// exists
         template<typename type_t>
-        struct has_symbol_type_t_<type_t, meta::void_r<typename type_t::symbol_type>>
+        struct has_symbol_type_t_ < type_t,
+                meta::void_r<typename type_t::symbol_type >>
         {
             using type =
                 std::true_type;
@@ -598,7 +599,8 @@ namespace brain
         /// if type_t::symbols_type
         /// exists
         template<typename type_t>
-        struct has_symbols_type_t_<type_t, meta::void_r<typename type_t::symbols_type>>
+        struct has_symbols_type_t_ < type_t,
+                meta::void_r<typename type_t::symbols_type >>
         {
             using type =
                 std::true_type;
@@ -612,7 +614,29 @@ namespace brain
             meta::defer_t<has_symbols_type_t_, type_t>;
 
 
+        /// Returns true_type
+        /// if the type_t is
+        /// recognized as a
+        /// production
+        template<typename type_t>
+        using is_production_t =
+            meta::bool_t < meta::v_<has_config_type_t<type_t>>
+            and meta::v_<has_symbol_type_t<type_t>>
+            and meta::v_<has_symbols_type_t<type_t>> >;
 
+
+        /// Alias for member
+        /// root_production_type
+        template<typename grammar_t>
+        using root_ =
+            typename grammar_t::root_production_type;
+
+
+        /// Alias for member
+        /// productions_list
+        template<typename grammar_t>
+        using productions_ =
+            typename grammar_t::productions_list;
 
 
         /// Definition of a
@@ -646,22 +670,10 @@ namespace brain
             /// in this list
             using productions_list =
                 meta::list<production_t...>;
+
+            static_assert(meta::v_<is_production_t<root_production_type>>,
+                          "grammar : root_production_type must be a production");
         };
-
-
-        /// Alias for member
-        /// root_production_type
-        template<typename grammar_t>
-        using root_ =
-            typename grammar_t::root_production_type;
-
-
-        /// Alias for member
-        /// productions_list
-        template<typename grammar_t>
-        using productions_ =
-            typename grammar_t::productions_list;
-
 
 
         /// Factory that can

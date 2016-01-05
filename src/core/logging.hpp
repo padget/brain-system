@@ -416,29 +416,6 @@ namespace brain
 
     using ROOT =
         logging::ROOT;
-
-
-
-    namespace logging2
-    {
-        template < typename type_t,
-                 typename char_t >
-        class logger
-        {
-            public:
-                template < typename object_t,
-                         typename = std::enable_if_t<std::is_fundamental<object_t>::value >>
-                logger& operator <<(const object_t& _t)
-                {
-                    std::basic_string<char_t> ss;
-                    ss << _t;
-                    ss.str();
-                    return *this;
-                }
-        };
-    }
-
-
 }
 
 

@@ -177,15 +177,12 @@ namespace brain
         template<typename grammar_t>
         struct node_maker
         {
-
-            /// Type of node used
-            /// to
             using node_type =
                 node_<config_<grammar_t>>;
             using token_type =
                 token_<config_<grammar_t>>;
             using tokens_type =
-                std::vector<token_type>;
+                tokens_<config_<grammar_t>>;
             using productions_list =
                 productions_<grammar_t>;
 
@@ -203,12 +200,22 @@ namespace brain
                 meta::citerator_t<tokens_type> b =
                     tokens.cbegin();
 
+                /// If b is not the
+                /// end of the token
+                /// sequence the
+                /// analyse is triggered
                 if(b not_eq tokens.end())
                     production_analyser<root_<grammar_t>>()(b, res);
 
                 else
+                    /// Build a bullshit
                     node_factory::make_bullshit(res);
 
+                /// If after the analyse
+                /// b is not not the end
+                /// of the token sequence
+                /// a bullshit token is
+                /// built and returned
                 if(b not_eq tokens.end())
                     node_factory::make_bullshit(res);
 
@@ -221,15 +228,22 @@ namespace brain
             }
 
 
+            /// Declaration of the
+            /// symbol_analyser
             template < typename symbol_t,
-                     bool is_terminal  = meta::v_<is_terminal_t<symbol_t>> >
+                     bool is_terminal  =
+                     meta::v_<is_terminal_t<symbol_t>> >
             struct symbol_analyser;
 
 
+            /// Declaration of the
+            /// terminal_anlayser
             template <typename symbol_t>
             struct terminal_analyser;
 
 
+            /// Declaration of the
+            /// production_analyser
             template <typename production_t>
             struct production_analyser;
 
@@ -359,19 +373,23 @@ namespace brain
             };
 
 
-            /// Analase the production
+            /// Analyse the production
             /// that has a production_type
             /// equals to AND
             template <typename production_t>
             struct and_analyser
             {
                 using symbols =
-                    typename production_t::symbols_list;
+                    typename production_t::symbols_type;
 
-
+                /// Functor executed for
+                /// each symbol of the
+                /// production_t
                 template<typename symbol_t>
-                struct for_one_symbol_of_the_production
+                struct foreach_symbol
                 {
+                    /// Process for
+                    /// the symbol_t
                     template <typename iterator_t>
                     void operator()(
                         iterator_t& iter,
@@ -379,14 +397,30 @@ namespace brain
                         bool& no_bullshit,
                         unsigned udec = 0u)
                     {
+                        /// If no bullshit has
+                        /// been detected during
+                        /// the previous steps,
+                        /// then ...
                         if(no_bullshit)
                         {
+                            /// The potential child node
                             node_<config_<production_t>> potential_child;
+
+                            /// Triggers the analyse
+                            /// of the symbol_t
                             symbol_analyser<symbol_t>()(iter, potential_child, udec + 1);
 
+                            /// If the potential child
+                            /// is valid, it is added
+                            /// the childs sequence of
+                            /// the res node
                             if(potential_child)
                                 res.childs().push_back(potential_child);
 
+                            /// Else no_bullshit
+                            /// is tagged to false
+                            /// to by pass the next
+                            /// steps of the process
                             else
                                 no_bullshit = false;
                         }
@@ -395,69 +429,103 @@ namespace brain
 
 
                 using foreach_type =
-                    meta::foreach_type<symbols, for_one_symbol_of_the_production>;
+                    meta::foreach_type<symbols, foreach_symbol>;
 
 
+                /// Functor that launch
+                /// of the and analyse
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin and ", (long) id_<production_t>);
+
+                    /// The process is not began
+                    /// so no bullshit has been
+                    /// detected (=> true)
                     bool no_bullshit {true};
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "begin and ",
-                                        (long)id_<production_t>);
+
+                    /// Foreach symbol,
+                    /// the analyse is triggered
                     foreach_type()(iter, res, no_bullshit, udec);
 
+                    /// After the all analyses,
+                    /// if there is childs in
+                    /// res and there is no
+                    /// bullshit detected,
+                    /// the res is tagged
+                    /// with the id of the
+                    /// production_t
                     if(!res.childs().empty()
                             and no_bullshit)
                         node_factory::make(res, id_<production_t>);
 
+                    /// Else the res is
+                    /// tagged as bullshit
                     else
                         node_factory::make_bullshit(res);
-
 
                     logger<ROOT>::debug(std::string(3 * udec, ' '), "end and ", (long)id_<production_t>);
                 }
             };
 
 
-            /**
-             * @class list_analyser
-             * @author bmathieu
-             * @date 13/09/2015
-             * @file utils.hpp
-             * @brief Analyse a production of type LIST.
-             *
-             * Return always true because a list can be empty
-             */
+            /// Analyse the production
+            /// that has a production_type
+            /// equals to LIST
             template <typename production_t>
             struct list_analyser
             {
+                /// Functor that triggers
+                /// the list analyse
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
-                    auto current =
-                        iter;
-                    node_factory::make(res, id_<production_t>);
-                    node_<config_<production_t>> current_res {bullshit_<enum_<config_<production_t>>>};
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "begin list ",
-                                        (long)id_<production_t>);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin list ", (long)id_<production_t>);
 
+                    auto current = iter;
+
+                    /// Even if there is
+                    /// no element in the
+                    /// list, the res is
+                    /// tagged to id of
+                    /// the production_t
+                    node_factory::make(res, id_<production_t>);
+
+                    /// Initiates the current_res
+                    /// with a bullshit node
+                    node_<config_<production_t>> current_res
+                    { bullshit_<enum_<config_<production_t>>> };
+
+                    /// While the current_res
+                    /// is valid the process
+                    /// will be running
                     do
                     {
+                        /// A the beginning
+                        /// of the iteration
+                        /// the current_res
+                        /// is reinitialized
+                        /// with bullshit node
                         node_factory::make_bullshit(current_res);
 
-                        logger<ROOT>::debug(std::string(3 * udec, ' '), "list iteration ", (*current).value());
+                        /// Then, an and_analyse
+                        /// is triggered to process
+                        /// the production_t
                         and_analyser<production_t>()(current, current_res, udec);
-                        logger<ROOT>::debug(std::string(3 * udec, ' '), "after list iteration ", (*current).value(), " current res : ", (long)current_res.symbol_id());
 
-
+                        /// If the analyse is
+                        /// concluent, the iter
+                        /// is udpated with
+                        /// current and the all
+                        /// childs of current_res
+                        /// is added to the childs
+                        /// of the res node
                         if(current_res)
                         {
                             iter = current;
@@ -468,31 +536,24 @@ namespace brain
                     }
                     while(current_res);
 
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "end list ",
-                                        (long)id_<production_t>);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end list ", (long)id_<production_t>);
                 }
             };
 
-            /**
-             * @class and_analyser
-             * @author bmathieu
-             * @date 12/09/2015
-             * @file utils.hpp
-             * @brief Functor to analyse production of type AND.
-             *
-             * Return true if the type '_idx' (reversing loop) corresponds to the id
-             * of the given node id or one of the nexts.
-             */
+
+            /// Analyse the production
+            /// that has a production_type
+            /// equals to OR
             template <typename production_t>
             struct or_analyser
             {
                 using symbols =
-                    typename production_t::symbols_list;
+                    typename production_t::symbols_type;
 
 
+                /// HERE
                 template<typename symbol_t>
-                struct for_one_symbol_of_the_production
+                struct foreach_symbol
                 {
                     template <typename iterator_t>
                     void operator()(
@@ -518,7 +579,7 @@ namespace brain
 
 
                 using foreach_type =
-                    meta::foreach_type<symbols, for_one_symbol_of_the_production>;
+                    meta::foreach_type<symbols, foreach_symbol>;
 
 
                 template <typename iterator_t>
@@ -528,13 +589,9 @@ namespace brain
                     unsigned udec = 0u)
                 {
                     bool found {false};
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "begin or ",
-                                        (long)id_<production_t>);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin or ", (long)id_<production_t>);
                     foreach_type()(iter, res, found, udec);
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "end or ",
-                                        (long)id_<production_t>);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end or ", (long)id_<production_t>);
                 }
             };
 
