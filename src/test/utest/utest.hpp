@@ -280,10 +280,10 @@ namespace brain
                     using a_list =
                         list<int, double, std::string>;
 
-                    add_step(loop_rt<a_list, func_test, accum_test>()(),
-                             "Test of loop_rt Runtime with true case");
-                    add_step(!loop_rt<list<double, std::string>, func_test, accum_test>()(),
-                             "Test of loop_rt Runtime with false case");
+                    add_step(foreach_type<a_list, func_test, accum_test>()(),
+                             "Test of foreach_type Runtime with true case");
+                    add_step(!foreach_type<list<double, std::string>, func_test, accum_test>()(),
+                             "Test of foreach_type Runtime with false case");
                 }
             };
         }
@@ -733,7 +733,7 @@ namespace brain
                     std::string filename = "resources/test/test.lql";
                     logger<ROOT>::info("explored file ", filename);
                     lql_scanner scan;
-                    std::vector<cpl::token<lqlconfig>> tokens;
+                    cpl::tokens_<lqlconfig> tokens;
                     logger<ROOT>::info("begin scanning");
                     cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
                     logger<ROOT>::info("end scanning");
@@ -755,7 +755,7 @@ namespace brain
             {
                 std::string filename = "resources/test/test.lql";
                 lql_scanner scan;
-                std::vector<cpl::token<lqlconfig>> tokens;
+                cpl::tokens_<lqlconfig> tokens;
                 cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
                 node_maker::node_type node;
                 cpl::parser<grammar>::build_node<node_maker>(tokens, node);

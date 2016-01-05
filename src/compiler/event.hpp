@@ -32,8 +32,8 @@ namespace brain
             public sys::event
         {
                 property<std::string> filename;
-                property<std::vector<token<config_t>>> tokens;
-                property<std::tuple<bool, node<config_t>>> node;
+                property<std::vector<token_<config_t>>> tokens;
+                property<std::tuple<bool, node_<config_t>>> node;
                 property<event_type> type;
                 property<std::string> message;
 

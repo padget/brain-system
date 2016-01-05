@@ -7,3 +7,9 @@
   (Pays 'France')
  )
 )
+(adresse
+ (numerorue 4)
+ (rue 'rue du maréchal pétin')
+ (ville 'paris')
+ (codepostal 75001)
+)

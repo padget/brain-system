@@ -58,7 +58,8 @@ namespace brain
                     typename node_maker_t::tokens_type& tokens,
                     typename node_maker_t::node_type& node)
                 {
-                    node_maker_t()(tokens, node);
+                    node_maker_t()(tokens,
+                                   node);
                 }
         };
     }

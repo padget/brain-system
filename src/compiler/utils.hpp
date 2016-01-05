@@ -7,8 +7,6 @@ namespace brain
 {
     namespace cpl
     {
-        template<typename config_t>
-        struct node_displayer;
 
         /// Build a array
         /// of tokens that
@@ -19,6 +17,9 @@ namespace brain
                  typename ... terminals_t >
         struct token_maker
         {
+            using token_factory =
+                factory<token_<config_t>>;
+
             /// Specialisation for find_match
             /// method for one terminal_t
             template <typename terminal_t>
@@ -28,7 +29,7 @@ namespace brain
                     std::string::const_iterator& begin,
                     std::string::const_iterator& end,
                     std::smatch& m,
-                    token<config_t>& max_match)
+                    token_<config_t>& max_match)
                 {
                     /// If a match is found
                     /// and if the max match
@@ -40,9 +41,9 @@ namespace brain
                     if(std::regex_match(begin, end, m, terminal_t::regex_std)
                             and max_match.value().length() < m.str().length())
                     {
-                        make_token(max_match,
-                                   id_<terminal_t>,
-                                   std::move(m.str()));
+                        token_factory::make(max_match,
+                                            id_<terminal_t>,
+                                            std::move(m.str()));
 
                         return true;
                     }
@@ -60,7 +61,7 @@ namespace brain
             /// of the stream
             void operator()(
                 const std::string& filename,
-                std::vector<token<config_t>>& tokens)
+                std::vector<token_<config_t>>& tokens)
             {
                 /// Statement is the
                 /// result of the
@@ -74,7 +75,7 @@ namespace brain
 
                 /// Temporary max_match
                 /// via a token<enum_<config_t>>
-                token<config_t> max_match;
+                token_<config_t> max_match;
 
                 /// Temporary buffer
                 /// iterators for
@@ -97,7 +98,7 @@ namespace brain
                         meta::list<terminals_t...>;
 
                     using find_match_loop =
-                        meta::loop_rt <
+                        meta::foreach_type <
                         terminals,
                         find_match,
                         std::logical_or<bool> >;
@@ -115,7 +116,7 @@ namespace brain
                     /// If no match is found
                     /// and max_match not empty
                     /// then
-                    if(nothing_found and /// WARN not nothing_found or nothing_found
+                    if(nothing_found and
                             not max_match.value().empty())
                     {
                         /// The max_match is added
@@ -130,7 +131,7 @@ namespace brain
                         /// Finally the max_match
                         /// is reinitialized with
                         /// a default token
-                        max_match = make_token<config_t>(enum_<config_t>::ignored);
+                        token_factory::make_ignored(max_match);
                     }
 
                     /// Else the buffer_end
@@ -164,48 +165,59 @@ namespace brain
                                             tokens.end(),
                                             is_ignored),
                              tokens.end());
-
-                logger<ROOT>::debug("tokens after erasing");
-
-                for(const auto & t : tokens)
-                    logger<ROOT>::debug("token : ",
-                                        (long)t.symbol_id(),
-                                        " ",
-                                        t.value());
             }
         };
 
 
-        ///
+        /// The node maker
+        /// build a tree of
+        /// node based of
+        /// a sequence of
+        /// token
         template<typename grammar_t>
         struct node_maker
         {
+
+            /// Type of node used
+            /// to
             using node_type =
-                node<config_<grammar_t>>;
+                node_<config_<grammar_t>>;
             using token_type =
-                token<config_<grammar_t>>;
+                token_<config_<grammar_t>>;
             using tokens_type =
                 std::vector<token_type>;
-            using root_type =
-                typename grammar_t::root_production_type;
             using productions_list =
-                typename grammar_t::productions_list;
+                productions_<grammar_t>;
 
+            using node_factory =
+                factory<node_<node_maker>>;
+
+
+
+            /// Execute the process
+            /// of the tree building
             void operator()(
-                tokens_type & tokens,
-                node<config_<grammar_t>>& res)
+                std::vector<token_type> & tokens,
+                node_<config_<grammar_t>>& res)
             {
-                typename tokens_type::const_iterator b =
+                meta::citerator_t<tokens_type> b =
                     tokens.cbegin();
 
                 if(b not_eq tokens.end())
-                    production_analyser<root_type>()(b, res);
+                    production_analyser<root_<grammar_t>>()(b, res);
 
                 else
-                    make_node(res, enum_<config_<grammar_t>>::bullshit);
+                    node_factory::make_bullshit(res);
 
                 if(b not_eq tokens.end())
-                    make_node(res, enum_<config_<grammar_t>>::bullshit);
+                    node_factory::make_bullshit(res);
+
+                /// Clear all tokens
+                /// because the values
+                /// has been moved
+                /// to the corresponding
+                /// nodes in the tree
+                tokens.clear();
             }
 
 
@@ -261,7 +273,7 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<symbol_t>>& res,
+                    node_<config_<symbol_t>>& res,
                     unsigned udec = 0u)
                 {
                     /// it is the
@@ -284,27 +296,18 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<symbol_t>>& res,
+                    node_<config_<symbol_t>>& res,
                     unsigned udec = 0u)
                 {
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
 
                     /// the symbol_t is
                     /// a terminal, the
                     /// terminal_analyser
                     /// is triggered
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "begin terminal ",
-                                        (long)id_<symbol_t>,
-                                        " value : '",
-                                        (*iter).value(),
-                                        "'");
                     terminal_analyser<symbol_t>()(iter, res, udec);
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "end terminal ",
-                                        (long)id_<symbol_t>,
-                                        " value : '",
-                                        (*iter).value(),
-                                        "'");
+
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
                 }
             };
 
@@ -315,7 +318,6 @@ namespace brain
             template <typename symbol_t>
             struct terminal_analyser
             {
-
                 static_assert(meta::v_<is_terminal_t<symbol_t>>,
                               "terminal_analyser : The symbol_t::is_terminal must be true");
 
@@ -325,7 +327,7 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<symbol_t>>& res,
+                    node_<config_<symbol_t>>& res,
                     unsigned udec = 0u)
                 {
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
@@ -341,27 +343,25 @@ namespace brain
                     /// the iterator is
                     /// incremented and
                     /// a node is built
-                    if(iter != iterator_t() and (*iter).symbol_id() == id_<symbol_t>)
+                    if((*iter).symbol_id() == id_<symbol_t>)
                     {
-                        logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                            "incremental terminal");
-                        make_node(res, id_<symbol_t>, (*iter).value());
+                        node_factory::make(res,
+                                           id_<symbol_t>,
+                                           (*iter).value());
                         iter++;
                     }
 
+                    /// Else makes a
+                    /// bullshit node
                     else
-                    {
-                        make_node(res, enum_<config_<symbol_t>>::bullshit);
-                        logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                            "terminal bullshit");
-                    }
-
-                    if(iter == iterator_t())
-                        logger<ROOT>::info("ENDING");
+                        node_factory::make_bullshit(res);
                 }
             };
 
 
+            /// Analase the production
+            /// that has a production_type
+            /// equals to AND
             template <typename production_t>
             struct and_analyser
             {
@@ -375,13 +375,13 @@ namespace brain
                     template <typename iterator_t>
                     void operator()(
                         iterator_t& iter,
-                        node<config_<production_t>>& res,
+                        node_<config_<production_t>>& res,
                         bool& no_bullshit,
                         unsigned udec = 0u)
                     {
                         if(no_bullshit)
                         {
-                            node<config_<production_t>> potential_child;
+                            node_<config_<production_t>> potential_child;
                             symbol_analyser<symbol_t>()(iter, potential_child, udec + 1);
 
                             if(potential_child)
@@ -394,34 +394,31 @@ namespace brain
                 };
 
 
-                using loop_rt =
-                    meta::loop_rt<symbols, for_one_symbol_of_the_production>;
+                using foreach_type =
+                    meta::foreach_type<symbols, for_one_symbol_of_the_production>;
 
 
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res,
+                    node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
                     bool no_bullshit {true};
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
                                         "begin and ",
                                         (long)id_<production_t>);
-                    loop_rt()(iter,
-                              res,
-                              no_bullshit,
-                              udec);
+                    foreach_type()(iter, res, no_bullshit, udec);
 
-                    if(!res.childs().empty() and no_bullshit)
-                        make_node(res, id_<production_t>);
+                    if(!res.childs().empty()
+                            and no_bullshit)
+                        node_factory::make(res, id_<production_t>);
 
                     else
-                        make_node(res, enum_<config_<production_t>>::bullshit);
+                        node_factory::make_bullshit(res);
 
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "end and ",
-                                        (long)id_<production_t>);
+
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end and ", (long)id_<production_t>);
                 }
             };
 
@@ -441,37 +438,32 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res,
+                    node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
                     auto current =
                         iter;
-                    make_node(res, id_<production_t>);
-                    node<config_<production_t>> current_res {enum_<config_<production_t>>::bullshit};
+                    node_factory::make(res, id_<production_t>);
+                    node_<config_<production_t>> current_res {bullshit_<enum_<config_<production_t>>>};
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
                                         "begin list ",
                                         (long)id_<production_t>);
 
                     do
                     {
-                        make_node(current_res,
-                                  enum_<config_<production_t>>::bullshit, {});
+                        node_factory::make_bullshit(current_res);
 
-                        logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                            "list iteration ",
-                                            (*current).value());
+                        logger<ROOT>::debug(std::string(3 * udec, ' '), "list iteration ", (*current).value());
                         and_analyser<production_t>()(current, current_res, udec);
-
-                        logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                            "after list iteration ",
-                                            (*current).value(),
-                                            " current res : ", (long)current_res.symbol_id());
+                        logger<ROOT>::debug(std::string(3 * udec, ' '), "after list iteration ", (*current).value(), " current res : ", (long)current_res.symbol_id());
 
 
                         if(current_res)
                         {
-                            res.childs().insert(res.childs().end(), current_res.childs().begin(), current_res.childs().end());
                             iter = current;
+                            res.childs().insert(res.childs().end(),
+                                                current_res.childs().begin(),
+                                                current_res.childs().end());
                         }
                     }
                     while(current_res);
@@ -505,13 +497,13 @@ namespace brain
                     template <typename iterator_t>
                     void operator()(
                         iterator_t& iter,
-                        node<config_<production_t>>& res,
+                        node_<config_<production_t>>& res,
                         bool& found,
                         unsigned udec = 0u)
                     {
                         if(not found)
                         {
-                            node<config_<production_t>> potential_res;
+                            node_<config_<production_t>> potential_res;
 
                             symbol_analyser<symbol_t>()(iter, potential_res, udec + 1);
 
@@ -525,21 +517,21 @@ namespace brain
                 };
 
 
-                using loop_rt =
-                    meta::loop_rt<symbols, for_one_symbol_of_the_production>;
+                using foreach_type =
+                    meta::foreach_type<symbols, for_one_symbol_of_the_production>;
 
 
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res,
+                    node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
                     bool found {false};
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
                                         "begin or ",
                                         (long)id_<production_t>);
-                    loop_rt()(iter, res, found, udec);
+                    foreach_type()(iter, res, found, udec);
                     logger<ROOT>::debug(std::string(3 * udec, ' '),
                                         "end or ",
                                         (long)id_<production_t>);
@@ -567,7 +559,7 @@ namespace brain
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
-                    node<config_<production_t>>& res,
+                    node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
                     switch(production_t::type)
@@ -585,226 +577,12 @@ namespace brain
                             break;
 
                         default:
-                            make_node(res, enum_<config_<production_t>>::bullshit);
+                            node_factory::make_bullshit(res);
                             break;
                     }
                 }
             };
         };
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--// TREE MANANGER /--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
-
-//        template <typename to_t>
-//        struct converter
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return static_cast<to_t>(from);
-//            }
-//        };
-//
-//
-//        template<>
-//        struct converter<int>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stoi(from);
-//            }
-//        };
-//
-//
-//        template<>
-//        struct converter<long>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stol(from);
-//            }
-//        };
-//
-//
-//        template<>
-//        struct converter<long long>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stoll(from);
-//            }
-//        };
-//
-//
-//        template<>
-//        struct converter<unsigned>
-//        {
-//            unsigned operator()(
-//                const std::string& from)
-//            {
-//                return std::stoul(from);
-//            }
-//        };
-//
-//
-//        template<>
-//        struct converter<unsigned long>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stoul(from);
-//            }
-//        };
-//
-//        template<>
-//        struct converter<unsigned long long>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stoull(from);
-//            }
-//        };
-//
-//
-//        template<>
-//        struct converter<float>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stof(from);
-//            }
-//        };
-//
-//        template<>
-//        struct converter<double>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stod(from);
-//            }
-//        };
-//
-//        template<>
-//        struct converter<long double>
-//        {
-//            auto operator()(
-//                const std::string& from)
-//            {
-//                return std::stold(from);
-//            }
-//        };
-//
-//        template < typename config_t,
-//                 typename symbol_t >
-//        struct terminal_object_maker
-//        {
-//            using node_type =
-//                node<config_t>;
-//            using target =
-//                typename symbol_t::target_type;
-//
-//            target operator()(
-//                const node_type& n)
-//            {
-//                return n.id == id_<symbol_t> ?
-//                       converter<target>()(n.value) :
-//                       target();
-//            }
-//        };
-
-
-
-//        template < typename config_t,
-//                 typename production_t >
-//        struct nonterminal_object_maker
-//        {
-//            using node_type =
-//                node<config_t>;
-//            using target =
-//                typename production_t::symbol_type::target_type;
-//
-//            target operator()(
-//                const node_type& n)
-//            {
-//                node_displayer<enum_<config_t>>()(n);
-//
-//                if(not n.childs.empty())
-//                {
-//                    typename production_t::symbols_list::elements args;
-//                    make_for_each_symbol<typename production_t::symbols_list>()(n.childs, args);
-//                }
-//
-//                return target();
-//            }
-//
-//            template < typename symbol_list_t,
-//                     size_t _idx = symbol_list_t::last_idx >
-//            struct make_for_each_symbol
-//            {
-//                using current_symbol =
-//                    meta::at_c < symbol_list_t::last_idx - _idx, symbol_list_t >;
-//
-//                void operator()(
-//                    const std::vector<node_type>& childs,
-//                    typename symbol_list_t::elements& args)
-//                {
-//                    if(childs[_idx].id == id_<current_symbol>)
-//                    {
-//                        std::get<_idx>(args) =
-//                            terminal_object_maker<enum_<config_t>, current_symbol>()(childs[_idx]);
-//                        make_for_each_symbol < symbol_list_t, _idx - 1 > ()(childs, args);
-//                    }
-//                }
-//            };
-//
-//            template<typename symbol_list_t>
-//            struct make_for_each_symbol<symbol_list_t, 0>
-//            {
-//                using current_symbol =
-//                    meta::at_c<symbol_list_t::last_idx, symbol_list_t>;
-//
-//                void operator()(
-//                    const std::vector<node_type>& childs,
-//                    typename symbol_list_t::elements& args)
-//                {
-//                    if(childs[0].id == id_<current_symbol>)
-//                        std::get<0>(args) =
-//                            std::move(terminal_object_maker<enum_<config_t>, current_symbol>()(childs[0]));
-//                }
-//            };
-//        };
-//
-//        template<typename grammar_t>
-//        struct tree_maker
-//        {
-//            using grammar =
-//                grammar_t;
-//            using root_production_type =
-//                typename grammar::root_production_type;
-//            using root_symbol =
-//                typename root_production_type::symbol_type;
-//            using target =
-//                typename root_symbol::target_type;
-//            using enum_type =
-//                typename grammar_t::enum_type;
-//            using node_type =
-//                node<enum_type>;
-//
-//            target operator()(
-//                const node_type& root_node)
-//            {
-//                auto node_id = root_node.id;
-//
-//                return target();
-//            }
-//        };
 
         //--//--//--//--//--//--//--//--//--//--//
         //--//--//--// DISPLAYER    //--//--//--//
@@ -1051,7 +829,7 @@ namespace brain
         template<typename config_t>
         struct node_displayer
         {
-            void operator()(const node<config_t>& n,
+            void operator()(const node_<config_t>& n,
                             unsigned udec = 0)
             {
                 if(udec == 0u)

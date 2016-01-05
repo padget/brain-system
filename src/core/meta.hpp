@@ -1788,11 +1788,151 @@ namespace brain
             basic_string<char32_t>;
 
 
+        /// //////////////// ///
+        /// Runtime features ///
+        /// //////////////// ///
+
+
+        /// Execute the same
+        /// algorithm func_t
+        /// foreach types_t
+        /// and can accumulate
+        /// results with accum_t
+        template < typename types_t,
+                 template<typename> typename func_t,
+                 typename accum_t = void >
+        struct foreach_type;
+
+
+        /// Specialization for
+        /// void accum_t. The
+        /// accum_t is not used.
+        template < typename first_t,
+                 typename next_t,
+                 typename ... types_t,
+                 template<typename> typename func_t >
+        struct foreach_type<list<first_t, next_t, types_t...>, func_t, void>
+        {
+            /// Operator () for
+            /// functor using
+            template<typename ... args_t>
+            constexpr void operator()(
+                args_t && ... args)
+            {
+                func_t<first_t>()(args...);
+                foreach_type<list<next_t, types_t...>, func_t, void>()(args...);
+            }
+        };
+
+
+        /// Specialization for
+        /// void accum_t. The
+        /// accum_t is not used.
+        template < typename last_t,
+                 template<typename> typename func_t >
+        struct foreach_type<list<last_t>, func_t, void>
+        {
+            /// Operator () for
+            /// functor using
+            template<typename ... args_t>
+            constexpr void operator()(
+                args_t && ... args)
+            {
+                func_t<last_t>()(args...);
+            }
+        };
+
+
+        /// Specialization for an
+        /// active accum_t. The func_t
+        /// is executed for first_t
+        /// and is prepared for next_t.
+        /// The results are accumulates
+        /// with accum_t
+        template < typename first_t,
+                 typename next_t,
+                 typename ... types_t,
+                 template<typename> typename func_t ,
+                 typename accum_t >
+        struct foreach_type<list<first_t, next_t, types_t...>, func_t, accum_t>
+        {
+            /// Operator () for
+            /// functor using
+            template<typename ... args_t>
+            constexpr auto operator()(
+                args_t && ... args)
+            {
+                /// Accumulates the results
+                /// between first_t and next_t
+                return accum_t()(func_t<first_t>()(args...),
+                                 foreach_type<list<next_t, types_t...>, func_t, accum_t>()(args...));
+            }
+        };
+
+
+        /// Specialization for an
+        /// active accum_t. The func_t
+        /// is executed for last_t
+        template < typename last_t,
+                 template<typename> typename func_t,
+                 typename accum_t >
+        struct foreach_type<list<last_t>, func_t, accum_t>
+        {
+            /// Operator () for
+            /// functor using
+            template<typename ... args_t>
+            constexpr auto operator()(
+                args_t && ... args)
+            {
+                /// Returns only the
+                /// the results of last_t,
+                /// there is no need of
+                /// accum_t
+                return func_t<last_t>()(args...);
+            }
+        };
+
+
+        /// ////////////////// ///
+        /// Standart Extension ///
+        /// ////////////////// ///
+
+
+        /// Alias for member
+        /// const_iterator
+        template<typename container_t>
+        using citerator_t =
+            typename container_t::
+            const_iterator;
+
+
+        /// Alias for member
+        /// iterator
+        template<typename container_t>
+        using iterator_t =
+            typename container_t::
+            iterator;
+
+
+        /// Alias for member
+        /// reverse_iterator
+        template<typename container_t>
+        using riterator_t =
+            typename container_t::
+            reverse_iterator;
+
+
+        /// Alias for member
+        /// const_reverse_iterator
+        template<typename container_t>
+        using criterator_t =
+            typename container_t::
+            const_reverse_iterator;
+
+
         /// //////// ///
         /// Unsorted ///
         /// //////// ///
-
-        /// TODO Sort + DOC all unsorted
 
 
         /// Meta function that
@@ -1916,93 +2056,10 @@ namespace brain
         };
 
 
-        /// //////////////// ///
-        /// Runtime features ///
-        /// //////////////// ///
 
 
 
-        template<typename type_t>
-        struct neutral_accumulator
-        {
-            void operator()(
-                type_t && l,
-                type_t && r)
-            {
-            }
-        };
 
-        /// Foreach
-        template < typename types_t,
-                 template<typename> typename func_t,
-                 typename accum_t = void >
-        struct loop_rt;
-
-
-        /// Foreach
-        template < typename first_t,
-                 typename next_t,
-                 typename ... types_t,
-                 template<typename> typename func_t ,
-                 typename accum_t >
-        struct loop_rt<list<first_t, next_t, types_t...>, func_t, accum_t>
-        {
-            template<typename ... args_t>
-            constexpr auto operator()(
-                args_t && ... args)
-            {
-                return accum_t()(func_t<first_t>()(args...),
-                                 loop_rt<list<next_t, types_t...>, func_t, accum_t>()(args...));
-            }
-        };
-
-
-        ///
-        template < typename last_t,
-                 template<typename> typename func_t,
-                 typename accum_t >
-        struct loop_rt<list<last_t>, func_t, accum_t>
-        {
-            template<typename ... args_t>
-            constexpr auto operator()(
-                args_t && ... args)
-            {
-                return func_t<last_t>()(args...);
-            }
-        };
-
-
-        /// Foreach void
-        /// specialization
-        template < typename first_t,
-                 typename next_t,
-                 typename ... types_t,
-                 template<typename> typename func_t >
-        struct loop_rt<list<first_t, next_t, types_t...>, func_t, void>
-        {
-            template<typename ... args_t>
-            constexpr void operator()(
-                args_t && ... args)
-            {
-                func_t<first_t>()(args...);
-                loop_rt<list<next_t, types_t...>, func_t, void>()(args...);
-            }
-        };
-
-
-        /// Foreach void
-        /// specialization
-        template < typename last_t,
-                 template<typename> typename func_t >
-        struct loop_rt<list<last_t>, func_t, void>
-        {
-            template<typename ... args_t>
-            constexpr void operator()(
-                args_t && ... args)
-            {
-                func_t<last_t>()(args...);
-            }
-        };
     }
 }
 

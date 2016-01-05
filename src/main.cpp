@@ -1,4 +1,4 @@
-/*
+/*'
  * main.cpp
  *
  *  Created on: 27 oct. 2013
@@ -14,12 +14,9 @@
 #include "compiler/chain.hpp"
 #include <iostream>
 
+
 using namespace brain;
 using namespace std;
-
-
-
-
 
 
 /// Main function for
