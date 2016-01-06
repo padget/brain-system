@@ -514,65 +514,20 @@ namespace brain
         };
 
 
+        struct any_test:
+            public basic_test
+        {
+            virtual void test()
+            {
+                any d {1};
+                any d2 {4};
+                any a {std::string("coucou")};
+                std::cout << "any " << any_cast<double>(d) << std::endl;
+                
+            }
+        };
 
-        /*        struct server_ptr_test :
-                    public basic_test
-                {
-                        class Base
-                        {
 
-                            public:
-                                virtual ~Base() {}
-                                virtual std::string foo()
-                                {return "base";}
-                        };
-
-                        class Derived:
-                            public Base
-                        {
-
-                            public:
-                                virtual ~Derived() {}
-                                virtual std::string foo()
-                                {return "derived";}
-                        };
-
-                        class Derived2
-                            : public Derived
-                        {
-                            public:
-                                virtual ~Derived2() {}
-                                virtual std::string foo()
-                                {return "derived";}
-                        };
-
-                        using derived  = meta::inherit<object>;
-
-                    public:
-                        virtual void test()
-                        {
-                            server_ptr<object> server {new derived()};
-
-                            server_ptr<object>::client clt(server);
-
-                            if(clt)
-                                logger<ROOT>::debug("clt est OK ", clt->foo());
-
-                            else
-                                logger<ROOT>::debug("clt est KO");
-
-                            {
-                                myptr server2 = fct::mv(server);
-                                logger<ROOT>::debug(" serveur ", bool(server2));
-                            }
-
-                            if(clt)
-                                logger<ROOT>::debug("clt est OK ", clt->foo());
-
-                            else
-                                logger<ROOT>::debug("clt est KO");
-                        }
-                };*/
     }
 
 
@@ -684,28 +639,6 @@ namespace brain
         using lql_rbracket_t = cpl::terminal<lqlconfig, LQL::rbracket, lql_rbracket_reg>;
         using lql_lbrace_t   = cpl::terminal<lqlconfig, LQL::lbrace, lql_lbrace_reg>;
         using lql_rbrace_t   = cpl::terminal<lqlconfig, LQL::rbrace, lql_rbrace_reg>;
-
-        class component_obj :
-            public object
-        {
-            public:
-                property<object*, managing::unique> value;
-        };
-
-        class expression_obj :
-            public object
-        {
-            public:
-                property<std::string> name;
-                property<component_obj> component;
-        };
-
-        class expressions_obj :
-            public object
-        {
-            public:
-                property<std::vector<expression_obj>> expressions;
-        };
 
         using lql_expression_nt  = cpl::non_terminal<lqlconfig, LQL::expression>;
         using lql_expressions_nt = cpl::non_terminal<lqlconfig, LQL::expressions>;

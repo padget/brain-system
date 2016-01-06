@@ -7,6 +7,10 @@ namespace brain
 {
     namespace cpl
     {
+        /// ///////////////////// ///
+        /// Tokens Sequence Maker ///
+        /// ///////////////////// ///
+
 
         /// Build a array
         /// of tokens that
@@ -44,7 +48,6 @@ namespace brain
                         token_factory::make(max_match,
                                             id_<terminal_t>,
                                             std::move(m.str()));
-
                         return true;
                     }
 
@@ -93,7 +96,6 @@ namespace brain
                 /// not equals to end ...
                 while(buffer_end != end)
                 {
-
                     using terminals =
                         meta::list<terminals_t...>;
 
@@ -108,10 +110,10 @@ namespace brain
                     /// into max_match and
                     /// into nothing_found
                     bool && nothing_found =
-                        ! find_match_loop()(buffer_begin,
-                                            buffer_end,
-                                            m,
-                                            max_match);
+                        ! find_match_loop()(
+                            buffer_begin,
+                            buffer_end,
+                            m, max_match);
 
                     /// If no match is found
                     /// and max_match not empty
@@ -126,7 +128,8 @@ namespace brain
                         /// The buffer_begin
                         /// becomes the predecessor
                         /// of buffer_end
-                        buffer_begin = std::prev(buffer_end);
+                        buffer_begin =
+                            std::prev(buffer_end);
 
                         /// Finally the max_match
                         /// is reinitialized with
@@ -156,7 +159,8 @@ namespace brain
                 /// ignored or not
                 auto && is_ignored = [](const auto & t)
                 {
-                    return t.symbol_id() == enum_<config_t>::ignored;
+                    return t.symbol_id() ==
+                           enum_<config_t>::ignored;
                 };
 
                 /// Erases all tokens
@@ -167,6 +171,11 @@ namespace brain
                              tokens.end());
             }
         };
+
+
+        /// /////////////// ///
+        /// Tree Node Maker ///
+        /// /////////////// ///
 
 
         /// The node maker
@@ -246,7 +255,8 @@ namespace brain
             {
                 template<typename other_id_t>
                 using return_ =
-                    meta::bool_t <id_<id_t> == id_ <other_id_t>>;
+                    meta::bool_t < id_<id_t>
+                    == id_ <other_id_t >>;
             };
 
 
@@ -309,10 +319,6 @@ namespace brain
                     node_<config_<symbol_t>>& res,
                     unsigned udec = 0u)
                 {
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
-
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "Examining of ", (long)(*iter).symbol_id(), " vs theorical ", (long)id_<symbol_t>);
-
                     /// If the current
                     /// symbol_id is the
                     /// same as the current
@@ -322,9 +328,9 @@ namespace brain
                     /// a node is built
                     if((*iter).symbol_id() == id_<symbol_t>)
                     {
-                        node_factory::make(res,
-                                           id_<symbol_t>,
-                                           (*iter).value());
+                        node_factory::make(
+                            res, id_<symbol_t>,
+                            (*iter).value());
                         iter++;
                     }
 
@@ -332,8 +338,6 @@ namespace brain
                     /// bullshit node
                     else
                         node_factory::make_bullshit(res);
-
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
                 }
             };
 
@@ -387,7 +391,8 @@ namespace brain
                             /// the childs sequence of
                             /// the res node
                             if(potential_child)
-                                res.childs().push_back(potential_child);
+                                res.childs().push_back(
+                                    potential_child);
 
                             /// Else no_bullshit
                             /// is tagged to false
@@ -412,8 +417,6 @@ namespace brain
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin and ", (long) id_<production_t>);
-
                     /// The process is not began
                     /// so no bullshit has been
                     /// detected (=> true)
@@ -422,7 +425,8 @@ namespace brain
                     /// Foreach symbol,
                     /// the analyse is triggered
                     foreach_type()(
-                        iter, res, no_bullshit, udec);
+                        iter, res,
+                        no_bullshit, udec);
 
                     /// After the all analyses,
                     /// if there is childs in
@@ -440,8 +444,6 @@ namespace brain
                     /// tagged as bullshit
                     else
                         node_factory::make_bullshit(res);
-
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end and ", (long)id_<production_t>);
                 }
             };
 
@@ -463,8 +465,6 @@ namespace brain
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin list ", (long)id_<production_t>);
-
                     auto current = iter;
 
                     /// Even if there is
@@ -494,7 +494,12 @@ namespace brain
                         /// Then, an and_analyse
                         /// is triggered to process
                         /// the production_t
-                        analyser<production_t, production_type::AND, false>()(current, current_res, udec);
+                        analyser < production_t,
+                                 production_type::AND,
+                                 false > ()(
+                                     current,
+                                     current_res,
+                                     udec);
 
                         /// If the analyse is
                         /// concluent, the iter
@@ -506,14 +511,13 @@ namespace brain
                         if(current_res)
                         {
                             iter = current;
-                            res.childs().insert(res.childs().end(),
-                                                current_res.childs().begin(),
-                                                current_res.childs().end());
+                            res.childs().insert(
+                                res.childs().end(),
+                                current_res.childs().begin(),
+                                current_res.childs().end());
                         }
                     }
                     while(current_res);
-
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end list ", (long)id_<production_t>);
                 }
             };
 
@@ -557,7 +561,9 @@ namespace brain
 
                             /// Triggered the analyse
                             /// of the symbol_t
-                            analyser<symbol_t, production_type::UNDEFINED>()(iter, potential_res, udec + 1);
+                            analyser < symbol_t,
+                                     production_type::UNDEFINED > ()(
+                                         iter, potential_res, udec + 1);
 
                             /// If the potential
                             /// node is valid
@@ -588,7 +594,6 @@ namespace brain
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin or ", (long)id_<production_t>);
 
                     /// Initially, no node
                     /// has been found (false)
@@ -596,16 +601,23 @@ namespace brain
 
                     /// Triggers the foreach
                     /// algorithm on each symbol
-                    foreach_type()(iter, res, found, udec);
-
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end or ", (long)id_<production_t>);
+                    foreach_type()(
+                        iter, res,
+                        found, udec);
                 }
             };
         };
 
-        //--//--//--//--//--//--//--//--//--//--//
-        //--//--//--// DISPLAYER    //--//--//--//
-        //--//--//--//--//--//--//--//--//--//--//
+
+        /// /////////////////// ///
+        /// Semantic Tree Maker ///
+        /// /////////////////// ///
+
+
+        /// ///////// ///
+        /// DISPLAYER ///
+        /// ///////// ///
+
 
         /**
          * @class symbol_displayer

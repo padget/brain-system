@@ -819,6 +819,7 @@ namespace brain
         /// Wrapper for parameters pack manipulation ///
         /// //////////////////////////////////////// ///
 
+
         /// Wrapper for a
         /// parameters pack.
         template<typename ... types_t>

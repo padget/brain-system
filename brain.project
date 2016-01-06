@@ -71,7 +71,6 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/compiler/event.hpp"/>
         <File Name="src/compiler/parser.hpp"/>
         <File Name="src/compiler/scanner.hpp"/>
-        <File Name="src/compiler/shortcut.hpp"/>
         <File Name="src/compiler/supports.hpp"/>
         <File Name="src/compiler/utils.hpp"/>
       </VirtualDirectory>
@@ -87,6 +86,7 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/core/serialize.hpp"/>
         <File Name="src/core/logging.hpp"/>
         <File Name="src/core/filtering.hpp"/>
+        <File Name="src/core/any.hpp"/>
       </VirtualDirectory>
       <File Name="src/data.h"/>
       <VirtualDirectory Name="data">

@@ -2,6 +2,7 @@
 #define SUPPORTS_HPP_INCLUDED
 
 #include "../core.h"
+#include "../core/any.hpp"
 
 class regex_match;
 namespace brain
@@ -363,15 +364,6 @@ namespace brain
         constexpr bool symbol<config_t, _id, b_is_terminal>::is_terminal;
 
 
-        template<typename type_t>
-        struct is_terminal_t_
-        {
-            using type = meta::if_t < meta::bool_t<true>,
-                  std::true_type,
-                  std::false_type >;
-        };
-
-
         /// Return true_type
         /// if the symbol_t is
         /// marked as a terminal
@@ -464,7 +456,7 @@ namespace brain
         enum class production_type :
         char
         {
-            UNDEFINED, /// Type undefined
+            UNDEFINED, /// Not a production
             AND = '&', /// Sequence of symbols
             OR = '|', /// One of the symbols
             LIST = 'o' /// Loop of a sequence symbol
@@ -550,8 +542,8 @@ namespace brain
         template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
-        constexpr  enum_<config_<symbol_t>>
-                                         production<_type, symbol_t, symbols_t...>::symbol_id;
+        constexpr  enum_<config_<symbol_t> >
+        production<_type, symbol_t, symbols_t...>::symbol_id;
 
 
         /// Static initialization
@@ -688,6 +680,43 @@ namespace brain
                           "grammar : all production_t... must be a production");
         };
 
+
+        /// //////////
+        ///
+        /// //////////
+
+
+        /// Basic converter
+        template<typename config_t>
+        struct basic_converter
+        {
+                using char_type =
+                    char_<config_t>;
+
+            public:
+                virtual convert(
+                    std::basic_string<char_type>& value,
+                    any& transformed) = 0;
+        };
+
+
+        /// On
+        template < typename symbol_t,
+                 typename converter_t >
+        struct on
+        {
+            using symbol_type =
+                symbol_t;
+
+            using converter_type =
+                converter_t;
+        };
+
+
+
+        /// ////////////////////////// ///
+        /// Factory for Token and Node ///
+        /// ////////////////////////// ///
 
         /// Factory that can
         /// initiate object like
