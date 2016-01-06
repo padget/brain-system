@@ -205,7 +205,7 @@ namespace brain
                 /// sequence the
                 /// analyse is triggered
                 if(b not_eq tokens.end())
-                    production_analyser<root_<grammar_t>>()(b, res);
+                    production_analyser<root_<grammar_t>, prtype_<root_<grammar_t>>>()(b, res);
 
                 else
                     /// Build a bullshit
@@ -244,7 +244,8 @@ namespace brain
 
             /// Declaration of the
             /// production_analyser
-            template <typename production_t>
+            template < typename production_t,
+                     production_type _type >
             struct production_analyser;
 
 
@@ -292,7 +293,7 @@ namespace brain
                 {
                     /// it is the
                     /// production_analyser
-                    production_analyser<production_t>()(iter, res, udec);
+                    production_analyser<production_t, prtype_<production_t>>()(iter, res, udec);
                 }
             };
 
@@ -377,7 +378,9 @@ namespace brain
             /// that has a production_type
             /// equals to AND
             template <typename production_t>
-            struct and_analyser
+            struct production_analyser <
+                    production_t,
+                    production_type::AND >
             {
                 using symbols =
                     typename production_t::symbols_type;
@@ -476,7 +479,9 @@ namespace brain
             /// that has a production_type
             /// equals to LIST
             template <typename production_t>
-            struct list_analyser
+            struct production_analyser <
+                    production_t,
+                    production_type::LIST >
             {
                 /// Functor that triggers
                 /// the list analyse
@@ -517,7 +522,7 @@ namespace brain
                         /// Then, an and_analyse
                         /// is triggered to process
                         /// the production_t
-                        and_analyser<production_t>()(current, current_res, udec);
+                        production_analyser<production_t, production_type::AND>()(current, current_res, udec);
 
                         /// If the analyse is
                         /// concluent, the iter
@@ -545,16 +550,22 @@ namespace brain
             /// that has a production_type
             /// equals to OR
             template <typename production_t>
-            struct or_analyser
+            struct production_analyser <
+                    production_t,
+                    production_type::OR >
             {
                 using symbols =
                     typename production_t::symbols_type;
 
 
-                /// HERE
+                /// Launch the analyse
+                /// for one symbol_t
                 template<typename symbol_t>
                 struct foreach_symbol
                 {
+                    /// Functor that
+                    /// executes the
+                    /// algorithm
                     template <typename iterator_t>
                     void operator()(
                         iterator_t& iter,
@@ -562,12 +573,26 @@ namespace brain
                         bool& found,
                         unsigned udec = 0u)
                     {
+                        /// If in previous steps
+                        /// no node has been built
+                        /// the current step can
+                        /// be triggered
                         if(not found)
                         {
+                            /// Potential node
                             node_<config_<production_t>> potential_res;
 
+                            /// Triggered the analyse
+                            /// of the symbol_t
                             symbol_analyser<symbol_t>()(iter, potential_res, udec + 1);
 
+                            /// If the potential
+                            /// node is valid
+                            /// then found is tagged
+                            /// to true and the
+                            /// res is updated
+                            /// with the potential
+                            /// node informmation
                             if(potential_res)
                             {
                                 found = true;
@@ -582,61 +607,24 @@ namespace brain
                     meta::foreach_type<symbols, foreach_symbol>;
 
 
+                /// Launch the process
+                /// of or analysing
                 template <typename iterator_t>
                 void operator()(
                     iterator_t& iter,
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
+                    /// Initially, no node
+                    /// has been found (false)
                     bool found {false};
                     logger<ROOT>::debug(std::string(3 * udec, ' '), "begin or ", (long)id_<production_t>);
+
+                    /// Triggers the foreach
+                    /// algorithm on each symbol
                     foreach_type()(iter, res, found, udec);
+
                     logger<ROOT>::debug(std::string(3 * udec, ' '), "end or ", (long)id_<production_t>);
-                }
-            };
-
-
-            /**
-             * @class production_analyser
-             * @author bmathieu
-             * @date 14/09/2015
-             * @file utils.hpp
-             * @brief Analyse a production (AND, OR, LIST)
-             */
-            template <typename production_t>
-            struct production_analyser
-            {
-                using and_anl =
-                    and_analyser<production_t>;
-                using list_anl =
-                    list_analyser<production_t>;
-                using or_anl =
-                    or_analyser<production_t>;
-
-                template <typename iterator_t>
-                void operator()(
-                    iterator_t& iter,
-                    node_<config_<production_t>>& res,
-                    unsigned udec = 0u)
-                {
-                    switch(production_t::type)
-                    {
-                        case production_type::AND:
-                            and_anl()(iter, res, udec);
-                            break;
-
-                        case production_type::LIST:
-                            list_anl()(iter, res, udec);
-                            break;
-
-                        case production_type::OR:
-                            or_anl()(iter, res, udec);
-                            break;
-
-                        default:
-                            node_factory::make_bullshit(res);
-                            break;
-                    }
                 }
             };
         };

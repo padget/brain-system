@@ -280,8 +280,8 @@ namespace brain
         /// id member of the
         /// id_t type
         template<typename id_t>
-        constexpr enum_<config_<id_t> > id_ =
-            id_t::symbol_id;
+        constexpr enum_<config_<id_t>> id_ =
+                                        id_t::symbol_id;
 
 
         /// Returns false_type
@@ -465,7 +465,7 @@ namespace brain
         /// production_type
         template<typename production_t>
         constexpr production_type prtype_ =
-            production_t::production_type;
+            production_t::prtype;
 
 
         /// Returns true_type
@@ -518,7 +518,7 @@ namespace brain
 
             /// Static type of
             /// a production
-            static constexpr production_type type {_type};
+            static constexpr production_type prtype {_type};
 
 
             /// Symbol that is
@@ -540,7 +540,8 @@ namespace brain
         template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
-        constexpr  enum_<config_<symbol_t>> production<_type, symbol_t, symbols_t...>::symbol_id;
+        constexpr  enum_<config_<symbol_t>>
+                                         production<_type, symbol_t, symbols_t...>::symbol_id;
 
 
         /// Static initialization
@@ -549,7 +550,7 @@ namespace brain
                  typename symbol_t,
                  typename ... symbols_t >
         constexpr production_type
-        production<_type, symbol_t, symbols_t...>::type;
+        production<_type, symbol_t, symbols_t...>::prtype;
 
 
         /// Returns std::false_type
