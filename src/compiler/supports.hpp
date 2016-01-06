@@ -363,6 +363,15 @@ namespace brain
         constexpr bool symbol<config_t, _id, b_is_terminal>::is_terminal;
 
 
+        template<typename type_t>
+        struct is_terminal_t_
+        {
+            using type = meta::if_t < meta::bool_t<true>,
+                  std::true_type,
+                  std::false_type >;
+        };
+
+
         /// Return true_type
         /// if the symbol_t is
         /// marked as a terminal
@@ -455,6 +464,7 @@ namespace brain
         enum class production_type :
         char
         {
+            UNDEFINED, /// Type undefined
             AND = '&', /// Sequence of symbols
             OR = '|', /// One of the symbols
             LIST = 'o' /// Loop of a sequence symbol
@@ -674,6 +684,8 @@ namespace brain
 
             static_assert(meta::v_<is_production_t<root_production_type>>,
                           "grammar : root_production_type must be a production");
+            static_assert(meta::v_<meta::and_t<is_production_t<production_t>...>>,
+                          "grammar : all production_t... must be a production");
         };
 
 

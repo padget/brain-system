@@ -197,15 +197,16 @@ namespace brain
                 std::vector<token_type> & tokens,
                 node_<config_<grammar_t>>& res)
             {
-                meta::citerator_t<tokens_type> b =
-                    tokens.cbegin();
+                auto b = tokens.cbegin();
 
                 /// If b is not the
                 /// end of the token
                 /// sequence the
                 /// analyse is triggered
                 if(b not_eq tokens.end())
-                    production_analyser<root_<grammar_t>, prtype_<root_<grammar_t>>>()(b, res);
+                    analyser < root_<grammar_t>,
+                             prtype_<root_<grammar_t>>,
+                             false > ()(b, res);
 
                 else
                     /// Build a bullshit
@@ -229,24 +230,11 @@ namespace brain
 
 
             /// Declaration of the
-            /// symbol_analyser
-            template < typename symbol_t,
-                     bool is_terminal  =
-                     meta::v_<is_terminal_t<symbol_t>> >
-            struct symbol_analyser;
-
-
-            /// Declaration of the
-            /// terminal_anlayser
-            template <typename symbol_t>
-            struct terminal_analyser;
-
-
-            /// Declaration of the
             /// production_analyser
-            template < typename production_t,
-                     production_type _type >
-            struct production_analyser;
+            template < typename symbol_t,
+                     production_type _type,
+                     bool is_terminal = meta::v_<is_terminal_t<symbol_t> >>
+            struct analyser;
 
 
             /// Meta function that
@@ -267,7 +255,9 @@ namespace brain
             /// with its definition
             /// in the production list.
             template <typename symbol_t>
-            struct symbol_analyser<symbol_t, false>
+            struct analyser < symbol_t,
+                    production_type::UNDEFINED,
+                    false >
             {
                 /// Extraction of the
                 /// first type of the
@@ -291,9 +281,12 @@ namespace brain
                     node_<config_<symbol_t>>& res,
                     unsigned udec = 0u)
                 {
-                    /// it is the
-                    /// production_analyser
-                    production_analyser<production_t, prtype_<production_t>>()(iter, res, udec);
+                    /// Launch the analyser
+                    /// on a production
+                    /// so non terminal
+                    analyser < production_t,
+                             prtype_<production_t>,
+                             false > ()(iter, res, udec);
                 }
             };
 
@@ -303,7 +296,9 @@ namespace brain
             /// with its definition
             /// in the production list.
             template <typename symbol_t>
-            struct symbol_analyser<symbol_t, true>
+            struct analyser < symbol_t,
+                    production_type::UNDEFINED,
+                    true >
             {
 
                 /// Analsye the current
@@ -316,40 +311,7 @@ namespace brain
                 {
                     logger<ROOT>::debug(std::string(3 * udec, ' '), "begin terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
 
-                    /// the symbol_t is
-                    /// a terminal, the
-                    /// terminal_analyser
-                    /// is triggered
-                    terminal_analyser<symbol_t>()(iter, res, udec);
-
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
-                }
-            };
-
-
-            /// Analyse terminal
-            /// symbol. Don't work
-            /// on non terminal symbol
-            template <typename symbol_t>
-            struct terminal_analyser
-            {
-                static_assert(meta::v_<is_terminal_t<symbol_t>>,
-                              "terminal_analyser : The symbol_t::is_terminal must be true");
-
-                /// Analyse a terminal
-                /// symbol and build
-                /// the corresponding node
-                template <typename iterator_t>
-                void operator()(
-                    iterator_t& iter,
-                    node_<config_<symbol_t>>& res,
-                    unsigned udec = 0u)
-                {
-                    logger<ROOT>::debug(std::string(3 * udec, ' '),
-                                        "Examining of ",
-                                        (long)(*iter).symbol_id(),
-                                        " vs theorical ",
-                                        (long)id_<symbol_t>);
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "Examining of ", (long)(*iter).symbol_id(), " vs theorical ", (long)id_<symbol_t>);
 
                     /// If the current
                     /// symbol_id is the
@@ -370,6 +332,8 @@ namespace brain
                     /// bullshit node
                     else
                         node_factory::make_bullshit(res);
+
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "end terminal ", (long)id_<symbol_t>, " value : '", (*iter).value(), "'");
                 }
             };
 
@@ -378,9 +342,10 @@ namespace brain
             /// that has a production_type
             /// equals to AND
             template <typename production_t>
-            struct production_analyser <
+            struct analyser <
                     production_t,
-                    production_type::AND >
+                    production_type::AND,
+                    false >
             {
                 using symbols =
                     typename production_t::symbols_type;
@@ -411,7 +376,11 @@ namespace brain
 
                             /// Triggers the analyse
                             /// of the symbol_t
-                            symbol_analyser<symbol_t>()(iter, potential_child, udec + 1);
+                            analyser < symbol_t,
+                                     production_type::UNDEFINED > ()(
+                                         iter,
+                                         potential_child,
+                                         udec + 1);
 
                             /// If the potential child
                             /// is valid, it is added
@@ -452,7 +421,8 @@ namespace brain
 
                     /// Foreach symbol,
                     /// the analyse is triggered
-                    foreach_type()(iter, res, no_bullshit, udec);
+                    foreach_type()(
+                        iter, res, no_bullshit, udec);
 
                     /// After the all analyses,
                     /// if there is childs in
@@ -463,7 +433,8 @@ namespace brain
                     /// production_t
                     if(!res.childs().empty()
                             and no_bullshit)
-                        node_factory::make(res, id_<production_t>);
+                        node_factory::make(
+                            res, id_<production_t>);
 
                     /// Else the res is
                     /// tagged as bullshit
@@ -479,9 +450,10 @@ namespace brain
             /// that has a production_type
             /// equals to LIST
             template <typename production_t>
-            struct production_analyser <
+            struct analyser <
                     production_t,
-                    production_type::LIST >
+                    production_type::LIST ,
+                    false >
             {
                 /// Functor that triggers
                 /// the list analyse
@@ -522,7 +494,7 @@ namespace brain
                         /// Then, an and_analyse
                         /// is triggered to process
                         /// the production_t
-                        production_analyser<production_t, production_type::AND>()(current, current_res, udec);
+                        analyser<production_t, production_type::AND, false>()(current, current_res, udec);
 
                         /// If the analyse is
                         /// concluent, the iter
@@ -550,9 +522,10 @@ namespace brain
             /// that has a production_type
             /// equals to OR
             template <typename production_t>
-            struct production_analyser <
+            struct analyser <
                     production_t,
-                    production_type::OR >
+                    production_type::OR,
+                    false >
             {
                 using symbols =
                     typename production_t::symbols_type;
@@ -584,7 +557,7 @@ namespace brain
 
                             /// Triggered the analyse
                             /// of the symbol_t
-                            symbol_analyser<symbol_t>()(iter, potential_res, udec + 1);
+                            analyser<symbol_t, production_type::UNDEFINED>()(iter, potential_res, udec + 1);
 
                             /// If the potential
                             /// node is valid
@@ -615,10 +588,11 @@ namespace brain
                     node_<config_<production_t>>& res,
                     unsigned udec = 0u)
                 {
+                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin or ", (long)id_<production_t>);
+
                     /// Initially, no node
                     /// has been found (false)
                     bool found {false};
-                    logger<ROOT>::debug(std::string(3 * udec, ' '), "begin or ", (long)id_<production_t>);
 
                     /// Triggers the foreach
                     /// algorithm on each symbol

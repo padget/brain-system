@@ -1,8 +1,8 @@
 .PHONY: clean All
 
 All:
-	@echo "----------Building project:[ brain - Debug ]----------"
+	@echo "----------Building project:[ brain - Release ]----------"
 	@"$(MAKE)" -f  "brain.mk"
 clean:
-	@echo "----------Cleaning project:[ brain - Debug ]----------"
+	@echo "----------Cleaning project:[ brain - Release ]----------"
 	@"$(MAKE)" -f  "brain.mk" clean
