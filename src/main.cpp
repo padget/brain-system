@@ -4,7 +4,9 @@
  *  Created on: 27 oct. 2013
  *      Author: bmathieu
  */
-
+#include "meta/core.hpp"
+#include "meta/fundamental.hpp"
+#include "meta/keywords.hpp"
 #include "test/utest/utest.hpp"
 #include "configuration/properties.hpp"
 #include <iostream>
@@ -21,7 +23,7 @@ struct begin_test
 /// Main function for
 /// C++ compiler.
 int main()
-{
+{ 
     try
     {
         launch < test::test_suite < meta::test::member_test,

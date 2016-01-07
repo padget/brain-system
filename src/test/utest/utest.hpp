@@ -167,8 +167,8 @@ namespace brain
 
 
             /// Unitary test for
-            /// quote feature
-            struct quote_test:
+            /// as feature
+            struct as_test:
                 public brain::test::basic_test
             {
                 template<typename ... args_t>
@@ -178,7 +178,7 @@ namespace brain
 
                 virtual void test()
                 {
-                    add_step(v_<std::is_same<r_<quote_r_<a_type>, int, float, double>, a_type<int, float, double>>> , "");
+                    add_step(v_<std::is_same<as_r<a_type, int, float, double>, a_type<int, float, double>>> , "");
                 }
             };
 

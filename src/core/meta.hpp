@@ -28,42 +28,11 @@ namespace brain
         struct nil {};
 
 
-        /// Access to type member
-        /// of type_t
-        template<typename type_t>
-        using t_ =
-            typename type_t::type;
-
-
-        /// Access to value member
-        /// of type_t
-        template<typename type_t>
-        constexpr decltype(t_<type_t>::value) v_ =
-            t_<type_t>::value;
-
-
         /// Access to value_type member
         /// of type_t
         template<typename type_t>
         using vt_ =
             typename type_t::value_type;
-
-
-        /// Access to state member
-        /// of type_t
-        template < typename state_t,
-                 typename type_t >
-        using state_ =
-            typename type_t::
-            template state<type_t>;
-
-
-        /// Access to state member
-        /// of type_t
-        template < typename state_t,
-                 typename type_t >
-        using s_ =
-            state_<state_t, type_t>;
 
 
         /// Access to size member
@@ -89,29 +58,6 @@ namespace brain
             return_<type_r, args_t...>;
 
 
-        /// //////////////////////////// ///
-        /// Type instanciation deferring ///
-        /// //////////////////////////// ///
-
-
-        /// Defers the instation of
-        /// a template
-        template < template<typename ...> typename func_t,
-                 typename ... args_t >
-        struct defer_t_
-        {
-            using type =
-                func_t<args_t...>;
-        };
-
-
-        /// t_ shortcut for defer_t_
-        template < template<typename ...> typename func_t,
-                 typename ... args_t >
-        using defer_t =
-            t_<t_<defer_t_<func_t, args_t...>>>;
-
-
         /// //////////////////////// ///
         /// Meta function conversion ///
         /// //////////////////////// ///
@@ -120,7 +66,7 @@ namespace brain
         /// Transforms func_t into
         /// a meta function
         template <template<typename...> typename func_t>
-        struct quote_r_
+        struct as_r_
         {
             template<typename ... args_t>
             using return_ =
@@ -129,536 +75,14 @@ namespace brain
 
 
         /// r_ shortcut for
-        /// quote_r_<type_t>, args_t...
+        /// as_r_<type_t>, args_t...
         template < template<typename ...> typename type_t,
                  typename ... args_t >
-        using quote_r =
-            r_<quote_r_<type_t>, args_t...>;
+        using as_r =
+            r_<as_r_<type_t>, args_t...>;
 
 
-        /// ///////////////////////// ///
-        /// Wrapper for literal types ///
-        /// ///////////////////////// ///
 
-
-        /// Shortcut for
-        /// std::integral_constant
-        template < typename literal_t,
-                 literal_t _l >
-        using igral_t_ =
-            std::integral_constant<literal_t, _l>;
-
-
-        /// t_ shortcut for igral_t_
-        template < typename literal_t,
-                 literal_t _l >
-        using igral_t =
-            t_<igral_t_<literal_t, _l>>;
-
-
-        /// Wrapper for bool
-        template<bool _b>
-        using bool_t_ =
-            igral_t_<bool, _b>;
-
-
-        /// t_ shortcut
-        /// for bool_t_
-        template<bool _b>
-        using bool_t =
-            t_<bool_t_<_b>>;
-
-
-        /// Wrapper for short
-        template<short _s>
-        using short_t_ =
-            igral_t_<short, _s>;
-
-
-        /// t_ shortcut
-        /// for short_t_
-        template<short _s>
-        using short_t =
-            t_<short_t_<_s>>;
-
-
-        /// Wrapper for unsigned short
-        template<unsigned short _us>
-        using ushort_t_ =
-            igral_t_<unsigned short, _us>;
-
-
-        /// t_ shortcut
-        /// for ushort_t_
-        template<unsigned short _us>
-        using ushort_t =
-            t_<ushort_t_<_us>>;
-
-
-        /// Wrapper for char
-        template<char _c>
-        using char_t_ =
-            igral_t_<char, _c>;
-
-
-        /// t_ shortcut
-        /// for char_t_
-        template<char _c>
-        using char_t =
-            t_<char_t_<_c>>;
-
-
-        /// Wrapper for int
-        template<int _i>
-        using int_t_ =
-            igral_t_<int, _i>;
-
-
-        /// t_ shortcut
-        /// for int_t_
-        template<int _i>
-        using int_t =
-            t_<int_t_<_i>>;
-
-
-        /// Wrapper for long
-        template<long _l>
-        using long_t_ =
-            igral_t_<long, _l>;
-
-
-        /// t_ shortcut
-        /// for long_t_
-        template<long _l>
-        using long_t =
-            t_<long_t_<_l>>;
-
-
-        /// Wrapper for long long
-        template<long long _ll>
-        using longlong_t_ =
-            igral_t_<long long, _ll>;
-
-
-        /// t_ shortcut
-        /// for longlong_t_
-        template<long long _ll>
-        using longlong_t =
-            t_<longlong_t_<_ll>>;
-
-
-        /// Wrapper for unsigned
-        template<unsigned _u>
-        using unsigned_t_ =
-            igral_t_<unsigned, _u>;
-
-
-        /// t_ shortcut
-        /// for unsigned_t_
-        template<unsigned _u>
-        using unsigned_t =
-            t_<unsigned_t_<_u>>;
-
-
-        /// Wrapper for unsigned long
-        template<unsigned long _ul>
-        using unsignedl_t_ =
-            igral_t_<unsigned long, _ul>;
-
-
-        /// t_ shortcut
-        /// for unsignedl_t_
-        template<unsigned long _ul>
-        using unsignedl_t =
-            t_<unsignedl_t_<_ul>>;
-
-
-        /// Wrapper for unsigned long long
-        template<unsigned long long _ull>
-        using unsignedll_t_ =
-            igral_t_<unsigned long long, _ull>;
-
-
-        /// t_ shortcut
-        /// for unsignedll_t_
-        template<unsigned long long _ull>
-        using unsignedll_t =
-            t_<unsignedll_t_<_ull>>;
-
-
-        /// Wrapper for size_t
-        template<std::size_t _s>
-        using size_t_ =
-            igral_t_<std::size_t, _s>;
-
-
-        /// ////////////////////////////// ///
-        /// Wrapper for constness keywords ///
-        /// ////////////////////////////// ///
-
-
-        /// Wrapper for sizeof
-        template<typename type_t>
-        using sizeof_t_ =
-            size_t_<sizeof(type_t)>;
-
-
-        /// t_ shortcut for sizeof_t_
-        template<typename type_t>
-        using sizeof_t =
-            defer_t<sizeof_t_, type_t>;
-
-
-        /// Wrapper for sizeof...
-        template<typename ... types_t>
-        using sizeof_pack_t_ =
-            size_t_<sizeof...(types_t)>;
-
-
-        /// t_ shortcut for sizeof_pack_t_
-        template<typename ... types_t>
-        using sizeof_pack_t =
-            defer_t<sizeof_pack_t_, types_t...>;
-
-
-        /// Wrapper for alignof
-        template<typename type_t>
-        using alignof_t_ =
-            size_t_<alignof(type_t)>;
-
-
-        /// t_ shortcut for alignof_t_
-        template<typename type_t>
-        using alignof_t =
-            defer_t<alignof_t_, type_t>;
-
-
-        /// /////////////////////// ///
-        /// Keyword Feature Remover ///
-        /// /////////////////////// ///
-
-
-        ///
-        template<typename type_t>
-        using remove_const_t =
-            std::remove_const_t<type_t>;
-
-
-        ///
-        template<typename type_t>
-        using remove_volatile_t =
-            std::remove_volatile_t<type_t>;
-
-
-        ///
-        template<typename type_t>
-        using remove_reference_t =
-            std::remove_reference_t<type_t>;
-
-
-        ///
-        template<typename type_t>
-        using remove_pointer_t =
-            std::remove_pointer_t<type_t>;
-
-
-        ///
-        template<typename type_t>
-        using extract_basic_type_t =
-            remove_const_t <
-            remove_pointer_t <
-            remove_reference_t<type_t> > >;
-
-
-        /// ///////////////////////////// ///
-        /// Mathematical wrapper features ///
-        /// ///////////////////////////// ///
-
-
-        /// Wrapper for incrementing
-        template<typename type_t>
-        using inc_t_ =
-            igral_t_ <
-            decltype(v_<type_t> + 1),
-            v_<type_t> + 1 >;
-
-
-        /// t_ shortcut for inc_t_
-        template<typename type_t>
-        using inc_t =
-            defer_t<inc_t_, type_t>;
-
-
-        /// Wrapper for decrementing
-        template<typename type_t>
-        using dec_t_ =
-            igral_t_ <
-            decltype(v_<type_t> - 1),
-            v_<type_t> - 1 >;
-
-
-        /// t_ shortcut for dec_t_
-        template<typename type_t>
-        using dec_t =
-            defer_t<dec_t_, type_t>;
-
-
-        /// Wrapper for additing
-        template < typename type_t,
-                 typename other_t >
-        using plus_t_ =
-            igral_t_ <
-            decltype(v_<type_t> + v_<other_t>),
-            v_<type_t> + v_<other_t >>;
-
-
-        /// t_ shortcut for plus_t_
-        template < typename type_t,
-                 typename other_t >
-        using plus_t =
-            defer_t<plus_t_, type_t, other_t>;
-
-
-        /// Wrapper for substracting
-        template < typename type_t,
-                 typename other_t >
-        using minus_t_ =
-            igral_t_ <
-            decltype(v_<type_t> - v_<other_t>),
-            v_<type_t> - v_<other_t >>;
-
-
-        /// t_ shortcut for minus_t_
-        template < typename type_t,
-                 typename other_t >
-        using minus_t =
-            defer_t<minus_t_, type_t, other_t>;
-
-
-        /// Wrapper for multiplying
-        template < typename type_t,
-                 typename other_t >
-        using multiplies_t_ =
-            igral_t_ <
-            decltype(v_<type_t> * v_<other_t>),
-            v_<type_t> * v_<other_t >>;
-
-
-        /// t_ shortcut for multiplies_t_
-        template < typename type_t,
-                 typename other_t >
-        using multiplies_t =
-            defer_t<multiplies_t_, type_t, other_t>;
-
-
-        /// Wrapper for dividing
-        template < typename type_t,
-                 typename other_t >
-        using divides_t_ =
-            igral_t_ <
-            decltype(v_<type_t> / v_<other_t>),
-            v_<type_t> / v_<other_t >>;
-
-
-        /// t_ shortcut for divides_t_
-        template < typename type_t,
-                 typename other_t >
-        using divides_t =
-            defer_t<divides_t_, type_t, other_t>;
-
-
-        /// Wrapper for negating
-        template <typename type_t>
-        using negate_t_ =
-            igral_t_ <
-            decltype(-v_<type_t>),
-            -v_<type_t >>;
-
-
-        /// t_ shortcut for negate_t_
-        template<typename type_t>
-        using negate_t =
-            defer_t<negate_t_, type_t>;
-
-
-        /// Wrapper for moduling
-        template < typename type_t,
-                 typename other_t >
-        using modulus_t_ =
-            igral_t_ <
-            decltype(v_<type_t> % v_<other_t>),
-            v_<type_t> % v_<other_t >>;
-
-
-        /// t_ shortcut for modulus_t_
-        template < typename type_t,
-                 typename other_t >
-        using modulus_t =
-            defer_t<modulus_t_, type_t, other_t>;
-
-
-        /// /////////////////////// ///
-        /// Logical wrapper feature ///
-        /// /////////////////////// ///
-
-
-        /// Wrapper for equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using equal_to_t_ =
-            bool_t_ < v_<type_t>
-            == v_<other_t >>;
-
-
-        /// t_ shortcut for equal_to_t_
-        template < typename type_t,
-                 typename other_t >
-        using equal_to_t =
-            defer_t<equal_to_t_, type_t, other_t>;
-
-
-        /// Wrapper for not equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using not_equal_to_t_ =
-            bool_t_ < v_<type_t>
-            != v_<other_t >>;
-
-
-        /// t_ shortcut for not_equal_to_t_
-        template < typename type_t,
-                 typename other_t >
-        using not_equal_to_t =
-            defer_t<not_equal_to_t_, type_t, other_t>;
-
-
-        /// Wrapper for greater
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using greater_t_ =
-            bool_t_ < (v_<type_t>
-                       > v_<other_t>) >;
-
-
-        /// t_ shortcut for greater_t_
-        template < typename type_t,
-                 typename other_t >
-        using greater_t =
-            defer_t<greater_t_, type_t, other_t>;
-
-
-        /// Wrapper for less
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using less_t_ =
-            bool_t_ < (v_<type_t>
-                       < v_<other_t>) >;
-
-
-        /// t_ shortcut for less_t_
-        template < typename type_t,
-                 typename other_t >
-        using less_t =
-            defer_t<less_t_, type_t, other_t>;
-
-
-        /// Wrapper for greater equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using greater_equal_t_ =
-            bool_t_ < (v_<type_t>
-                       >= v_<other_t>) >;
-
-
-        /// t_ shortcut for greater_equal_t_
-        template < typename type_t,
-                 typename other_t >
-        using greater_equal_t =
-            defer_t<greater_equal_t_, type_t, other_t>;
-
-
-        /// Wrapper for less equal
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using less_equal_t_ =
-            bool_t_ < (v_<type_t>
-                       <= v_<other_t>) >;
-
-
-        /// t_ shortcut for less_equal_t_
-        template < typename type_t,
-                 typename other_t >
-        using less_equal_t =
-            defer_t<less_equal_t_, type_t, other_t>;
-
-
-        /// Wrapper for bit and
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_and_t_ =
-            bool_t_ < v_<type_t>
-            & v_<other_t >>;
-
-
-        /// t_ shortcut for bit_and_t_
-        template < typename type_t,
-                 typename other_t >
-        using bit_and_t =
-            defer_t<bit_and_t_, type_t, other_t>;
-
-
-        /// Wrapper for bit or
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_or_t_ =
-            bool_t_ < v_<type_t>
-            | v_<other_t >>;
-
-
-        /// t_ shortcut for bit_or_t_
-        template < typename type_t,
-                 typename other_t >
-        using bit_or_t =
-            defer_t<bit_or_t_, type_t, other_t>;
-
-
-        /// Wrapper for bit xor
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_xor_t_ =
-            bool_t_ < v_<type_t>
-            ^ v_<other_t >>;
-
-
-        /// t_ shortcut for bit_xor_t_
-        template < typename type_t,
-                 typename other_t >
-        using bit_xor_t =
-            defer_t<bit_xor_t_, type_t, other_t>;
-
-
-        /// Wrapper for bit not
-        /// operator
-        template < typename type_t,
-                 typename other_t >
-        using bit_not_t_ =
-            bool_t_ < ~v_<type_t >>;
-
-
-        /// t_ shortcut for bit_not_t_
-        template < typename type_t,
-                 typename other_t >
-        using bit_not_t =
-            defer_t<bit_not_t_, type_t, other_t>;
 
 
         /// ////////////// ///
@@ -756,6 +180,15 @@ namespace brain
                 std::true_type
         {
         };
+
+        template < typename test_t,
+                 typename ... other_t >
+        struct and_t_<test_t> :
+                bool_t_<v_<test_t> and v_<t_<and_t_<other_t...>>>>
+        {
+        };
+
+
 
 
         /// Specialisation for
@@ -1321,7 +754,7 @@ namespace brain
                 std::is_same<key_t, first_t<type_t>>;
 
             using type =
-                second_t<find_one_if_t<map_t, quote_r_<predicate_>>>;
+                second_t<find_one_if_t<map_t, as_r_<predicate_>>>;
         };
 
 
@@ -1395,7 +828,7 @@ namespace brain
         template<typename type_t>
         struct always_r_
         {
-            template<typename ... args_t>
+            template<typename ...>
             using return_ = type_t;
         };
 
@@ -1425,15 +858,15 @@ namespace brain
             using type =
                 if_t<r_<predicate_t, type_t>, type_t, nil>;
         };
-        
-        
+
+
         /// t_ shortcut for
         /// always_if_t_
         template < typename type_t,
                  typename predicate_t >
         using always_if_t =
             defer_t<always_if_t_, type_t, predicate_t>;
-            
+
 
         /// Determines if a
         /// type_t has the
@@ -1703,7 +1136,7 @@ namespace brain
         using count_t =
             accumulate_t < list_t,
             unsigned_t<0>,
-            bind_back_r_<quote_r_<inc_if_t>, ref_t >>;
+            bind_back_r_<as_r_<inc_if_t>, ref_t >>;
 
 
         /// ///////////////////////////////// ///
@@ -1799,37 +1232,129 @@ namespace brain
         /// ////////////// ///
 
 
+        /// A state help to
+        /// partial/fully specialize
+        /// template class.
+        /// If a given type_t
+        /// statisfies a particular
+        /// state, so the specialization
+        /// a of template is automatically
+        /// used for this state.
+        /// USe of state member
+        /// instead of type member
+        /// is only semantics.
+
+
+        /// Access to state member
+        /// of type_t
+        template < typename state_t,
+                 typename ... type_t >
+        using state_ =
+            typename state_t::
+            template state<type_t...>;
+
+
+        /// Access to state member
+        /// of type_t
+        template < typename state_t,
+                 typename ... type_t >
+        using s_ =
+            state_<state_t, type_t...>;
+
+
+        /// Transforms a func_t
+        /// base on type member
+        /// to a state base on
+        /// state parametric member
+        template<template<typename...> typename func_t>
+        struct as_s_
+        {
+            template<typename... arg_t>
+            using state =
+                defer_t<func_t, arg_t...>;
+        };
+
+
+        /// Returns the result
+        /// s_<as_s_<func_t>, arg_t>
+        template < template<typename...> typename func_t,
+                 typename ... arg_t >
+        using as_s =
+            s_<as_s_<func_t>, arg_t...>;
+
+
         /// State that means
         /// the compiler is
         /// used an invalid
         /// implementation
         struct invalid_state
         {
-            template<typename type_t>
+            template<typename ... type_t>
             using state =
                 invalid_state;
         };
 
+
+        /// Returns true_type if
+        /// the state_t is not
+        /// invalid_state
         template <typename state_t>
         using is_valid_state_t =
             not_t<std::is_same<state_t, invalid_state>>;
 
 
-        template<typename states_t>
-        struct select_s_;
 
+        /// Translation of
+        /// true_type to
+        /// true_state
+        struct true_state
+        {
+            template<typename...>
+            using state =
+                std::true_type;
+        };
+
+
+        /// Translation of
+        /// false_type to
+        /// false_state
+        struct false_state
+        {
+            template<typename...>
+            using state =
+                std::false_type;
+        };
+
+
+        /// Returns true_type
+        /// if the size of the
+        /// list is one
         template<typename list_t>
-        using only_one_t =
+        using is_single_t =
             bool_t<size_<list_t> == 1>;
 
 
+        /// Resolves wich state
+        /// will be selected
+        template<typename states_t>
+        struct select_s_;
+
+
+        /// Specialization that
+        /// distings the elements
+        /// of the states_t list
         template<typename ... states_t>
         struct select_s_<list<states_t...>>
         {
-            template<typename type_t>
+            /// Returns the only
+            /// state that is valid
+            /// for the type_t
+            template<typename... type_t>
             using state =
-                front_t<always_if_t<filter_t<list<s_<states_t, type_t>...>, quote_r_<is_valid_state_t >>, quote_r_<only_one_t>>> ;
+                front_t < always_if_t < filter_t < list<s_<states_t, type_t...>...>,
+                as_r_<is_valid_state_t >> , as_r_<is_single_t >>> ;
         };
+
 
         /// /////////////////// ///
         /// Compile time string ///
@@ -1882,7 +1407,7 @@ namespace brain
 
                 /// Returns the
                 /// m_value pointer
-                constexpr const char_t* const get() const
+                constexpr const char_t * const get() const
                 {
                     return m_value;
                 }
@@ -2246,7 +1771,7 @@ namespace brain
         template<typename type_t>
         struct has_begin_method_t_ < type_t,
         void_r<decltype(std::declval<type_t>().begin()) >>
-            : std::true_type {};
+        : std::true_type {};
 
 
         /// t_ shortcut for
@@ -2271,7 +1796,7 @@ namespace brain
         template<typename type_t>
         struct has_end_method_t_ < type_t,
         void_r<decltype(std::declval<type_t>().end()) >>
-            : std::true_type {};
+        : std::true_type {};
 
 
         /// t_ shortcut for
