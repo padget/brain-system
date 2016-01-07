@@ -17,19 +17,15 @@ namespace brain
     /// an '_t_' will be added to end of its name.
     /// For all using that encapsulate t_<type_t>
     /// '_t' will be added to its name.
-    /// Sale things for metafunction with return_
+    /// Same things for metafunction with return_
     /// by adding '_r_'(and '_r')
     namespace meta
     {
-
-        struct nil
-        {
-        };
-
-
         /// //////////////////////////////////// ///
         /// Shortcut for access template members ///
         /// //////////////////////////////////// ///
+
+        struct nil {};
 
 
         /// Access to type member
@@ -50,7 +46,24 @@ namespace brain
         /// of type_t
         template<typename type_t>
         using vt_ =
-            decltype(v_<type_t>);
+            typename type_t::value_type;
+
+
+        /// Access to state member
+        /// of type_t
+        template < typename state_t,
+                 typename type_t >
+        using state_ =
+            typename type_t::
+            template state<type_t>;
+
+
+        /// Access to state member
+        /// of type_t
+        template < typename state_t,
+                 typename type_t >
+        using s_ =
+            state_<state_t, type_t>;
 
 
         /// Access to size member
@@ -87,7 +100,8 @@ namespace brain
                  typename ... args_t >
         struct defer_t_
         {
-            using type = func_t<args_t...>;
+            using type =
+                func_t<args_t...>;
         };
 
 
@@ -114,7 +128,8 @@ namespace brain
         };
 
 
-        /// r_ shortcut for quote_r_
+        /// r_ shortcut for
+        /// quote_r_<type_t>, args_t...
         template < template<typename ...> typename type_t,
                  typename ... args_t >
         using quote_r =
@@ -882,6 +897,9 @@ namespace brain
         {
             using type =
                 nil;
+
+            static_assert(v_<std::is_same<type, nil>>,
+                          "nil detected !!!");
         };
 
 
@@ -936,7 +954,8 @@ namespace brain
                  typename ... types_t >
         struct front_t_<list<head_t, types_t...>>
         {
-            using type = head_t;
+            using type =
+                head_t;
         };
 
 
@@ -957,7 +976,8 @@ namespace brain
         template<typename type_t>
         struct back_t_<type_t>
         {
-            using type = type_t;
+            using type =
+                type_t;
         };
 
 
@@ -1395,6 +1415,26 @@ namespace brain
             always_r<void, args_t...>;
 
 
+        /// Returns type_t only_if
+        /// predicate_t<type_t> returns
+        /// true_type, else returns nil
+        template < typename type_t,
+                 typename predicate_t >
+        struct always_if_t_
+        {
+            using type =
+                if_t<r_<predicate_t, type_t>, type_t, nil>;
+        };
+        
+        
+        /// t_ shortcut for
+        /// always_if_t_
+        template < typename type_t,
+                 typename predicate_t >
+        using always_if_t =
+            defer_t<always_if_t_, type_t, predicate_t>;
+            
+
         /// Determines if a
         /// type_t has the
         /// 'type' member
@@ -1620,6 +1660,52 @@ namespace brain
             defer_t<iterate_t_, list_t, func_t>;
 
 
+        /// Meta function that
+        /// add type_t to list_t
+        /// if r_<predicate_t, type_t>
+        /// returns true. Else it
+        /// returns list_t itself
+        template<typename predicate_t>
+        struct filter_r_
+        {
+            template < typename list_t,
+                     typename type_t >
+            using return_ =
+                select_t <
+                r_<predicate_t, type_t>,
+                push_back_t<type_t, list_t>,
+                list_t >;
+        };
+
+
+        /// Evaluates the result
+        /// of accumulate < list_t, list<>,
+        /// private_::filter<predicate_t >>;
+        template < typename list_t,
+                 typename predicate_t >
+        using filter_t =
+            defer_t < accumulate_t ,  list_t, list<>,
+            filter_r_<predicate_t >>;
+
+
+        /// TODO Sort + Doc
+        template < typename res_t ,
+                 typename type_t,
+                 typename ref_t >
+        using inc_if_t =
+            if_t < std::is_same<ref_t, type_t>,
+            inc_t<res_t>, res_t >;
+
+
+        /// TODO Sort + Doc
+        template < typename list_t,
+                 typename ref_t >
+        using count_t =
+            accumulate_t < list_t,
+            unsigned_t<0>,
+            bind_back_r_<quote_r_<inc_if_t>, ref_t >>;
+
+
         /// ///////////////////////////////// ///
         /// Lambda with placeholding features ///
         /// ///////////////////////////////// ///
@@ -1705,6 +1791,44 @@ namespace brain
             template<typename ... args_t>
             using return_ =
                 expand_t<func_t, map_replace_t<func_args_, to_map_t<lambda_args_, list<args_t...>>>>;
+        };
+
+
+        /// ////////////// ///
+        /// States Algebra ///
+        /// ////////////// ///
+
+
+        /// State that means
+        /// the compiler is
+        /// used an invalid
+        /// implementation
+        struct invalid_state
+        {
+            template<typename type_t>
+            using state =
+                invalid_state;
+        };
+
+        template <typename state_t>
+        using is_valid_state_t =
+            not_t<std::is_same<state_t, invalid_state>>;
+
+
+        template<typename states_t>
+        struct select_s_;
+
+        template<typename list_t>
+        using only_one_t =
+            bool_t<size_<list_t> == 1>;
+
+
+        template<typename ... states_t>
+        struct select_s_<list<states_t...>>
+        {
+            template<typename type_t>
+            using state =
+                front_t<always_if_t<filter_t<list<s_<states_t, type_t>...>, quote_r_<is_valid_state_t >>, quote_r_<only_one_t>>> ;
         };
 
         /// /////////////////// ///
@@ -1931,37 +2055,260 @@ namespace brain
             const_reverse_iterator;
 
 
+        /// Determines if a
+        /// type_t has the
+        /// 'differen_type'
+        /// member
+        template < typename type_t,
+                 typename = void >
+        struct has_difference_type_t_:
+                std::false_type
+        {
+        };
+
+
+        /// Specialization for
+        /// the case of type_t
+        /// has the difference_type
+        /// member
+        template<typename type_t>
+        struct has_difference_type_t_ <
+                type_t,
+                void_r<typename type_t::difference_type> > :
+                std::true_type
+        {
+        };
+
+
+        /// t_ shortcut for
+        /// has_difference_type_t_
+        template<typename type_t>
+        using has_difference_type_t =
+            defer_t<has_difference_type_t_, type_t>;
+
+
+        /// Determines if a
+        /// type_t has the
+        /// 'pointer' member
+        template < typename type_t,
+                 typename = void >
+        struct has_pointer_t_:
+                std::false_type
+        {
+        };
+
+
+        /// Specialization for
+        /// the case of type_t
+        /// has the pointer
+        /// member
+        template<typename type_t>
+        struct has_pointer_t_ <
+                type_t,
+                void_r<typename type_t::pointer> > :
+                std::true_type
+        {
+        };
+
+
+        /// t_ shortcut for
+        /// has_pointer_t_
+        template<typename type_t>
+        using has_pointer_t =
+            defer_t<has_pointer_t_, type_t>;
+
+
+        /// Determines if a
+        /// type_t has the
+        /// 'reference' member
+        template < typename type_t,
+                 typename = void >
+        struct has_reference_t_:
+                std::false_type
+        {
+        };
+
+
+        /// Specialization for
+        /// the case of type_t
+        /// has the reference
+        /// member
+        template<typename type_t>
+        struct has_reference_t_ <
+                type_t,
+                void_r<typename type_t::reference> > :
+                std::true_type
+        {
+        };
+
+
+        /// t_ shortcut for
+        /// has_reference_t_
+        template<typename type_t>
+        using has_reference_t =
+            defer_t<has_reference_t_, type_t>;
+
+
+        /// Determines if a
+        /// type_t has the
+        /// 'iterator_category'
+        /// member
+        template < typename type_t,
+                 typename = void >
+        struct has_iterator_category_t_:
+                std::false_type
+        {
+        };
+
+
+        /// Specialization for
+        /// the case of type_t
+        /// has the iterator_category
+        /// member
+        template<typename type_t>
+        struct has_iterator_category_t_ <
+                type_t,
+                void_r<typename type_t::iterator_category> > :
+                std::true_type
+        {
+        };
+
+
+        /// t_ shortcut for
+        /// has_iterator_category_t_
+        template<typename type_t>
+        using has_iterator_category_t =
+            defer_t<has_iterator_category_t_, type_t>;
+
+
+        /// Determines if a
+        /// type_t has the
+        /// 'value_type'
+        /// member
+        template < typename type_t,
+                 typename = void >
+        struct has_value_type_t_:
+                std::false_type
+        {
+        };
+
+
+        /// Specialization for
+        /// the case of type_t
+        /// has the value_type
+        /// member
+        template<typename type_t>
+        struct has_value_type_t_ <
+                type_t,
+                void_r<typename type_t::value_type> > :
+                std::true_type
+        {
+        };
+
+
+        /// t_ shortcut for
+        /// has_value_type_t_
+        template<typename type_t>
+        using has_value_type_t =
+            defer_t<has_value_type_t_, type_t>;
+
+
+
+        /// Returns true_type
+        /// type_t has the members :
+        /// - difference_type
+        /// - value_type
+        /// - pointer
+        /// - reference
+        /// - iterator_category
+        template<typename type_t>
+        using is_iterator_t =
+            and_t <
+            has_difference_type_t<type_t>,
+            has_value_type_t<type_t>,
+            has_pointer_t<type_t>,
+            has_reference_t<type_t>,
+            has_iterator_category_t<type_t >>;
+
+
+        /// Determines if the
+        /// type_t has begin()
+        /// method
+        template < typename type_t,
+                 typename = void >
+        struct has_begin_method_t_
+                : std::false_type {};
+
+
+        /// Specialization for
+        /// the case where begin()
+        /// is member of type_t
+        template<typename type_t>
+        struct has_begin_method_t_ < type_t,
+        void_r<decltype(std::declval<type_t>().begin()) >>
+            : std::true_type {};
+
+
+        /// t_ shortcut for
+        /// has_begin_method_t_
+        template<typename type_t>
+        using has_begin_method_t =
+            defer_t<has_begin_method_t_, type_t>;
+
+
+        /// Determines if the
+        /// type_t has end()
+        /// method
+        template < typename type_t,
+                 typename = void >
+        struct has_end_method_t_
+                : std::false_type {};
+
+
+        /// Specialization for
+        /// the case where end()
+        /// is member of type_t
+        template<typename type_t>
+        struct has_end_method_t_ < type_t,
+        void_r<decltype(std::declval<type_t>().end()) >>
+            : std::true_type {};
+
+
+        /// t_ shortcut for
+        /// has_end_method_t_
+        template<typename type_t>
+        using has_end_method_t =
+            defer_t<has_end_method_t_, type_t>;
+
+
+        /// Returns true_type
+        /// if type_t is iterable :
+        /// - has begin() method
+        /// - has end() method
+        template <typename type_t>
+        using is_iterable_t =
+            and_t < has_begin_method_t<type_t>,
+            has_end_method_t<type_t> >;
+
+
+        /// Returns iterable_state_t
+        /// if type_t is conformed
+        /// with is_iterable_t test
+        /// else, returns invalid_state
+        struct iterable_state
+        {
+            template<typename type_t>
+            using state = void;
+            ///state_s<type_t, is_iterable_t, iterable_state>;
+        };
+
+
         /// //////// ///
         /// Unsorted ///
         /// //////// ///
 
 
-        /// Meta function that
-        /// add type_t to list_t
-        /// if r_<predicate_t, type_t>
-        /// returns true. Else it
-        /// returns list_t itself
-        template<typename predicate_t>
-        struct filter_r_
-        {
-            template < typename list_t,
-                     typename type_t >
-            using return_ =
-                select_t <
-                r_<predicate_t, type_t>,
-                push_back_t<type_t, list_t>,
-                list_t >;
-        };
 
-
-        /// Evaluates the result
-        /// of accumulate < list_t, list<>,
-        /// private_::filter<predicate_t >>;
-        template < typename list_t,
-                 typename predicate_t >
-        using filter_t =
-            defer_t < accumulate_t ,  list_t, list<>,
-            filter_r_<predicate_t >>;
 
 
         /// TODO Sort + Doc
@@ -2007,21 +2354,6 @@ namespace brain
                  typename type_t >
         using repeat_c =
             defer_t<repeat_t, unsigned_t<_nb>, type_t>;
-
-
-        /// TODO Sort + Doc
-        template < typename res_t ,
-                 typename type_t,
-                 typename ref_t >
-        using inc_if_t =
-            if_t<std::is_same<ref_t, type_t>, inc_t<res_t>, res_t>;
-
-
-        /// TODO Sort + Doc
-        template < typename list_t,
-                 typename ref_t >
-        using count_t =
-            accumulate_t<list_t, unsigned_t<0>, bind_back_r_<quote_r_<inc_if_t>, ref_t>>;
 
 
         /// TODO Sort + Doc

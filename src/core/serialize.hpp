@@ -21,8 +21,8 @@ namespace brain
         struct stream;
 
 
-        /// Class to implements to 
-        /// be compatible with 
+        /// Class to implements to
+        /// be compatible with
         /// serialization library
         template<typename char_t>
         class serializable
@@ -30,11 +30,21 @@ namespace brain
             public:
                 /// Overload this method
                 /// to specify the way
-                /// to serialize the 
+                /// to serialize the
                 /// current object
                 virtual void serialize(
                     stream<char_t>& out) const = 0;
         };
+
+
+        /// Returns true_type
+        /// if type_t inherits
+        /// from serializable
+        template < typename char_t,
+                 typename type_t >
+        using is_serializable_t =
+            meta::defer_t < std::is_base_of,
+            serializable<char_t>, type_t >;
 
 
         /// /////////////////// ///
@@ -53,6 +63,44 @@ namespace brain
             virtual stream<char_t>& operator()(
                 stream<char_t>& out) = 0;
         };
+
+
+
+        struct serializable_state
+        {
+            template<typename type_t>
+            using state = void;
+                /// meta::if_t<type_t, meta::is_iterable_t>;
+        };
+
+
+            template<typename char_t>
+        struct member:
+            public injector<char_t>
+        {
+            property<stream<char_t>> ss;
+
+            template < typename type_t,
+                     typename state_t >
+            struct inner;
+
+
+
+
+
+
+
+
+
+
+
+            virtual stream<char_t>& operator()(
+                stream<char_t>& out)
+            {
+                return out;
+            };
+        };
+
 
 
         /// Injector that can
@@ -105,7 +153,8 @@ namespace brain
                               std::end(attrs),
                               [&out](auto & attr)
                 {
-                    attr.depth(attr.depth() + out.current_depth());
+                    attr.depth(attr.depth() +
+                               out.current_depth());
                 });
 
                 /// If the list is not
@@ -120,9 +169,10 @@ namespace brain
 
                 /// Add all elements from
                 /// ss into out at the end.
-                out.attributes().insert(std::end(out.attributes()),
-                                        std::begin(ss().attributes()),
-                                        std::end(ss().attributes()));
+                out.attributes().insert(
+                    std::end(out.attributes()),
+                    std::begin(ss().attributes()),
+                    std::end(ss().attributes()));
 
                 /// Composition => depth--
                 out.current_depth()--;
@@ -158,7 +208,6 @@ namespace brain
                 const type_t& ob):
                 comp_name(name)
             {
-                
                 ob.serialize(ss());
             }
 
@@ -197,9 +246,10 @@ namespace brain
 
                 /// Add all elements from
                 /// ss into out at the end.
-                out.attributes().insert(std::end(out.attributes()),
-                                        std::begin(ss().attributes()),
-                                        std::end(ss().attributes()));
+                out.attributes().insert(
+                    std::end(out.attributes()),
+                    std::begin(ss().attributes()),
+                    std::end(ss().attributes()));
 
                 /// Composition => depth--
                 out.current_depth()--;
@@ -259,7 +309,117 @@ namespace brain
                 });
 
 
+                /// Align the depth with
+                /// the out current_deph
+                std::for_each(std::begin(attrs),
+                              std::end(attrs),
+                              [&out](auto & attr)
+                {
+                    attr.depth(attr.depth() +
+                               out.current_depth());
+                });
+
+
                 /// If the list is not
+                /// empty and the first
+                /// element has only a
+                /// name, then this
+                /// element is removed
+                if(!attrs.empty() and
+                        !attrs.front().has_value() and
+                        attrs.front().has_name())
+                    attrs.pop_front();
+
+
+                /// Add all elements from
+                /// ss into out at the end.
+                out.attributes().insert(
+                    std::end(out.attributes()),
+                    std::begin(ss().attributes()),
+                    std::end(ss().attributes()));
+
+                return out;
+            }
+        };
+
+
+
+        template <typename char_t>
+        struct iterable final:
+                injector<char_t>
+        {
+            template < typename citerator_t,
+                     typename = is_serializable_t<char_t, meta::vt_<std::iterator_traits<citerator_t>> >>
+            struct iterable_process;
+
+            template<typename citerator_t>
+            struct iterable_process <
+                    citerator_t,
+                    std::true_type >
+            {
+                void operator()(
+                    stream<char_t>& ss,
+                    const std::basic_string<char_t>& name,
+                    const citerator_t& cbegin,
+                    const citerator_t& cend)
+                {
+                    ss << name;
+                    ss.current_depth()++;
+
+                    std::for_each(cbegin, cend,
+                                  [&ss](const auto & ob)
+                    { ob.serialize(ss); });
+
+                    ss.current_depth()--;
+                }
+            };
+
+            template<typename citerator_t>
+            struct iterable_process <
+                    citerator_t,
+                    std::false_type >
+            {
+                void operator()(
+                    stream<char_t>& ss,
+                    const std::basic_string<char_t>& name,
+                    const citerator_t& cbegin,
+                    const citerator_t& cend)
+                {
+                    ss << name;
+                    ss.current_depth()++;
+
+                    std::for_each(cbegin, cend,
+                                  [&ss](const auto & ob)
+                    { ss << stream<char_t>::attribute(); });
+
+                    ss.current_depth()--;
+                }
+            };
+
+
+            /// Embedded stream
+            property<stream<char_t>> ss;
+
+            template<typename citerator_t>
+            iterable(
+                const std::basic_string<char_t>& name,
+                const citerator_t& cbegin,
+                const citerator_t& cend)
+            {
+                iterable_process<citerator_t>()(ss(), name, cbegin, cend);
+            }
+
+
+            virtual stream<char_t>& operator()(
+                stream<char_t>& out)
+            {
+                /// Composition => depth++
+                out.current_depth()++;
+
+                auto& attrs =
+                    ss().attributes();
+
+                // If the list is not
                 /// empty and the first
                 /// element has only a
                 /// name, then this
@@ -274,6 +434,10 @@ namespace brain
                 out.attributes().insert(std::end(out.attributes()),
                                         std::begin(ss().attributes()),
                                         std::end(ss().attributes()));
+
+                /// Composition => depth--
+                out.current_depth()--;
+
                 return out;
             }
         };
@@ -848,7 +1012,7 @@ namespace brain
                 }
 
 
-                /// 
+                ///
                 stream& operator<< (
                     const serializable<char_t>& ob)
                 {

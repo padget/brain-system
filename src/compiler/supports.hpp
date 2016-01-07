@@ -122,6 +122,41 @@ namespace brain
                 {
                     return symbol_id() !=  bullshit_<enum_t>;
                 }
+
+
+            public:
+                /// Serialize method
+                /// to overload to
+                /// have a specific
+                /// feature for childs
+                /// classes
+                inline virtual void serialize(
+                    serialize::stream<char>& out) const
+                {
+                    out << "token"
+                        << serialize::fundamental<char>("symbol_id", (long) symbol_id())
+                        ;//<< serialize::stream<char>::attribute("value", value());
+                }
+
+
+            public:
+                /// Overload this method
+                /// to specify to the target
+                /// type
+                inline virtual bool equals(
+                    const object& other) const
+                {
+                    return id() == other.id();
+                }
+
+
+                /// Returns the result
+                /// of this->equals(other)
+                inline bool operator ==(
+                    const object& other) const
+                {
+                    return equals(other);
+                }
         };
 
 
@@ -190,6 +225,45 @@ namespace brain
                 /// operator=
                 node& operator=(
                     const node&) = default;
+
+            public:
+                /// Serialize method
+                /// to overload to
+                /// have a specific
+                /// feature for childs
+                /// classes
+                inline virtual void serialize(
+                    serialize::stream<char>& out) const
+                {
+                    out << "node"
+                        << serialize::parent<char,  token<enum_t, char_t>>(*this)
+                        << serialize::iterable<char>("childs", childs().begin(), childs().end());
+                }
+
+
+            public:
+                /// Overload this method
+                /// to specify to the target
+                /// type
+                inline virtual bool equals(
+                    const object& other) const
+                {
+                    if(typeid(other) == typeid(node))
+                        return this->token<enum_t, char_t>::equals(other)/* and
+                               childs() == dynamic_cast<const node&>(other).childs()*/;
+
+                    else
+                        return false;
+                }
+
+
+                /// Returns the result
+                /// of this->equals(other)
+                inline bool operator ==(
+                    const object& other) const
+                {
+                    return equals(other);
+                }
         };
 
 

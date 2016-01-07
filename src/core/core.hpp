@@ -268,7 +268,7 @@ namespace brain
             /// Overload this method
             /// to specify to the target
             /// type
-            virtual bool equals(
+            inline virtual bool equals(
                 const object& other) const
             {
                 return id() == other.id();
@@ -277,7 +277,7 @@ namespace brain
 
             /// Returns the result
             /// of this->equals(other)
-            bool operator ==(
+            inline bool operator ==(
                 const object& other) const
             {
                 return equals(other);

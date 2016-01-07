@@ -13,6 +13,10 @@
 using namespace brain;
 using namespace std;
 
+struct begin_test
+{
+    void begin() {};
+};
 
 /// Main function for
 /// C++ compiler.
@@ -20,7 +24,6 @@ int main()
 {
     try
     {
-        
         launch < test::test_suite < meta::test::member_test,
                meta::test::literal_test,
                meta::test::constkw_test,

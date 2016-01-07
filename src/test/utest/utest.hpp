@@ -24,6 +24,7 @@ namespace brain
                     using type = a_type;
                     static constexpr int value = 1;
                     static constexpr size_t size = 12;
+                    using value_type = int;
 
                     template<typename ... args>
                     using return_ = a_type;
@@ -240,7 +241,7 @@ namespace brain
                 {
                     template<typename type_t>
                     using return_ =
-                        bool_t_<v_<std::is_same<type_t, int>>>;
+                        bool_t<v_<std::is_same<type_t, int>>>;
                 };
 
                 using a_list = list<int, double, float, int>;
@@ -251,7 +252,7 @@ namespace brain
                     add_step(v_<std::is_same<filter_t<a_list, is_int>, list<int, int>>>, "");
                 }
             };
-
+            
 
             struct runtime_test :
                 public brain::test::basic_test
@@ -519,7 +520,7 @@ namespace brain
         {
             virtual void test()
             {
-                any d {1};
+                any d {1.};
                 any d2 {4};
                 any a {std::string("coucou")};
                 std::cout << "any " << any_cast<double>(d) << std::endl;
@@ -692,7 +693,8 @@ namespace brain
                 cpl::scanner<lqlconfig>::build_tokens<token_maker>(filename, tokens);
                 node_maker::node_type node;
                 cpl::parser<grammar>::build_node<node_maker>(tokens, node);
-                cpl::node_displayer<lqlconfig>()(node);
+                std::cout << marshall<char, serialize::xml_format>(node) << std::endl;
+                //cpl::node_displayer<lqlconfig>()(node);
             }
 
         };
