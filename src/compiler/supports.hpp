@@ -542,8 +542,8 @@ namespace brain
         template < production_type _type,
                  typename symbol_t,
                  typename ... symbols_t >
-        constexpr  enum_<config_<symbol_t> >
-        production<_type, symbol_t, symbols_t...>::symbol_id;
+        constexpr  enum_<config_<symbol_t>>
+                                         production<_type, symbol_t, symbols_t...>::symbol_id;
 
 
         /// Static initialization
@@ -696,7 +696,7 @@ namespace brain
             public:
                 virtual convert(
                     std::basic_string<char_type>& value,
-                    any& transformed) = 0;
+                    std::list<any>& args) = 0;
         };
 
 
