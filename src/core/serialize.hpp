@@ -43,7 +43,7 @@ namespace brain
         template < typename char_t,
                  typename type_t >
         using is_serializable_t =
-            meta::defer_t < std::is_base_of,
+            meta::lazy_t < std::is_base_of,
             serializable<char_t>, type_t >;
 
 
@@ -70,11 +70,11 @@ namespace brain
         {
             template<typename type_t>
             using state = void;
-                /// meta::if_t<type_t, meta::is_iterable_t>;
+            /// meta::if_t<type_t, meta::is_iterable_t>;
         };
 
 
-            template<typename char_t>
+        template<typename char_t>
         struct member:
             public injector<char_t>
         {

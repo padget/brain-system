@@ -28,6 +28,14 @@
 #include <tuple>
 #include <list>
 #include <chrono>
+#include "../meta/core.hpp"
+#include "../meta/fundamental.hpp"
+#include "../meta/logic.hpp"
+#include "../meta/function.hpp"
+#include "../meta/list.hpp"
+#include "../meta/select.hpp"
+#include "../meta/keywords.hpp"
+#include "../meta/state.hpp"
 #include "serialize.hpp"
 #include "meta.hpp"
 #include "pattern.hpp"

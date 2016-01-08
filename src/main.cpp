@@ -7,6 +7,7 @@
 #include "meta/core.hpp"
 #include "meta/fundamental.hpp"
 #include "meta/keywords.hpp"
+#include "meta/math.hpp"
 #include "test/utest/utest.hpp"
 #include "configuration/properties.hpp"
 #include <iostream>
@@ -23,7 +24,7 @@ struct begin_test
 /// Main function for
 /// C++ compiler.
 int main()
-{ 
+{
     try
     {
         launch < test::test_suite < meta::test::member_test,

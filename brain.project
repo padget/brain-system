@@ -42,69 +42,81 @@ C:\users\benjamin\projets\code_lite_w\brain
   </Reconciliation>
   <Description/>
   <Dependencies/>
-  <VirtualDirectory Name="brain">
-    <VirtualDirectory Name="resources">
-      <VirtualDirectory Name="lang">
-        <File Name="resources/lang/lang.EN.properties"/>
-        <File Name="resources/lang/lang.FR.properties"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="conf">
-        <File Name="resources/conf/brain.properties"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="doc">
-        <File Name="resources/doc/data.info"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="test">
-        <File Name="resources/test/test.lql"/>
+  <VirtualDirectory Name="resources">
+    <VirtualDirectory Name="lang">
+      <File Name="resources/lang/lang.EN.properties"/>
+      <File Name="resources/lang/lang.FR.properties"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="conf">
+      <File Name="resources/conf/brain.properties"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="doc">
+      <File Name="resources/doc/data.info"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="test">
+      <File Name="resources/test/test.lql"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <File Name="brain.cbp"/>
+  <File Name="brain.layout"/>
+  <File Name="brain.mk"/>
+  <File Name="brain.txt"/>
+  <File Name="brain.workspace.layout"/>
+  <VirtualDirectory Name="src">
+    <File Name="src/brain.h"/>
+    <VirtualDirectory Name="compiler">
+      <File Name="src/compiler/chain.hpp"/>
+      <File Name="src/compiler/compiler.hpp"/>
+      <File Name="src/compiler/event.hpp"/>
+      <File Name="src/compiler/parser.hpp"/>
+      <File Name="src/compiler/scanner.hpp"/>
+      <File Name="src/compiler/supports.hpp"/>
+      <File Name="src/compiler/utils.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="configuration">
+      <File Name="src/configuration/properties.hpp"/>
+    </VirtualDirectory>
+    <File Name="src/core.h"/>
+    <VirtualDirectory Name="core">
+      <File Name="src/core/core.hpp"/>
+      <File Name="src/core/meta.hpp"/>
+      <File Name="src/core/pattern.hpp"/>
+      <File Name="src/core/property.hpp"/>
+      <File Name="src/core/serialize.hpp"/>
+      <File Name="src/core/logging.hpp"/>
+      <File Name="src/core/filtering.hpp"/>
+      <File Name="src/core/any.hpp"/>
+    </VirtualDirectory>
+    <File Name="src/data.h"/>
+    <VirtualDirectory Name="data">
+      <File Name="src/data/LQL.hpp"/>
+      <File Name="src/data/lambda.hpp"/>
+      <File Name="src/data/support.hpp"/>
+      <File Name="src/data/factory.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="lang">
+      <File Name="src/lang/language.hpp"/>
+    </VirtualDirectory>
+    <File Name="src/main.cpp"/>
+    <File Name="src/test.h"/>
+    <VirtualDirectory Name="test">
+      <VirtualDirectory Name="utest">
+        <File Name="src/test/utest/utest.hpp"/>
       </VirtualDirectory>
     </VirtualDirectory>
-    <File Name="brain.cbp"/>
-    <File Name="brain.layout"/>
-    <File Name="brain.mk"/>
-    <File Name="brain.txt"/>
-    <File Name="brain.workspace.layout"/>
-    <VirtualDirectory Name="src">
-      <File Name="src/brain.h"/>
-      <VirtualDirectory Name="compiler">
-        <File Name="src/compiler/chain.hpp"/>
-        <File Name="src/compiler/compiler.hpp"/>
-        <File Name="src/compiler/event.hpp"/>
-        <File Name="src/compiler/parser.hpp"/>
-        <File Name="src/compiler/scanner.hpp"/>
-        <File Name="src/compiler/supports.hpp"/>
-        <File Name="src/compiler/utils.hpp"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="configuration">
-        <File Name="src/configuration/properties.hpp"/>
-      </VirtualDirectory>
-      <File Name="src/core.h"/>
-      <VirtualDirectory Name="core">
-        <File Name="src/core/core.hpp"/>
-        <File Name="src/core/meta.hpp"/>
-        <File Name="src/core/pattern.hpp"/>
-        <File Name="src/core/property.hpp"/>
-        <File Name="src/core/serialize.hpp"/>
-        <File Name="src/core/logging.hpp"/>
-        <File Name="src/core/filtering.hpp"/>
-        <File Name="src/core/any.hpp"/>
-      </VirtualDirectory>
-      <File Name="src/data.h"/>
-      <VirtualDirectory Name="data">
-        <File Name="src/data/LQL.hpp"/>
-        <File Name="src/data/lambda.hpp"/>
-        <File Name="src/data/support.hpp"/>
-        <File Name="src/data/factory.hpp"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="lang">
-        <File Name="src/lang/language.hpp"/>
-      </VirtualDirectory>
-      <File Name="src/main.cpp"/>
-      <File Name="src/test.h"/>
-      <VirtualDirectory Name="test">
-        <VirtualDirectory Name="utest">
-          <File Name="src/test/utest/utest.hpp"/>
-        </VirtualDirectory>
-      </VirtualDirectory>
+    <VirtualDirectory Name="meta">
+      <File Name="src/meta/core.hpp"/>
+      <File Name="src/meta/function.hpp"/>
+      <File Name="src/meta/fundamental.hpp"/>
+      <File Name="src/meta/keywords.hpp"/>
+      <File Name="src/meta/list.hpp"/>
+      <File Name="src/meta/logic.hpp"/>
+      <File Name="src/meta/math.hpp"/>
+      <File Name="src/meta/select.hpp"/>
+      <File Name="src/meta/state.hpp"/>
+      <File Name="src/meta/lambda.hpp"/>
+      <File Name="src/meta/string.hpp"/>
+      <File Name="src/meta/iterate.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
@@ -152,7 +164,7 @@ C:\users\benjamin\projets\code_lite_w\brain
         <CustomPostBuild/>
         <CustomPreBuild/>
       </AdditionalRules>
-      <Completion EnableCpp11="no" EnableCpp14="yes">
+      <Completion EnableCpp11="yes" EnableCpp14="yes">
         <ClangCmpFlagsC/>
         <ClangCmpFlags/>
         <ClangPP/>

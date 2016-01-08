@@ -1,5 +1,5 @@
-#ifndef __BRAIN_META_MATH_HPP__
-# define __BRAIN_META_MATH_HPP__
+#ifndef __BRAIN_META_LOGIC_HPP__
+# define __BRAIN_META_LOGIC_HPP__
 
 
 namespace brain
@@ -168,6 +168,91 @@ namespace brain
                  typename other_t >
         using bit_not_t =
             lazy_t<bit_not_t_, type_t, other_t>;
+
+
+        /// Returns std::true_type
+        /// if all bools_t are true
+        template <typename... bools_t>
+        struct and_t_;
+
+
+        /// Specialisation for
+        /// _and_ that returns
+        /// std::true_type for
+        /// default case.
+        template <>
+        struct and_t_<> :
+                std::true_type
+        {
+        };
+
+
+        template < typename test_t,
+                 typename ... other_t >
+        struct and_t_<test_t, other_t...> :
+                bool_t_<v_<test_t> and v_<t_<and_t_<other_t...>>>>
+        {
+        };
+
+
+        /// Evaluates the result
+        /// of t_<_and_<bools_t...>>
+        template<typename ... bools_t>
+        using and_t =
+            lazy_t<and_t_, bools_t...>;
+
+
+
+
+        /// Returns std::true_type
+        /// if one or more bools_t
+        /// is true
+        template <typename... bools_t>
+        struct or_t_;
+
+
+        /// Specialisation for
+        /// _or_ that returns
+        /// std::false_type
+        /// for default case
+        template <>
+        struct or_t_<> :
+                std::false_type
+        {
+        };
+
+
+        /// Specialisation for
+        /// _and_ that returns
+        /// std::false_type if
+        /// all of bools_t is
+        /// false
+        template < typename bool_t,
+                 typename... bools_t >
+        struct or_t_<bool_t, bools_t...> :
+                bool_t_<v_<bool_t> or v_<t_<or_t_<bools_t...>>>>
+
+        {
+        };
+
+
+        /// Evaluates the result
+        /// of t_<_or_<bools_t...>>
+        template<typename ... bools_t>
+        using or_t =
+            lazy_t<or_t_, bools_t...>;
+
+
+        /// Negates the bool_t
+        template<typename bool_t>
+        using not_t_ =
+            bool_t_ < !v_<bool_t >>;
+
+
+        /// t_ shortcut for not_t_
+        template<typename bool_t>
+        using not_t =
+            lazy_t<not_t_, bool_t>;
 
     }
 }

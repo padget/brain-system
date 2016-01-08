@@ -7,6 +7,8 @@ namespace brain
 {
     namespace meta
     {
+        struct nil {};
+
         /// //////////////////// ///
         /// Most common shortcut ///
         /// //////////////////// ///
@@ -47,9 +49,6 @@ namespace brain
                  typename ... args_t >
         using lazy_t =
             t_<t_<lazy_t_<func_t, args_t...>>>;
-            
-            
-        
     }
 }
 

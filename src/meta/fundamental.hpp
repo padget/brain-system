@@ -162,6 +162,10 @@ namespace brain
         template<std::size_t _s>
         using size_t_ =
             igral_t_<std::size_t, _s>;
+
+
+        template<typename ...>
+        using void_t = void;
     }
 }
 

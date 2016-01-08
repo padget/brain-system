@@ -384,10 +384,10 @@ namespace brain
 
 
         /// Evaluates the result of
-        /// defer_t<has_config_type_t_, type_t>
+        /// lazy_t<has_config_type_t_, type_t>
         template<typename type_t>
         using has_config_type_t =
-            meta::defer_t<has_config_type_t_, type_t>;
+            meta::lazy_t<has_config_type_t_, type_t>;
 
 
         /// ////////////////// ///
@@ -657,7 +657,7 @@ namespace brain
         /// t_<has_symbol_type_t_, type_t>
         template<typename type_t>
         using has_symbol_type_t =
-            meta::defer_t<has_symbol_type_t_, type_t>;
+            meta::lazy_t<has_symbol_type_t_, type_t>;
 
 
         /// Returns std::false_type
@@ -688,7 +688,7 @@ namespace brain
         /// t_<has_symbols_type_t_, type_t>
         template<typename type_t>
         using has_symbols_type_t =
-            meta::defer_t<has_symbols_type_t_, type_t>;
+            meta::lazy_t<has_symbols_type_t_, type_t>;
 
 
         /// Returns true_type
