@@ -117,6 +117,7 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/meta/lambda.hpp"/>
       <File Name="src/meta/string.hpp"/>
       <File Name="src/meta/iterate.hpp"/>
+      <File Name="src/meta/map.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

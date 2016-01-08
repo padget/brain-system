@@ -10,7 +10,7 @@ namespace brain
         /// Logical wrapper feature ///
         /// /////////////////////// ///
 
-
+        
         /// Wrapper for equal
         /// operator
         template < typename type_t,

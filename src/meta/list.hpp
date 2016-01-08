@@ -27,7 +27,9 @@ namespace brain
         template<typename ... types_t>
         struct list
         {
-            using type = list;
+            using type =
+                list;
+
             static constexpr auto size =
                 v_<sizeof_pack_t_<types_t...>>;
         };

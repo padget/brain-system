@@ -1,33 +1,24 @@
-/*'
- * main.cpp
- *
- *  Created on: 27 oct. 2013
- *      Author: bmathieu
- */
-#include "meta/core.hpp"
-#include "meta/fundamental.hpp"
-#include "meta/keywords.hpp"
-#include "meta/math.hpp"
-#include "test/utest/utest.hpp"
-#include "configuration/properties.hpp"
-#include <iostream>
 
+//#include "meta/core.hpp"
+//#include "meta/fundamental.hpp"
+//#include "meta/keywords.hpp"
+//#include "meta/math.hpp"
+//#include "test/utest/utest.hpp"
+//#include "configuration/properties.hpp"
+//#include <iostream>
+
+#include "compiler/supports.hpp"
 
 using namespace brain;
 using namespace std;
 
-struct begin_test
-{
-    void begin() {};
-};
 
 /// Main function for
 /// C++ compiler.
 int main()
 {
-    try
-    {
-        launch < test::test_suite < meta::test::member_test,
+    
+        /*launch < test::test_suite < meta::test::member_test,
                meta::test::literal_test,
                meta::test::constkw_test,
                meta::test::pack_test,
@@ -43,18 +34,17 @@ int main()
                test::any_test,
                test::system_test,
                test::scanner_test,
-               test::parser_test/*,
+               test::parser_test,
             test::reference_test,
             test::system_test,
             test::smart_ptr_test,
             test::scanner_test,
             test::parser_test,
 
-     test::tree_maker_test */ >> ();
-    }
+     test::tree_maker_test  >> ();*/
+   
 
-    catch(std::exception& e)
-    {std::cout << e.what() << std::endl;}
+    
 
-    return (int) exitcode::WELL;
+    return 0;
 }
