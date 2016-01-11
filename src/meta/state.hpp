@@ -1,6 +1,10 @@
 #ifndef __BRAIN_META_STATE_HPP__
 # define  __BRAIN_META_STATE_HPP__
 
+#include "logic.hpp"
+#include "list.hpp"
+#include <type_traits>
+
 namespace brain
 {
     namespace meta

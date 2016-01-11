@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include <stack>
-#include "meta.hpp"
+#include "../meta/meta.hpp"
 
 namespace brain
 {

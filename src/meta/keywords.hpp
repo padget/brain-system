@@ -1,13 +1,12 @@
 #ifndef __BRAIN_META_KEYWORDS_HPP__
 # define __BRAIN_META_KEYWORDS_HPP__
 
-#include "core.hpp"
+#include "fundamental.hpp"
 
 namespace brain
 {
     namespace meta
     {
-
         /// ////////////////////////////// ///
         /// Wrapper for constness keywords ///
         /// ////////////////////////////// ///
@@ -47,8 +46,8 @@ namespace brain
         template<typename type_t>
         using alignof_t =
             lazy_t<alignof_t_, type_t>;
-            
-            
+
+
         /// /////////////////////// ///
         /// Keyword Feature Remover ///
         /// /////////////////////// ///

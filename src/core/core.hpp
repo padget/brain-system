@@ -37,7 +37,7 @@
 #include "../meta/keywords.hpp"
 #include "../meta/state.hpp"
 #include "serialize.hpp"
-#include "meta.hpp"
+#include "../meta/meta.hpp"
 #include "pattern.hpp"
 #include "property.hpp"
 #include "logging.hpp"

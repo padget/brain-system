@@ -79,7 +79,6 @@ C:\users\benjamin\projets\code_lite_w\brain
     <File Name="src/core.h"/>
     <VirtualDirectory Name="core">
       <File Name="src/core/core.hpp"/>
-      <File Name="src/core/meta.hpp"/>
       <File Name="src/core/pattern.hpp"/>
       <File Name="src/core/property.hpp"/>
       <File Name="src/core/serialize.hpp"/>
@@ -116,8 +115,13 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/meta/state.hpp"/>
       <File Name="src/meta/lambda.hpp"/>
       <File Name="src/meta/string.hpp"/>
-      <File Name="src/meta/iterate.hpp"/>
       <File Name="src/meta/map.hpp"/>
+      <File Name="src/meta/standart.hpp"/>
+      <File Name="src/meta/algorithm.hpp"/>
+      <File Name="src/meta/runtime.hpp"/>
+      <File Name="src/meta/meta.hpp"/>
+      <File Name="src/meta/iterator.hpp"/>
+      <File Name="src/meta/sequence.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

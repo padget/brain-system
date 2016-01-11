@@ -1,6 +1,7 @@
 #ifndef __BRAIN_META_LOGIC_HPP__
 # define __BRAIN_META_LOGIC_HPP__
 
+#include "fundamental.hpp"
 
 namespace brain
 {
@@ -10,7 +11,7 @@ namespace brain
         /// Logical wrapper feature ///
         /// /////////////////////// ///
 
-        
+
         /// Wrapper for equal
         /// operator
         template < typename type_t,
@@ -202,8 +203,6 @@ namespace brain
             lazy_t<and_t_, bools_t...>;
 
 
-
-
         /// Returns std::true_type
         /// if one or more bools_t
         /// is true
@@ -254,6 +253,34 @@ namespace brain
         using not_t =
             lazy_t<not_t_, bool_t>;
 
+
+        /// /////////// ///
+        /// Range logic ///
+        /// /////////// ///
+
+
+        /// Returns true_type
+        /// if current_t is
+        /// between begin_t
+        /// and end_t
+        template < typename begin_t,
+                 typename end_t,
+                 typename current_t >
+        using in_range_t =
+            and_t < greater_equal_t<current_t, begin_t>,
+            less_equal_t<current_t, end_t >>;
+
+
+        /// Returns true_type
+        /// if current_t is
+        /// between begin_t
+        /// and end_t
+        template < typename begin_t,
+                 typename end_t,
+                 typename current_t >
+        using out_range_t =
+            not_t < in_range_t < begin_t,
+            end_t, current_t >>;
     }
 }
 

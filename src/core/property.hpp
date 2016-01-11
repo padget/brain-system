@@ -2,7 +2,7 @@
 #define  __PROPERTY_HPP__BRAIN__
 
 #include "pattern.hpp"
-#include "meta.hpp"
+#include "../meta/meta.hpp"
 #include <iostream>
 #include <vector>
 #include <set>

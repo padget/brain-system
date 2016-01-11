@@ -1,5 +1,7 @@
 #ifndef __BRAIN_META_SELECT_HPP__
-# define  __BRAIN_META_SELECT_HPP__
+# define __BRAIN_META_SELECT_HPP__
+
+#include "fundamental.hpp"
 
 namespace brain
 {

@@ -9,6 +9,7 @@ namespace brain
     {
         struct nil {};
 
+
         /// //////////////////// ///
         /// Most common shortcut ///
         /// //////////////////// ///

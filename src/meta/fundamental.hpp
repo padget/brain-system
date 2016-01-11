@@ -164,8 +164,10 @@ namespace brain
             igral_t_<std::size_t, _s>;
 
 
+        /// Wrapper for void
         template<typename ...>
-        using void_t = void;
+        using void_t =
+            void;
     }
 }
 

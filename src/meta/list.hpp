@@ -1,10 +1,11 @@
 #ifndef __BRAIN_META_LIST_HPP__
 # define __BRAIN_META_LIST_HPP__
 
-
+#include "keywords.hpp"
+#include "math.hpp"
 #include "logic.hpp"
 #include "select.hpp"
-#include "iterate.hpp"
+#include "function.hpp"
 
 namespace brain
 {
@@ -41,7 +42,8 @@ namespace brain
         /// list algorithm
         struct empty_list_t_
         {
-            using type = list<>;
+            using type =
+                list<>;
         };
 
 
@@ -107,9 +109,12 @@ namespace brain
         {
             using type =
                 if_t <
-                equal_to_t<target_t, current_t>,
+                equal_to_t < target_t,
+                current_t > ,
                 type_t,
-                t_<at_t_<target_t, inc_t<current_t>, list<types_t...>> >>;
+                t_ < at_t_ < target_t,
+                inc_t<current_t>,
+                list<types_t... >> >>;
 
         };
 
@@ -156,36 +161,24 @@ namespace brain
 
         /// Private private_ementation
         /// of back_ template
-        template<typename ... types_t>
+        template<typename types_t>
         struct back_t_;
 
 
-        /// Private private_ementation
-        /// of back_
         template<typename type_t>
-        struct back_t_<type_t>
+        struct back_t_<list<type_t>>
         {
             using type =
                 type_t;
         };
 
 
-        /// Private private_ementation
-        /// of back_ template
         template < typename type_t,
                  typename ... types_t >
-        struct back_t_<type_t, types_t...>
+        struct back_t_<list<type_t, types_t...>>
         {
-            using type = t_<back_t_<types_t...>>;
-        };
-
-
-        /// private_ementation for
-        /// back_ in case of list
-        template<typename ... types_t>
-        struct back_t_<list<types_t...>>
-        {
-            using type = t_<back_t_<types_t...>>;
+            using type =
+                t_<back_t_<list<types_t...>>>;
         };
 
 
@@ -194,6 +187,14 @@ namespace brain
         template<typename list_t>
         using back_t =
             lazy_t<back_t_, list_t>;
+
+
+        /// Inserts type_t at
+        /// list_t[index_t]
+        template < typename list_t,
+                 typename index_t,
+                 typename type_t >
+        struct insert_at_t_;
 
 
         /// Push a type_t at
@@ -210,7 +211,8 @@ namespace brain
                  typename ... types_t >
         struct push_back_t_<type_t, list<types_t...>>
         {
-            using type = list<types_t..., type_t>;
+            using type =
+                list<types_t..., type_t>;
         };
 
 
@@ -287,7 +289,8 @@ namespace brain
         template <>
         struct concat_t_<>
         {
-            using type = list<>;
+            using type =
+                list<>;
         };
 
 
@@ -298,7 +301,8 @@ namespace brain
         template <typename... types_t>
         struct concat_t_<list<types_t...>>
         {
-            using type = list<types_t...>;
+            using type =
+                list<types_t...>;
         };
 
 
@@ -327,10 +331,10 @@ namespace brain
                 list<types1_t...>,
                 list<types2_t...>,
                 others_t... >
-
         {
             using type =
-                t_<concat_t_<list<types1_t..., types2_t...>, others_t...>>;
+                t_ < concat_t_ < list < types1_t...,
+                types2_t... > , others_t... >>;
         };
 
 
@@ -347,21 +351,17 @@ namespace brain
         struct pop_back_t_;
 
 
-        /// Specialisation for
-        /// pop_back_t_ used
-        /// for list with one
-        /// element inside
         template<typename type_t>
         struct pop_back_t_<list<type_t>>
         {
             using type =
-                list<>;
+                empty_list_t;
         };
 
 
         /// Specialisation for
         /// pop_back_t_ used
-        /// for list with no
+        /// for list with one
         /// element inside
         template < typename type_t,
                  typename ... types_t >
@@ -369,7 +369,7 @@ namespace brain
         {
             using type =
                 concat_t < list<type_t>,
-                t_<pop_back_t_<list<types_t...>> >>;
+                t_<pop_back_t_<list<types_t ...>> >>;
         };
 
 
@@ -394,6 +394,8 @@ namespace brain
                  typename ... types_t >
         struct to_list_t_<pack_t<types_t...>>
         {
+            /// Deports the elements
+            /// from pack_t to list
             using type =
                 list<types_t...>;
         };
@@ -403,6 +405,94 @@ namespace brain
         template<typename pack_t>
         using to_list_t =
             lazy_t<to_list_t_, pack_t>;
+
+
+
+        /// Accumulates res_t over list_t
+        /// the meta function func_t
+        /// that must take two
+        /// parameters res_t and
+        /// current type_t of list_t
+        /// and finally returns the
+        /// result res_t
+        template < typename list_t,
+                 typename res_t,
+                 typename func_t >
+        struct accumulate_t_;
+
+
+        /// Specialisation for
+        /// accumulate that takes
+        /// an empty list as first
+        /// parameter. It returns
+        /// res_t itself. So this
+        /// has no effect on the
+        /// result.
+        template < typename res_t,
+                 typename func_t >
+        struct accumulate_t_<list<>, res_t, func_t>
+        {
+            using type =
+                res_t;
+        };
+
+
+        /// Specialisation for
+        /// accumulate that takes
+        /// a list with one or more
+        /// types and inherits from
+        /// the next step of the
+        /// accumulation on res_t
+        template < typename type_t,
+                 typename ... types_t,
+                 typename res_t,
+                 typename func_t >
+        struct accumulate_t_ <list<type_t, types_t...>, res_t, func_t> :
+                accumulate_t_ <list<types_t...>, r_<func_t, res_t, type_t>, func_t>
+        {
+        };
+
+
+
+
+        /// Evaluates the result
+        /// of t_<accumulate<list_t, res_t, func_t>>
+        template < typename list_t,
+                 typename res_t,
+                 typename func_t >
+        using accumulate_t =
+            lazy_t < accumulate_t_ ,
+            list_t, res_t, func_t >;
+
+
+        /// Iterates a meta
+        /// function over each
+        /// element of a list
+        /// and return the new list
+        template < typename list_t,
+                 typename func_t >
+        struct iterate_t_;
+
+
+        /// Specialisation for
+        /// iterate_t_ that
+        /// distings elements
+        /// of list_t
+        template < typename ... types_t,
+                 typename func_t >
+        struct iterate_t_<list<types_t...>, func_t>
+        {
+            using type =
+                list<r_<func_t, types_t>...>;
+        };
+
+
+        /// t_ shortcut
+        /// for iterate_t_
+        template < typename list_t,
+                 typename func_t >
+        using iterate_t =
+            lazy_t<iterate_t_, list_t, func_t>;
 
 
         /// Meta function that
@@ -429,8 +519,56 @@ namespace brain
         template < typename list_t,
                  typename predicate_t >
         using filter_t =
-            lazy_t < accumulate_t ,  list_t, list<>,
+            lazy_t < accumulate_t , list_t, list<>,
             filter_r_<predicate_t >>;
+
+
+
+
+
+
+//        template < unsigned _nb,
+//                 typename type_t >
+//        struct repeat_t_
+//        {
+//            using type =
+//                concat_t <
+//                t_ < repeat_t_ < _nb / 2, type_t >> ,
+//                t_ < repeat_t_ < _nb / 2, type_t >> ,
+//                t_ < repeat_t_ < _nb % 2, type_t >>>;
+//        };
+//
+//
+//        /// TODO Sort + Doc
+//        template <typename type_t>
+//        struct repeat_t_<0u, type_t>
+//        {
+//            using type =
+//                list<>;
+//        };
+//
+//
+//        /// TODO Sort + Doc
+//        template <typename type_t>
+//        struct repeat_t_<1u, type_t>
+//        {
+//            using type =
+//                list<type_t>;
+//        };
+//
+//
+//        /// TODO Sort + Doc
+//        template < typename nb_t,
+//                 typename type_t >
+//        using repeat_t =
+//            t_<repeat_t_<v_<nb_t>, type_t>>;
+//
+//
+//        /// TODO Sort + Doc
+//        template < unsigned _nb,
+//                 typename type_t >
+//        using repeat_c =
+//            lazy_t<repeat_t, unsigned_t<_nb>, type_t>;
 
     }
 }

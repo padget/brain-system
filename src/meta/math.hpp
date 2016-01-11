@@ -1,6 +1,7 @@
 #ifndef __BRAIN_META_MATH_HPP__
 # define __BRAIN_META_MATH_HPP__
 
+#include "fundamental.hpp"
 
 namespace brain
 {

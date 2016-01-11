@@ -1,6 +1,9 @@
 #ifndef __BRAIN_META_STRING_HPP__
 # define __BRAIN_META_STRING_HPP__
 
+#include <type_traits>
+#include <stdexcept>
+
 namespace brain
 {
     namespace meta

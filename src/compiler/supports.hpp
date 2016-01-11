@@ -376,7 +376,7 @@ namespace brain
         /// member in type_t
         template<typename type_t>
         struct has_config_type_t_ < type_t,
-                meta::void_r<typename type_t::config_type >>
+                meta::void_t<typename type_t::config_type >>
         {
             using type =
                 std::true_type;
@@ -646,7 +646,7 @@ namespace brain
         /// exists
         template<typename type_t>
         struct has_symbol_type_t_ < type_t,
-                meta::void_r<typename type_t::symbol_type >>
+                meta::void_t<typename type_t::symbol_type >>
         {
             using type =
                 std::true_type;
@@ -677,7 +677,7 @@ namespace brain
         /// exists
         template<typename type_t>
         struct has_symbols_type_t_ < type_t,
-                meta::void_r<typename type_t::symbols_type >>
+                meta::void_t<typename type_t::symbols_type >>
         {
             using type =
                 std::true_type;

@@ -8,12 +8,25 @@
 #include "../../compiler/scanner.hpp"
 #include "../../compiler/utils.hpp"
 
+#include "../../meta/meta.hpp"
 namespace brain
 {
     namespace meta
     {
         namespace test
         {
+            struct iterator_test:
+                public brain::test::basic_test
+            {
+                virtual void test()
+                {
+                    add_step(v_<std::is_same<meta::item_<meta::next_<meta::next_<meta::iterator<meta::list<>>>>>, nil>>, "test of empty list iterator");
+                    using a_vector =
+                        meta::vector<int, int>;
+                }
+            };
+
+
             /// Unitary test for
             /// member meta features
             struct member_test :
@@ -102,7 +115,7 @@ namespace brain
                     add_step(v_<std::is_same<back_t<a_list>, double>>, "");
                     add_step(v_<std::is_same<concat_t<list<int>, list<float, double>, list<>>, list<int, float, double>>>, "");
                     add_step(v_<std::is_same<at_t<unsigned_t<2>, a_list>, double>>, "");
-                    add_step(v_<std::is_same<repeat_t<unsigned_t<3>, int>, list<int, int, int>>>, "");
+                    /// add_step(v_<std::is_same<repeat_t<unsigned_t<3>, int>, list<int, int, int>>>, "");
                     add_step(v_<std::is_same<to_list_t<std::tuple<int, int>>, list<int, int>>>, "");
                 }
             };
@@ -131,7 +144,6 @@ namespace brain
                 virtual void test()
                 {
                     /// TODO Unitary for compose
-                    add_step(v_<std::is_same<always_r<void>, void>> , "");
                     add_step(v_<has_type_t<a_type>>, "");
                     add_step(!v_<has_type_t<another_type>>, "");
                     add_step(v_<has_return_t<a_type>>, "");
@@ -252,7 +264,7 @@ namespace brain
                     add_step(v_<std::is_same<filter_t<a_list, is_int>, list<int, int>>>, "");
                 }
             };
-            
+
 
             struct runtime_test :
                 public brain::test::basic_test
@@ -524,7 +536,7 @@ namespace brain
                 any d2 {4};
                 any a {std::string("coucou")};
                 std::cout << "any " << any_cast<double>(d) << std::endl;
-                
+
             }
         };
 

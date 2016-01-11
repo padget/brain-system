@@ -1,6 +1,9 @@
 #ifndef __BRAIN_META_MAP_HPP__
 # define  __BRAIN_META_MAP_HPP__
 
+#include "list.hpp"
+#include "algorithm.hpp"
+
 namespace brain
 {
     namespace meta
@@ -8,8 +11,6 @@ namespace brain
         /// //////////////////////////// ///
         /// Wrapper for map manipulation ///
         /// //////////////////////////// ///
-        
-        
 
 
         /// Wrapper for pair
@@ -85,6 +86,35 @@ namespace brain
                  typename key_t >
         using value_of_t =
             lazy_t<value_of_t_, map_t, key_t>;
+
+
+        /// Replaces types from
+        /// list_t that represents
+        /// a key in map_t
+        template < typename list_t,
+                 typename map_t >
+        struct map_replace_t_;
+
+
+        /// Specialisation for
+        /// map_replace_t_ that
+        /// distings each type
+        /// of list_t
+        template < typename ... types_t,
+                 typename map_t >
+        struct map_replace_t_<list<types_t...>, map_t>
+        {
+            using type =
+                list<value_of_t<map_t, types_t>...>;
+        };
+
+
+        /// t_ shortcut for
+        /// map_replace_t
+        template < typename list_t,
+                 typename map_t >
+        using map_replace_t =
+            lazy_t<map_replace_t_, list_t, map_t>;
 
     }
 }

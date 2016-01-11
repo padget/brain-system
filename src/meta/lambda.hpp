@@ -1,6 +1,8 @@
 #ifndef __BRAIN_META_LAMBDA_HPP__
 # define __BRAIN_META_LAMBDA_HPP__
 
+#include "map.hpp"
+
 namespace brain
 {
     namespace meta

@@ -1,6 +1,9 @@
 #ifndef __BRAIN_META_FUNCTION_HPP__
 # define  __BRAIN_META_FUNCTION_HPP__
 
+#include "fundamental.hpp"
+#include <type_traits>
+
 namespace brain
 {
     namespace meta
@@ -43,7 +46,6 @@ namespace brain
                  typename ... args_t >
         using as_r =
             r_<as_r_<type_t>, args_t...>;
-
 
 
         /// A meta function that
@@ -155,8 +157,6 @@ namespace brain
         template<typename type_t>
         using is_meta_function_t =
             has_return_t<type_t>;
-
-
 
 
         /// Meta function that
