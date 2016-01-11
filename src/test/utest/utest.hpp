@@ -1,12 +1,12 @@
 #ifndef TESTCORE_HPP
 #define TESTCORE_HPP
 
-#include "../../core/core.hpp"
+///#include "../../core/core.hpp"
 
-#include "../../compiler/supports.hpp"
-#include "../../compiler/parser.hpp"
-#include "../../compiler/scanner.hpp"
-#include "../../compiler/utils.hpp"
+///#include "../../compiler/supports.hpp"
+///#include "../../compiler/parser.hpp"
+///#include "../../compiler/scanner.hpp"
+///#include "../../compiler/utils.hpp"
 
 #include "../../meta/meta.hpp"
 namespace brain
@@ -29,7 +29,7 @@ namespace brain
 
             /// Unitary test for
             /// member meta features
-            struct member_test :
+            /*struct member_test :
                 public brain::test::basic_test
             {
                 struct a_type
@@ -175,7 +175,7 @@ namespace brain
                     add_step(v_<std::is_same<t_<defer<a_type, int, double>>, void>>, "");
                     return v_<std::true_type>;
                 }
-            };*/
+            };
 
 
             /// Unitary test for
@@ -298,7 +298,7 @@ namespace brain
                     add_step(!foreach_type<list<double, std::string>, func_test, accum_test>()(),
                              "Test of foreach_type Runtime with false case");
                 }
-            };
+            };*/
         }
     }
 

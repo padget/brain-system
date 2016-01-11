@@ -249,127 +249,66 @@ namespace brain
 
 
         template<typename iterator_t>
+        struct ended_t_:
+                std::false_type
+        {
+        };
+
+        template < template<typename ...> typename iterator_t,
+                 typename ... args_t >
+        struct ended_t_ <
+                iterator_t < pack<>,
+                args_t... > > :
+                std::true_type
+        {
+        };
+
+
+        template<typename iterator_t>
         using ended_t =
-            std::is_same<nil, item_<iterator_t>>;
+            lazy_t<ended_t_, iterator_t>;
 
 
         template<typename iterator_t>
         struct last_t_
         {
-            using type = last_t_<>
-        }
+            using type =
+                t_<last_t_<next_<iterator_t>>>;
+        };
 
-                     template < template<typename ...> typename iterator_t,
-                              typename ... args_t >
+
+        template < template<typename ...> typename iterator_t,
+                 typename ... args_t >
         struct last_t_<iterator_t<pack<>, args_t...>>
         {
-
+            using type =
+                prev_<iterator_t<pack<>, args_t...>>;
         };
-        /*
-                template <typename begin_t>
-                struct last_t_
-                {
-                    template < typename iterator_t,
-                             typename = std::true_type >
-                    struct last_t_impl_
-                    {
-                        using type =
-                            prev_<iterator_t>;
-                    };
 
-
-                    template <typename iterator_t>
-                    struct last_t_impl_ <
-                            iterator_t,
-                            std::false_type >
-                    {
-                        using type =
-                            t_<last_t_impl_<next_<iterator_t>, ended_t<next<iterator_t>>>>;
-                    };
-
-                    using type =
-                        t_<last_t_impl_<begin_t, ended_t<begin_t>>>;
-                };
-        */
 
         template<typename iterator_t>
         using last_t =
             lazy_t<last_t_, iterator_t>;
 
-
-        template < typename begin_t,
-                 typename end_t,
-                 typename func_r,
-                 typename ... args_t >
-        struct from_to_t_
-        {
-            using begin =
-                begin_t;
-
-
-            using end =
-                end_t;
-
-
-            template < typename iterator_t,
-                     typename is_end_t >
-            struct from_to_t_impl_;
-
-
-            template <typename iterator_t>
-            struct from_to_t_impl_ <
-                    iterator_t,
-                    std::false_type >
-            {
-                using type =
-            };
-
-
-            template <typename iterator_t>
-            struct from_to_t_impl_ <
-                    iterator_t,
-                    std::true_type >
-            {
-
-            };
-
-
-            using type =
-                from_to_t_impl_<begin_t, ended_t<begin_t>>;
-        };
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 typename = is_end_t<end_t >>
-        struct distance_t_;
-
-
         template < typename begin_t,
                  typename end_t >
-        struct distance_t_ <
-                begin_t,
-                end_t,
-                std::false_type >
+        struct distance_t_
         {
             using type =
-                minus_t <
+                inc_t < minus_t <
                 index_<end_t>,
-                index_<begin_t >>;
+                index_<begin_t> >>;
         };
 
-
         template < typename begin_t,
-                 typename end_t >
-        struct distance_t_ <
-                begin_t,
-                end_t,
-                std::true_type >
+                 template<typename ...> typename end_t ,
+                 typename ... args_t >
+        struct distance_t_<begin_t, end_t<pack<>, args_t...>>
         {
             using type =
-                minus_t <
-                index_<begin_t>,
-                index_<prev_<end_t> >>;
+                inc_t < minus_t <
+                index_<prev_<end_t<pack<>, args_t...>>> ,
+                index_<begin_t> >>;
         };
 
 

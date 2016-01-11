@@ -91,35 +91,6 @@ namespace brain
 
 
         /// Determines if a
-        /// type_t has the
-        /// 'type' member
-        template < typename ,
-                 typename = void >
-        struct has_type_t_:
-                std::false_type
-        {
-        };
-
-
-        /// Specialisation for
-        /// has_type_ if type_t
-        /// has 'type' member
-        template<typename type_t>
-        struct has_type_t_ < type_t,
-                void_t<typename type_t::type> > :
-                std::true_type
-        {
-        };
-
-
-        /// Evaluates the result
-        /// of t_<has_type_<type_t>>
-        template<typename type_t>
-        using has_type_t =
-            lazy_t<has_type_t_, type_t>;
-
-
-        /// Determines if a
         /// type has a return_
         /// member
         template < typename,
@@ -222,7 +193,6 @@ namespace brain
                  typename list_t >
         using expand_t =
             lazy_t <expand_t_, func_t, list_t>;
-
     }
 }
 

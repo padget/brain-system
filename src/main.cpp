@@ -19,9 +19,11 @@ using namespace std;
 /// C++ compiler.
 int main()
 {
-    using a_list = meta::vector<int, double>;
+    using a_list =
+        meta::vector<int, double>;
     ///std::cout << typeid(meta::end_<a_list>).name() << std::endl;
-    std::cout << meta::v_<meta::distance_t<meta::begin_<a_list>, meta::end_<a_list>>> << std::endl;
+    std::cout << meta::v_<meta::distance_t<meta::begin_<a_list>, meta::end_<a_list>>>
+              << std::endl;
 
     /*launch < test::test_suite < meta::test::member_test,
            meta::test::literal_test,
