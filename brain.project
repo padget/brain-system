@@ -105,13 +105,7 @@ C:\users\benjamin\projets\code_lite_w\brain
     </VirtualDirectory>
     <VirtualDirectory Name="meta">
       <File Name="src/meta/core.hpp"/>
-      <File Name="src/meta/function.hpp"/>
-      <File Name="src/meta/fundamental.hpp"/>
-      <File Name="src/meta/keywords.hpp"/>
       <File Name="src/meta/list.hpp"/>
-      <File Name="src/meta/logic.hpp"/>
-      <File Name="src/meta/math.hpp"/>
-      <File Name="src/meta/select.hpp"/>
       <File Name="src/meta/state.hpp"/>
       <File Name="src/meta/lambda.hpp"/>
       <File Name="src/meta/string.hpp"/>

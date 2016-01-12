@@ -1,12 +1,7 @@
 #ifndef __META_BRAIN_HPP
 #define __META_BRAIN_HPP
 
-#include "core.hpp"
-#include "fundamental.hpp"
-#include "keywords.hpp"
-#include "math.hpp"
-#include "logic.hpp"
-#include "select.hpp"
+
 /*
 #include "function.hpp"
 #include "lambda.hpp"
@@ -18,7 +13,7 @@
 #include "state.hpp"
 #include "string.hpp"
 */
-#include "iterator.hpp"
+
 #include "sequence.hpp"
 
 namespace brain
@@ -41,7 +36,7 @@ namespace brain
     namespace meta
     {
         template<typename ... types_t>
-        struct inherit:
+        struct inherits:
             public types_t ...
         {
         };

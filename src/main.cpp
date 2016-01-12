@@ -19,12 +19,10 @@ using namespace std;
 /// C++ compiler.
 int main()
 {
-    using a_list =
-        meta::vector<int, double>;
-    ///std::cout << typeid(meta::end_<a_list>).name() << std::endl;
-    std::cout << meta::v_<meta::distance_t<meta::begin_<a_list>, meta::end_<a_list>>>
-              << std::endl;
-
+    using a_list = meta::list<double, int, short, std::string>;
+    using a_second_list = meta::pop_front_t<a_list>;
+    
+    static_assert(meta::v_<std::is_same<meta::list<int, short, std::string>, a_second_list>>, "");
     /*launch < test::test_suite < meta::test::member_test,
            meta::test::literal_test,
            meta::test::constkw_test,
