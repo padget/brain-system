@@ -591,22 +591,42 @@ namespace brain
                  typename ... params_t >
         using while_t =
             t_<while_t_<begin_t, end_t, direction_, test_t, params_t...>>;
-            
-            
+
+
         template < typename begin_t,
                  typename end_t,
                  template<typename, typename ...> typename test_t,
                  typename ... params_t >
         using while_forward_t =
             while_t<begin_t, end_t, next_, test_t, params_t...>;
-            
-            
+
+
         template < typename begin_t,
                  typename end_t,
                  template<typename, typename ...> typename test_t,
                  typename ... params_t >
         using while_backward_t =
             while_t<begin_t, end_t, prev_, test_t, params_t...>;
+
+
+        template < typename begin_t,
+                 template<typename, typename ...> typename transform_t,
+                 typename ... args_t >
+        struct iterate_t_;
+
+
+        template < template<typename...> typename begin_t,
+                 typename ... items_t,
+                 template<typename, typename ...> typename transform_t,
+                 typename ... args_t >
+        struct iterate_t_ <
+                begin_t<pack<items_t...>>,
+                                       transform_t,
+                                       args_t... >
+        {
+            using type =
+                begin_t<pack<transform_t<items_t, args_t...>...>>;
+        };
 
 
         template < typename current_t,
