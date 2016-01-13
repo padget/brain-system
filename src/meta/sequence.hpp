@@ -50,7 +50,7 @@ namespace brain
         { };
 
 
-        /// Accessor to 
+        /// Accessor to
         /// begin member
         template<typename sequence_t>
         using begin_ =
@@ -83,14 +83,14 @@ namespace brain
             unsigned_t<0> >;
 
 
-        /// Definition of 
+        /// Definition of
         /// clear_t_
         template<typename sequence_t>
         struct clear_t_;
 
-        
+
         /// Returns an empty
-        /// sequence of the 
+        /// sequence of the
         /// same type of the
         /// sequence_t
         template < template<typename...> typename sequence_t,
@@ -102,7 +102,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for 
+        /// t_ shortcut for
         /// clear_t_
         template<typename sequence_t>
         using clear_t =
@@ -123,15 +123,15 @@ namespace brain
             item_<prev_<end_<sequence_t>>>;
 
 
-        /// Definition of 
+        /// Definition of
         /// push_back_t_
         template < typename sequence_t,
                  typename type_t >
         struct push_back_t_;
 
-    
+
         /// Pushes type_t at
-        /// the end of 
+        /// the end of
         /// sequence_t
         template < template<typename...> typename sequence_t,
                  typename ... items_t,
@@ -159,9 +159,9 @@ namespace brain
                  typename type_t >
         struct push_front_t_;
 
-        
+
         /// Pushes type_t at
-        /// the front of 
+        /// the front of
         /// sequence_t
         template < template<typename...> typename sequence_t,
                  typename ... items_t,
@@ -187,29 +187,35 @@ namespace brain
         /// item of sequence_t
         template<typename sequence_t>
         using pop_back_t =
-            forward_t <
+            forward_item_t <
             begin_<sequence_t>,
             prev_<end_<sequence_t>>,
             clear_t<sequence_t>,
             as_r_<push_back_t> >;
 
-        
-         /// Pops the first
+
+        /// Pops the first
         /// item of sequence_t
         template<typename sequence_t>
         using pop_front_t =
-            forward_t <
+            forward_item_t <
             next_<begin_<sequence_t>>,
             end_<sequence_t>,
             clear_t<sequence_t>,
             as_r_<push_back_t> >;
+            
+        
+        template<typename sequence_t, 
+        typename index_t>
+        using at_t = 
+            advance_t<begin_<sequence_t>, index_t>;
 
 
-        /// Reverses the 
+        /// Reverses the
         /// sequence_t
         template<typename sequence_t>
         using reverse_t =
-            forward_t <
+            forward_item_t <
             begin_<sequence_t>,
             end_<sequence_t> ,
             clear_t<sequence_t>,

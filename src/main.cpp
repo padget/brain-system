@@ -20,31 +20,14 @@ using namespace std;
 int main()
 {
     using a_list = meta::list<double, int, short, std::string>;
+    using a_type = meta::advance_t<meta::begin_<a_list>, meta::unsigned_t<3>>;
+    /// using at_2 = meta::at_t<a_list, meta::long_t<2>>;
     using a_second_list = meta::pop_front_t<a_list>;
     
+    std::cout << typeid(a_type).name() << std::endl;
+    
+    ///static_assert(meta::v_<std::is_same<a_type, short>>, "");
     static_assert(meta::v_<std::is_same<meta::list<int, short, std::string>, a_second_list>>, "");
-    /*launch < test::test_suite < meta::test::member_test,
-           meta::test::literal_test,
-           meta::test::constkw_test,
-           meta::test::pack_test,
-           meta::test::function_test,
-           meta::test::math_test,
-           meta::test::conditional_test,
-           meta::test::runtime_test,
-           test::property_value_test,
-           test::property_cvalue_test,
-           test::property_pointer_test,
-           test::object_test,
-           test::marshalling_test,
-           test::any_test,
-           test::system_test,
-           test::scanner_test,
-           test::parser_test,
-           test::system_test,
-           test::scanner_test,
-           test::parser_test >> ();
-
-    */
 
 
     return 0;

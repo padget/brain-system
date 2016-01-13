@@ -400,7 +400,7 @@ namespace brain
 
 
         /// t_ shortcut for
-        /// last_t_
+        /// last_valid_t_
         template<typename iterator_t>
         using last_t =
             lazy_t<last_valid_t_, iterator_t>;
@@ -454,9 +454,11 @@ namespace brain
         /// item_<iterator>
         template < typename begin_t,
                  typename end_t,
-                 template<typename>  typename direction_t,
+                 template<typename> typename direction_,
+                 template<typename> typename accessor_,
                  typename init_t,
-                 typename func_r >
+                 typename func_r ,
+                 typename ... params_t >
         struct navigate_t_
         {
             template < typename current_t,
@@ -465,8 +467,8 @@ namespace brain
             {
                 using type =
                     lazy_t < navigate_t_impl_,
-                    direction_t<current_t>,
-                    r_<func_r, tmp_t, item_<current_t>> >;
+                    direction_<current_t>,
+                    r_<func_r, tmp_t, accessor_<current_t>>, params_t... >;
             };
 
 
@@ -477,8 +479,9 @@ namespace brain
                     tmp_t;
             };
 
+
             using type =
-                lazy_t<navigate_t_impl_, begin_t, init_t>;
+                lazy_t<navigate_t_impl_, begin_t, init_t, params_t...>;
         };
 
 
@@ -486,11 +489,13 @@ namespace brain
         /// navigate_t_
         template < typename begin_t,
                  typename end_t,
-                 template<typename>  typename direction_t,
+                 template<typename>  typename direction_,
+                 template<typename>  typename accessor_,
                  typename init_t,
-                 typename func_r >
+                 typename func_r,
+                 typename ... params_t >
         using navigate_t =
-            t_<navigate_t_<begin_t, end_t, direction_t, init_t, func_r>>;
+            t_<navigate_t_<begin_t, end_t, direction_, accessor_, init_t, func_r, params_t...>>;
 
 
         /// Specialization of
@@ -499,9 +504,10 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r >
-        using forward_t =
-            navigate_t<begin_t, end_t, next_, init_t, func_r>;
+                 typename func_r,
+                 typename ... params_t >
+        using forward_item_t =
+            navigate_t<begin_t, end_t, next_, item_, init_t, func_r, params_t...>;
 
 
         /// Specialization of
@@ -510,9 +516,110 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r >
-        using backward_t =
-            navigate_t<begin_t, end_t, prev_, init_t, func_r>;
+                 typename func_r ,
+                 typename ... params_t >
+        using backward_item_t =
+            navigate_t<begin_t, end_t, prev_, item_, init_t, func_r, params_t...>;
+
+
+        /// Specialization of
+        /// navigate_t for the
+        /// next_ direction
+        template < typename begin_t,
+                 typename end_t,
+                 typename init_t,
+                 typename func_r ,
+                 typename ... params_t >
+        using forward_iter_t =
+            navigate_t<begin_t, end_t, next_, idem_, init_t, func_r, params_t...>;
+
+
+        /// Specialization of
+        /// navigate_t for the
+        /// prev_ direction
+        template < typename begin_t,
+                 typename end_t,
+                 typename init_t,
+                 typename func_r ,
+                 typename ... params_t >
+        using backward_iter_t =
+            navigate_t<begin_t, end_t, prev_, idem_, init_t, func_r, params_t...>;
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 template<typename, typename ...> typename test_t,
+                 typename ... params_t >
+        struct while_t_
+        {
+            template < typename current_t,
+                     typename is_valid_test_t >
+            struct while_t_impl_:
+                    while_t_impl_ <
+                    direction_<current_t>,
+                    test_t<next_<current_t>, params_t...> >
+            {
+            };
+
+
+            template <typename current_t>
+            struct while_t_impl_<current_t, std::true_type>
+            {
+                using type =
+                    current_t ;
+            };
+
+
+            template <typename is_valid_test_t>
+            struct while_t_impl_<end_t, is_valid_test_t>
+            {
+                using type =
+                    end_t;
+            };
+
+
+            using type =
+                lazy_t<while_t_impl_, begin_t, test_t<begin_t, params_t...>>;
+        };
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 template<typename, typename ...> typename test_t,
+                 typename ... params_t >
+        using while_t =
+            t_<while_t_<begin_t, end_t, direction_, test_t, params_t...>>;
+            
+            
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename, typename ...> typename test_t,
+                 typename ... params_t >
+        using while_forward_t =
+            while_t<begin_t, end_t, next_, test_t, params_t...>;
+            
+            
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename, typename ...> typename test_t,
+                 typename ... params_t >
+        using while_backward_t =
+            while_t<begin_t, end_t, prev_, test_t, params_t...>;
+
+
+        template < typename current_t,
+                 typename begin_t,
+                 typename nb_steps_t >
+        using is_same_distance_t =
+            equal_to_t<nb_steps_t, distance_t<begin_t, current_t>>;
+
+
+        template < typename begin_t,
+                 typename nb_steps_t >
+        using advance_t =
+            item_<while_forward_t<begin_t, next_<last_t<begin_t>>, is_same_distance_t, next_<begin_t>, nb_steps_t>>;
     }
 }
 

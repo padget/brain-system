@@ -35,6 +35,13 @@ namespace brain
             void;
 
 
+        /// Access to type_t
+        /// itself
+        template<typename type_t>
+        using idem_ =
+            type_t;
+
+
         /// ////////////////////////// ///
         /// Lazy instanciation of type ///
         /// ////////////////////////// ///
@@ -789,7 +796,7 @@ namespace brain
             remove_reference_t<type_t> > >;
 
 
-       
+
 
         /// ///////////////////////////// ///
         /// Mathematical wrapper features ///
