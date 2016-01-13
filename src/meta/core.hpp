@@ -1003,6 +1003,105 @@ namespace brain
                  typename else_t >
         using select_c =
             if_c<_b, then_t, else_t> ;
+            
+            
+        /// ///////////// ///
+        /// Pack Features ///
+        /// ///////////// ///
+            
+            
+        /// Main support of the
+        /// parameters pack
+        template<typename ... items_t>
+        struct pack
+        {
+            using size =
+                sizeof_pack_t<items_t...>;
+        };
+
+
+        /// size member
+        /// accessor
+        template<typename sequence_t>
+        using size_ =
+            typename sequence_t::size;
+            
+        
+                /// Definition of
+        /// push_back_t_
+        template < typename sequence_t,
+                 typename type_t >
+        struct push_back_t_;
+
+
+        /// Pushes type_t at
+        /// the end of
+        /// sequence_t
+        template < template<typename...> typename sequence_t,
+                 typename ... items_t,
+                 typename type_t >
+        struct push_back_t_ <
+                sequence_t<items_t...>,
+                type_t >
+        {
+            using type =
+                sequence_t<items_t..., type_t>;
+        };
+
+
+        /// t_ shortcut for
+        /// push_back_t_
+        template < typename sequence_t,
+                 typename type_t >
+        using push_back_t =
+            lazy_t<push_back_t_, sequence_t, type_t>;
+
+
+        namespace test_push_back
+        {
+            using seq_t = pack<int, short>;
+
+            static_assert(v_<std::is_same<pack<int, short, double>, push_back_t<seq_t, double>>>, "");
+        }
+
+
+        /// Definition of
+        /// push_front_t_
+        template < typename sequence_t,
+                 typename type_t >
+        struct push_front_t_;
+
+
+        /// Pushes type_t at
+        /// the front of
+        /// sequence_t
+        template < template<typename...> typename sequence_t,
+                 typename ... items_t,
+                 typename type_t >
+        struct push_front_t_ <
+                sequence_t<items_t...>,
+                type_t >
+        {
+            using type =
+                sequence_t<type_t, items_t...>;
+        };
+
+
+        /// t_ shortcut for
+        /// push_front_t_
+        template < typename sequence_t,
+                 typename type_t >
+        using push_front_t =
+            lazy_t<push_front_t_, sequence_t, type_t>;
+
+
+        namespace test_push_front
+        {
+            using seq_t = pack<int, short>;
+
+            static_assert(v_<std::is_same<pack<double, int, short>, push_front_t<seq_t, double>>>, "");
+        }
+
 
     }
 }

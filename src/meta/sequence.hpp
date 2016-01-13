@@ -13,14 +13,14 @@ namespace brain
         /// is built given an
         /// iterator type and
         /// a pack items_t ...
-        template < template<typename...> typename iterator_t,
+        template < template<typename> typename iterator_builder_t,
                  typename ... items_t >
         struct sequence
         {
             /// First iterator of
             /// the sequence
             using begin =
-                iterator_t<pack<items_t...>>;
+                iterator_builder_t<pack<items_t...>>;
 
             /// Last iterator of
             /// the sequence
@@ -36,7 +36,7 @@ namespace brain
             /// Type of the iterator
             template<typename ... args_t>
             using iterator =
-                iterator_t<args_t...>;
+                lazy_t<iterator_builder_t, pack<args_t...>>;
         };
 
 
@@ -46,7 +46,17 @@ namespace brain
         /// iterator
         template<typename ... items_t>
         struct list :
-            public sequence<iterator, items_t...>
+            public sequence<bidirectional_iterator_builder_t, items_t...>
+        { };
+
+
+        /// Specialization of
+        /// the basic sequence
+        /// with the bidirectionnal
+        /// iterator
+        template<typename ... items_t>
+        struct forward_list :
+            public sequence<forward_iterator_builder_t, items_t...>
         { };
 
 
@@ -70,7 +80,8 @@ namespace brain
         template < typename sequence_t,
                  typename ... args_t >
         using iterator_ =
-            typename sequence_t::template iterator<args_t...>;
+            typename sequence_t::
+            template iterator<args_t...>;
 
 
         /// Determines if the
@@ -81,6 +92,13 @@ namespace brain
             equal_to_t <
             size_<sequence_t>,
             unsigned_t<0> >;
+
+        namespace test_empty
+        {
+            using seq_t = forward_list<>;
+
+            static_assert(v_<empty_t<seq_t>>, "");
+        }
 
 
         /// Definition of
@@ -109,106 +127,59 @@ namespace brain
             lazy_t<clear_t_, sequence_t>;
 
 
+        namespace test_clear
+        {
+            using seq_t = forward_list<int, short>;
+
+            static_assert(v_<std::is_same<clear_t<seq_t>, forward_list<>>>, "");
+        }
+
+
         /// Returns the first
         /// item of sequence_t
         template<typename sequence_t>
         using front_t =
             item_<begin_<sequence_t>>;
 
+        namespace test_front
+        {
+            using seq_t = forward_list<int, short>;
+
+            static_assert(v_<std::is_same<int, front_t<seq_t>>>, "");
+        }
 
         /// Returns the last
         /// item of sequence_t
         template<typename sequence_t>
         using back_t =
-            item_<prev_<end_<sequence_t>>>;
+            item_<last_t<begin_<sequence_t>>>;
 
 
-        /// Definition of
-        /// push_back_t_
-        template < typename sequence_t,
-                 typename type_t >
-        struct push_back_t_;
-
-
-        /// Pushes type_t at
-        /// the end of
-        /// sequence_t
-        template < template<typename...> typename sequence_t,
-                 typename ... items_t,
-                 typename type_t >
-        struct push_back_t_ <
-                sequence_t<items_t...>,
-                type_t >
+        namespace test_back
         {
-            using type =
-                sequence_t<items_t..., type_t>;
-        };
+            using seq_t = forward_list<int, short>;
+
+            static_assert(v_<std::is_same<short, back_t<seq_t>>>, "");
+        }
 
 
-        /// t_ shortcut for
-        /// push_back_t_
-        template < typename sequence_t,
-                 typename type_t >
-        using push_back_t =
-            lazy_t<push_back_t_, sequence_t, type_t>;
-
-
-        /// Definition of
-        /// push_front_t_
-        template < typename sequence_t,
-                 typename type_t >
-        struct push_front_t_;
-
-
-        /// Pushes type_t at
-        /// the front of
-        /// sequence_t
-        template < template<typename...> typename sequence_t,
-                 typename ... items_t,
-                 typename type_t >
-        struct push_front_t_ <
-                sequence_t<items_t...>,
-                type_t >
-        {
-            using type =
-                sequence_t<type_t, items_t...>;
-        };
-
-
-        /// t_ shortcut for
-        /// push_front_t_
-        template < typename sequence_t,
-                 typename type_t >
-        using push_front_t =
-            lazy_t<push_front_t_, sequence_t, type_t>;
-
-
-        /// Pops the last
-        /// item of sequence_t
-        template<typename sequence_t>
-        using pop_back_t =
+        template < template<typename ...> typename sequence_t,
+                 typename begin_t,
+                 typename end_t >
+        using sub_sequence_t =
             forward_item_t <
-            begin_<sequence_t>,
-            prev_<end_<sequence_t>>,
-            clear_t<sequence_t>,
-            as_r_<push_back_t> >;
-
-
-        /// Pops the first
-        /// item of sequence_t
-        template<typename sequence_t>
-        using pop_front_t =
-            forward_item_t <
-            next_<begin_<sequence_t>>,
-            end_<sequence_t>,
-            clear_t<sequence_t>,
+            begin_t,
+            end_t ,
+            sequence_t<>,
             as_r_<push_back_t> >;
             
-        
-        template<typename sequence_t, 
-        typename index_t>
-        using at_t = 
-            advance_t<begin_<sequence_t>, index_t>;
+            
+        namespace test_sub_sequence
+        {
+            using seq_t = forward_list<int, short, double, unsigned>;
+            
+            static_assert(v_<std::is_same<forward_list<short, double, unsigned>, sub_sequence_t<forward_list, next_<begin_<seq_t>>, end_<seq_t>>>>, "");
+        }
 
 
         /// Reverses the
@@ -220,6 +191,78 @@ namespace brain
             end_<sequence_t> ,
             clear_t<sequence_t>,
             as_r_<push_front_t> >;
+
+
+        namespace test_reverse
+        {
+            using seq_t = forward_list<int, short>;
+
+            static_assert(v_<std::is_same<forward_list<short, int>, reverse_t<seq_t>>>, "");
+        }
+
+
+        /// Pops the first
+        /// item of sequence_t
+        template<typename sequence_t>
+        using pop_front_t =
+            forward_item_t <
+            next_<begin_<sequence_t>>,
+            end_<sequence_t>,
+            clear_t<sequence_t>,
+            as_r_<push_back_t> >;
+
+
+        namespace test_pop_front
+        {
+            using seq_t = forward_list<int, short>;
+
+            static_assert(v_<std::is_same<forward_list<short>, pop_front_t<seq_t>>>, "");
+        }
+
+
+        /// Pops the last
+        /// item of sequence_t
+        template<typename sequence_t>
+        using pop_back_t =
+            reverse_t<pop_front_t<reverse_t<sequence_t>>>;
+
+
+        namespace test_pop_back
+        {
+            using seq_t = forward_list<int, short>;
+
+            static_assert(v_<std::is_same<forward_list<int>, pop_back_t<seq_t>>>, "");
+        }
+
+
+
+        template < typename sequence_t,
+                 typename index_t >
+        using at_t =
+            advance_t<begin_<sequence_t>, index_t>;
+
+        namespace test_at
+        {
+            using seq_t = forward_list<int, short>;
+            using begin_t = begin_<seq_t>;
+            using next1_t = next_<begin_t>;
+            using end_t = next_<next1_t>;
+
+            static_assert(v_<std::is_same<begin_t, at_t<seq_t, long_t<0>>>>, "");
+            static_assert(v_<std::is_same<next1_t, at_t<seq_t, long_t<1>>>>, "");
+            static_assert(v_<std::is_same<end_t, at_t<seq_t, long_t<2>>>>, "");
+            static_assert(v_<std::is_same<end_t, at_t<seq_t, long_t<3>>>>, "");
+            static_assert(v_<std::is_same<end_t, at_t<seq_t, long_t<4>>>>, "");
+        }
+
+
+        template<typename target_iterator_t>
+        struct is_same_position_t
+        {
+            template<typename current_t>
+            using return_ =
+                std::is_same<target_iterator_t, current_t>;
+        };
     }
 }
 

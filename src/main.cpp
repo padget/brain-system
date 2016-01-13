@@ -20,7 +20,7 @@ using namespace std;
 int main()
 {
     using a_list = meta::list<double, int, short, std::string>;
-    using a_type = meta::advance_t<meta::begin_<a_list>, meta::unsigned_t<3>>;
+    using a_type = meta::item_<meta::advance_t<meta::begin_<a_list>, meta::unsigned_t<10000>>>;
     /// using at_2 = meta::at_t<a_list, meta::long_t<2>>;
     using a_second_list = meta::pop_front_t<a_list>;
 

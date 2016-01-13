@@ -7,29 +7,12 @@ namespace brain
 {
     namespace meta
     {
-        /// Main support of the
-        /// parameters pack
-        template<typename ... items_t>
-        struct pack
-        {
-            using size =
-                sizeof_pack_t<items_t...>;
-        };
-
-
-        /// size member
-        /// accessor
-        template<typename sequence_t>
-        using size_ =
-            typename sequence_t::size;
-
-
         /// Determines if
         /// type_t has item
         /// member or not
         template < typename type_t,
                  typename = void >
-        struct has_item_t_:
+        struct has_item_member_t_:
                 std::false_type
         {
         };
@@ -41,7 +24,7 @@ namespace brain
         /// because of presence
         /// of item member
         template<typename type_t>
-        struct has_item_t_<type_t, void_t<typename type_t::item>> :
+        struct has_item_member_t_<type_t, void_t<typename type_t::item>> :
                         std::true_type
         {
         };
@@ -50,8 +33,8 @@ namespace brain
         /// t_ shortcut for
         /// has_item_t_
         template<typename type_t>
-        using has_item_t =
-            lazy_t<has_item_t_, type_t>;
+        using has_item_member_t =
+            lazy_t<has_item_member_t_, type_t>;
 
 
         /// Determines if
@@ -59,7 +42,7 @@ namespace brain
         /// member or not
         template < typename type_t,
                  typename = void >
-        struct has_next_t_:
+        struct has_next_member_t_:
                 std::false_type
         {
         };
@@ -71,7 +54,7 @@ namespace brain
         /// because of presence
         /// of next member
         template<typename type_t>
-        struct has_next_t_<type_t, void_t<typename type_t::next>> :
+        struct has_next_member_t_<type_t, void_t<typename type_t::next>> :
                         std::true_type
         {
         };
@@ -80,8 +63,8 @@ namespace brain
         /// t_ shortcut for
         /// has_next_t_
         template<typename type_t>
-        using has_next_t =
-            lazy_t<has_next_t_, type_t>;
+        using has_next_member_t =
+            lazy_t<has_next_member_t_, type_t>;
 
 
         /// Determines if
@@ -89,7 +72,7 @@ namespace brain
         /// member or not
         template < typename type_t,
                  typename = void >
-        struct has_prev_t_:
+        struct has_prev_member_t_:
                 std::false_type
         {
         };
@@ -101,7 +84,7 @@ namespace brain
         /// because of presence
         /// of prev member
         template<typename type_t>
-        struct has_prev_t_<type_t, void_t<typename type_t::prev>> :
+        struct has_prev_member_t_<type_t, void_t<typename type_t::prev>> :
                         std::true_type
         {
         };
@@ -110,8 +93,8 @@ namespace brain
         /// t_ shortcut for
         /// has_prev_t_
         template<typename type_t>
-        using has_prev_t =
-            lazy_t<has_prev_t_, type_t>;
+        using has_prev_member_t =
+            lazy_t<has_prev_member_t_, type_t>;
 
 
         /// Determines if
@@ -119,7 +102,7 @@ namespace brain
         /// member or not
         template < typename type_t,
                  typename = void >
-        struct has_index_t_:
+        struct has_index_member_t_:
                 std::false_type
         {
         };
@@ -131,7 +114,7 @@ namespace brain
         /// because of presence
         /// of index member
         template<typename type_t>
-        struct has_index_t_ <
+        struct has_index_member_t_ <
                 type_t,
                 void_t<typename type_t::index> > :
                 std::true_type
@@ -142,8 +125,8 @@ namespace brain
         /// t_ shortcut for
         /// has_index_t_
         template<typename type_t>
-        using has_index_t =
-            lazy_t<has_index_t_, type_t>;
+        using has_index_member_t =
+            lazy_t<has_index_member_t_, type_t>;
 
 
         /// Determines if type_t
@@ -151,9 +134,9 @@ namespace brain
         template<typename type_t>
         using is_forward_iterator_t =
             and_t <
-            has_item_t<type_t>,
-            has_next_t<type_t>,
-            has_index_t<type_t >>;
+            has_item_member_t<type_t>,
+            has_next_member_t<type_t>,
+            has_index_member_t<type_t >>;
 
 
         /// Determines if type_t
@@ -161,9 +144,9 @@ namespace brain
         template<typename type_t>
         using is_backward_iterator_t =
             and_t <
-            has_item_t<type_t>,
-            has_prev_t<type_t>,
-            has_index_t<type_t >>;
+            has_item_member_t<type_t>,
+            has_prev_member_t<type_t>,
+            has_index_member_t<type_t >>;
 
 
         /// Determines if type_t
@@ -204,198 +187,303 @@ namespace brain
             typename iterator_t::item;
 
 
-        /// Generic end
-        /// iterator used
-        /// in all meta
-        struct end_iterator
+        /// //////////////// ///
+        /// Forward Iterator ///
+        /// //////////////// ///
+
+
+        using begin_iterator_index_t = long_t <0>;
+        using end_iterator_index_t = long_t < -1 >;
+
+
+        template < typename index_t,
+                 typename item_t,
+                 typename next_t >
+        struct forward_iterator
         {
-            using index =
-                long_t < -1 >;
-
-            using item =
-                nil;
-
-            using next =
-                end_iterator;
-
-            using prev =
-                end_iterator;
+            using index = index_t;
+            using item = item_t;
+            using next = next_t;
+            
+            
         };
 
 
-        /// Definition of
-        /// bidirectionnal
-        /// iterator
-        template < typename sequence_t,
-                 typename index_t = long_t<0>,
-                 typename prev_t = end_iterator,
-                 typename last_index_t = size_<sequence_t >>
-        struct iterator;
-
-
-        /// If the pack is
-        /// empty and the
-        /// index is 0, so
-        /// the first iterator
-        /// is also the end
-        /// iterator
-        template<>
-        struct iterator <
-                pack<>,
-                long_t<0>,
-                end_iterator,
-                size_<pack<>> >
+        struct forward_iterator_end
         {
-            using size =
-                size_<pack<>>;
-
-            using index =
-                long_t < -1 >;
-            using item =
-                nil;
-            using next =
-                end_iterator;
-            using prev =
-                end_iterator;
+            using index = end_iterator_index_t;
+            using item = nil;
+            using next = forward_iterator_end;
         };
 
 
-        /// In the case of the
-        /// index 0 the current
-        /// is built with item_t
-        /// and the next is built
-        /// with items_t
-        template < typename item_t,
-                 typename ... items_t >
-        struct iterator <
-                pack<item_t, items_t...> ,
-                long_t<0>,
-                end_iterator,
-                size_<pack<item_t, items_t...>> >
-        {
-            using size =
-                size_<pack<item_t, items_t...>>;
+        template < typename pack_t,
+                 typename index_t = begin_iterator_index_t >
+        struct forward_iterator_builder_t_;
 
-            using index =
-                long_t<0>;
-            using item =
-                item_t;
-            using prev =
-                end_iterator;
-            using next =
-                iterator <
-                pack<items_t...>,
-                if_t < equal_to_t<long_t<1>, size>, long_t < -1 > , long_t<1> > ,
-                iterator >;
-        };
-
-
-        /// General case that
-        /// build current and
-        /// demande for the next
         template < typename item_t,
                  typename ... items_t,
-                 typename index_t,
-                 typename prev_t,
-                 typename last_index_t >
-        struct iterator <
-                pack<item_t, items_t...> ,
-                index_t,
-                prev_t,
-                last_index_t >
+                 typename index_t >
+        struct forward_iterator_builder_t_<pack<item_t, items_t...>, index_t>
         {
-            using index =
-                index_t;
-            using item =
-                item_t;
-            using prev =
-                prev_t;
-            using next =
-                iterator <
-                pack<items_t...>,
-                if_t < equal_to_t <index_t, last_index_t> , long_t < (-1) > , inc_t<index_t >> ,
-                iterator ,
-                last_index_t >;
-            using size =
-                last_index_t;
+            using type =
+                forward_iterator < index_t, item_t,
+                lazy_t< forward_iterator_builder_t_, pack<items_t...>, inc_t<index_t >> >;
+        };
+
+        template<typename index_t>
+        struct forward_iterator_builder_t_<pack<>, index_t>
+        {
+            using type = forward_iterator_end;
+        };
+
+        template<typename pack_t>
+        using forward_iterator_builder_t =
+            lazy_t<forward_iterator_builder_t_, pack_t>;
+
+
+        namespace test_forward_iterator
+        {
+            using begin_t = forward_iterator_builder_t<pack<int, double, float>>;
+
+            using next1_t = next_<begin_t>;
+            using next2_t = next_<next1_t>;
+            using end_t = next_<next2_t>;
+
+            static_assert(v_<std::is_same<item_<begin_t>, int>>, "");
+            static_assert(v_<std::is_same<item_<next1_t>, double>>, "");
+            static_assert(v_<std::is_same<item_<next2_t>, float>>, "");
+            static_assert(v_<std::is_same<item_<end_t>, nil>>, "");
+
+            static_assert(v_<equal_to_t<index_<begin_t>, begin_iterator_index_t>>, "");
+            static_assert(v_<equal_to_t<index_<next1_t>, unsigned_t<1>>>, "");
+            static_assert(v_<equal_to_t<index_<next2_t>, unsigned_t<2>>>, "");
+            static_assert(v_<equal_to_t<index_<end_t>, end_iterator_index_t>>, "");
+        }
+
+
+
+        /// ////////////////////// ///
+        /// Bidirectional Iterator ///
+        /// ////////////////////// ///
+
+
+        template < typename index_t,
+                 typename item_t,
+                 typename next_t,
+                 typename prev_builder_t >
+        struct biderectional_iterator:
+                forward_iterator<index_t, item_t, next_t>
+        {
+            using prev = t_<prev_builder_t>;
         };
 
 
-        /// Last case that build
-        /// the end iterator with
-        /// an index -1
-        template < typename prev_t,
-                 typename last_index_t >
-        struct iterator < pack<>, long_t < -1 > , prev_t, last_index_t >
+        template<typename prev_builder_t>
+        struct bidirectional_iterator_end
         {
-            using index =
-                long_t < -1 > ;
-            using item =
-                nil;
-            using next =
-                iterator;
-            using prev =
-                prev_t;
-            using size =
-                last_index_t;
+            using index = end_iterator_index_t;
+            using item = nil;
+            using next = bidirectional_iterator_end;
+            using prev = t_<prev_builder_t>;
         };
 
 
-        /// Determines if the
-        /// iterator_t is the
-        /// end iterator of its
-        /// sequence
+        template < typename item_t,
+                 typename next_t >
+        struct bidirectional_iterator_begin:
+                forward_iterator<begin_iterator_index_t, item_t, next_t>
+        {
+            using prev = bidirectional_iterator_begin;
+        };
+
+
+        template < typename pack_t,
+                 typename prev_builder_t = void,
+                 typename index_t = begin_iterator_index_t >
+        struct bidirectional_iterator_builder_t_;
+
+
+        template < typename item_t,
+                 typename ... items_t,
+                 typename prev_builder_t >
+        struct bidirectional_iterator_builder_t_<pack<item_t, items_t...>, prev_builder_t, begin_iterator_index_t>
+        {
+            using type = bidirectional_iterator_begin <
+                         item_t,
+                         lazy_t < bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<begin_iterator_index_t> >>;
+        };
+
+
+        template < typename item_t,
+                 typename ... items_t,
+                 typename prev_builder_t,
+                 typename index_t >
+        struct bidirectional_iterator_builder_t_<pack<item_t, items_t...>, prev_builder_t, index_t>
+        {
+            using type = biderectional_iterator <
+                         index_t,
+                         item_t,
+                         lazy_t<bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<index_t>>,
+                         prev_builder_t >;
+        };
+
+
+        template < typename prev_builder_t,
+                 typename index_t >
+        struct bidirectional_iterator_builder_t_<pack<>, prev_builder_t, index_t>
+        {
+            using type = bidirectional_iterator_end<prev_builder_t>;
+        };
+
+        template<typename pack_t>
+        using bidirectional_iterator_builder_t =
+            lazy_t<bidirectional_iterator_builder_t_, pack_t>;
+
+
+
+        namespace test_bidirectionnal_iterator
+        {
+            using begin_t = bidirectional_iterator_builder_t<pack<int, double, float>>;
+            using next1_t = next_<begin_t>;
+            using next2_t = next_<next1_t>;
+            using end_t = next_<next2_t>;
+
+            using prev2_t = prev_<end_t>;
+            using prev1_t = prev_<prev2_t>;
+            using prev0_t = prev_<prev1_t>;
+
+            static_assert(v_<std::is_same<item_<begin_t>, int>>, "");
+            static_assert(v_<std::is_same<item_<next1_t>, double>>, "");
+            static_assert(v_<std::is_same<item_<next2_t>, float>>, "");
+            static_assert(v_<std::is_same<item_<end_t>, nil>>, "");
+
+            static_assert(v_<std::is_same<item_<prev2_t>, float>>, "");
+            static_assert(v_<std::is_same<item_<prev1_t>, double>>, "");
+            static_assert(v_<std::is_same<item_<prev0_t>, int>>, "");
+
+            static_assert(v_<equal_to_t<index_<begin_t>, begin_iterator_index_t>>, "");
+            static_assert(v_<equal_to_t<index_<next1_t>, unsigned_t<1>>>, "");
+            static_assert(v_<equal_to_t<index_<next2_t>, unsigned_t<2>>>, "");
+            static_assert(v_<equal_to_t<index_<end_t>, end_iterator_index_t>>, "");
+
+            static_assert(v_<equal_to_t<index_<prev2_t>, unsigned_t<2>>>, "");
+            static_assert(v_<equal_to_t<index_<prev1_t>, unsigned_t<1>>>, "");
+            static_assert(v_<equal_to_t<index_<prev0_t>, begin_iterator_index_t>>, "");
+        }
+
+
+        /// //////////////////// ///
+        /// Test of end iterator ///
+        /// //////////////////// ///
+
+
+
         template<typename iterator_t>
-        struct ended_t_:
-                std::false_type
+        using has_next_t =
+            not_t<std::is_same<iterator_t, next_<iterator_t>>>;
+
+
+
+        namespace test_has_next
         {
-        };
+            using begin_t = forward_iterator_builder_t<pack<int, int, int>>;
+            using next1_t = next_<begin_t>;
+            using next2_t = next_<next1_t>;
+            using end_t = next_<next2_t>;
+            using end2_t = next_<end_t>;
+
+            static_assert(v_<has_next_t<begin_t>>, "");
+            static_assert(v_<has_next_t<next1_t>>, "");
+            static_assert(v_<has_next_t<next2_t>>, "");
+            static_assert(v_<not_t<has_next_t<end_t>>>, "");
+            static_assert(v_<not_t<has_next_t<end2_t>>>, "");
+        }
 
 
-        /// Specialization that
-        /// returns true_type
-        /// due to the empty
-        /// paramater pack
-        template < template<typename ...> typename iterator_t,
-                 typename ... args_t >
-        struct ended_t_ <
-                iterator_t < pack<>,
-                args_t... > > :
-                std::true_type
-        {
-        };
-
-
-        /// t_ shortcut for
-        /// ended_t_
         template<typename iterator_t>
-        using ended_t =
-            lazy_t<ended_t_, iterator_t>;
+        using has_prev_t =
+            not_t<std::is_same<iterator_t, prev_<iterator_t>>>;
+
+
+        namespace test_has_prev
+        {
+            using begin_t = bidirectional_iterator_builder_t<pack<int, int, int>>;
+
+            using next1_t = next_<begin_t>;
+            using next2_t = next_<next1_t>;
+            using end_t = next_<next2_t>;
+            using end2_t = next_<end_t>;
+
+            using prev2_t = prev_<end2_t>;
+            using prev1_t = prev_<prev2_t>;
+            using prev0_t = prev_<prev1_t>;
+
+            static_assert(v_<has_next_t<begin_t>>, "");
+            static_assert(v_<has_next_t<next1_t>>, "");
+            static_assert(v_<has_next_t<next2_t>>, "");
+            static_assert(v_<not_t<has_next_t<end_t>>>, "");
+            static_assert(v_<not_t<has_next_t<end2_t>>>, "");
+
+            static_assert(v_<has_prev_t<end2_t>>, "");
+            static_assert(v_<has_prev_t<prev2_t>>, "");
+            static_assert(v_<has_prev_t<prev1_t>>, "");
+            static_assert(v_<not_t<has_prev_t<prev0_t>>>, "");
+        }
+
+
+        template < template<typename> typename direction_,
+                 typename iterator_t >
+        struct is_valid_direction_t;
+
+
+        template <typename iterator_t>
+        struct is_valid_direction_t<next_, iterator_t>:
+                has_next_t<iterator_t>
+        {
+            static_assert(
+                v_<is_forward_iterator_t<iterator_t>>,
+                "is_valid_direction_t : iterator_t must be forwardable");
+        };
+
+        template <typename iterator_t>
+        struct is_valid_direction_t<prev_, iterator_t>:
+                has_prev_t<iterator_t>
+        {
+            static_assert(
+                v_<is_backward_iterator_t<iterator_t>>,
+                "is_valid_direction_t : iterator_t must be backwardable");
+        };
+
+
+        ///
+        template < typename iterator_t,
+                 typename is_next_valid_t =
+                 has_next_t<next_<iterator_t> >>
+        struct last_valid_t_;
 
 
         /// Returns the last
-        /// item before the end
+        /// iterator before the end
         /// iterator
-        template<typename iterator_t>
-        struct last_valid_t_
+        template <typename iterator_t>
+        struct last_valid_t_ <
+                iterator_t,
+                std::true_type >
         {
             using type =
-                t_<last_valid_t_<next_<iterator_t>>>;
+                lazy_t < last_valid_t_,
+                next_<iterator_t >> ;
         };
 
 
-        /// Specialization for
-        /// that returns the prev
-        /// iterator of the end
-        /// iterator
-        template < template<typename ...> typename iterator_t,
-                 typename ... args_t >
+        template<typename iterator_t>
         struct last_valid_t_ <
-                iterator_t < pack<>,
-                args_t... >>
+                iterator_t,
+                std::false_type >
         {
             using type =
-                prev_<iterator_t<pack<>, args_t...>>;
+                iterator_t;
         };
 
 
@@ -406,6 +494,15 @@ namespace brain
             lazy_t<last_valid_t_, iterator_t>;
 
 
+        namespace test_last_valid
+        {
+            using begin_t = forward_iterator_builder_t<pack<int, double, short>>;
+            using next1_t = next_<begin_t>; /// double
+            using next2_t = next_<next1_t>; /// short
+
+            static_assert(v_<std::is_same<next2_t, last_t<begin_t>>>, "");
+        }
+
         /// Computes the
         /// distance between
         /// two iterators
@@ -414,9 +511,9 @@ namespace brain
         struct distance_t_
         {
             using type =
-                inc_t < minus_t <
+                minus_t <
                 index_<end_t>,
-                index_<begin_t> >>;
+                index_<begin_t> >;
         };
 
 
@@ -425,14 +522,12 @@ namespace brain
         /// returns the distance
         /// between the begin_t
         /// and prev_<end_t>
-        template < typename begin_t,
-                 template<typename ...> typename end_t ,
-                 typename ... args_t >
-        struct distance_t_<begin_t, end_t<pack<>, args_t...>>
+        template < typename begin_t>
+        struct distance_t_<begin_t, next_<last_t<begin_t>>>
         {
             using type =
                 inc_t < minus_t <
-                index_<prev_<end_t<pack<>, args_t...>>> ,
+                index_<last_t<begin_t>> ,
                 index_<begin_t> >>;
         };
 
@@ -443,6 +538,97 @@ namespace brain
                  typename end_t >
         using distance_t =
             lazy_t<distance_t_, begin_t, end_t>;
+
+        namespace test_distance
+        {
+            using begin_t = forward_iterator_builder_t<pack<int, double, short>>;
+            using next1_t = next_<begin_t>; /// double
+            using next2_t = next_<next1_t>; /// short
+            using end_t = next_<next2_t>; /// nil
+
+            static_assert(v_<equal_to_t<distance_t<begin_t, end_t>, long_t<3>>>, "");
+            static_assert(v_<equal_to_t<distance_t<begin_t, next2_t>, long_t<2>>>, "");
+            static_assert(v_<equal_to_t<distance_t<begin_t, next1_t>, long_t<1>>>, "");
+            static_assert(v_<equal_to_t<distance_t<begin_t, begin_t>, long_t<0>>>, "");
+        }
+
+
+        /// /////////////// ///
+        /// While Iteration ///
+        /// /////////////// ///
+
+
+        /// Returns the first
+        /// that match true with
+        /// the test_r or if the
+        /// next step is invalid
+        /// or if the end_t of the
+        /// sequence is reached
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 typename test_r >
+        struct while_t_
+        {
+            template < typename current_t,
+                     typename must_stop_t =
+                     or_t <
+                     r_<test_r, current_t>,
+                     std::is_same<end_t, current_t>,
+                     not_t<is_valid_direction_t<direction_, current_t > >> >
+            struct while_t_impl_;
+
+
+            template < typename current_t >
+            struct while_t_impl_ <
+                    current_t,
+                    std::false_type > :
+                    while_t_impl_<direction_<current_t>>
+            {
+            };
+
+
+            template < typename current_t>
+            struct while_t_impl_ <
+                    current_t,
+                    std::true_type >
+            {
+                using type =
+                    current_t ;
+            };
+
+
+
+            using type =
+                lazy_t<while_t_impl_, begin_t>;
+        };
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 typename test_r >
+        using while_t =
+            t_<while_t_<begin_t, end_t, direction_, test_r>>;
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename test_r >
+        using while_forward_t =
+            while_t<begin_t, end_t, next_, test_r>;
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename test_r >
+        using while_backward_t =
+            while_t<begin_t, end_t, prev_, test_r>;
+
+
+        /// ////////////////// ///
+        /// Navigate iteration ///
+        /// ////////////////// ///
 
 
         /// Navigates between
@@ -457,8 +643,7 @@ namespace brain
                  template<typename> typename direction_,
                  template<typename> typename accessor_,
                  typename init_t,
-                 typename func_r ,
-                 typename ... params_t >
+                 typename func_r>
         struct navigate_t_
         {
             template < typename current_t,
@@ -468,7 +653,7 @@ namespace brain
                 using type =
                     lazy_t < navigate_t_impl_,
                     direction_<current_t>,
-                    r_<func_r, tmp_t, accessor_<current_t>>, params_t... >;
+                    r_<func_r, tmp_t, accessor_<current_t>>>;
             };
 
 
@@ -481,7 +666,7 @@ namespace brain
 
 
             using type =
-                lazy_t<navigate_t_impl_, begin_t, init_t, params_t...>;
+                lazy_t<navigate_t_impl_, begin_t, init_t>;
         };
 
 
@@ -492,10 +677,9 @@ namespace brain
                  template<typename>  typename direction_,
                  template<typename>  typename accessor_,
                  typename init_t,
-                 typename func_r,
-                 typename ... params_t >
+                 typename func_r >
         using navigate_t =
-            t_<navigate_t_<begin_t, end_t, direction_, accessor_, init_t, func_r, params_t...>>;
+            t_<navigate_t_<begin_t, end_t, direction_, accessor_, init_t, func_r>>;
 
 
         /// Specialization of
@@ -504,10 +688,9 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r,
-                 typename ... params_t >
+                 typename func_r>
         using forward_item_t =
-            navigate_t<begin_t, end_t, next_, item_, init_t, func_r, params_t...>;
+            navigate_t<begin_t, end_t, next_, item_, init_t, func_r>;
 
 
         /// Specialization of
@@ -516,10 +699,9 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r ,
-                 typename ... params_t >
+                 typename func_r>
         using backward_item_t =
-            navigate_t<begin_t, end_t, prev_, item_, init_t, func_r, params_t...>;
+            navigate_t<begin_t, end_t, prev_, item_, init_t, func_r>;
 
 
         /// Specialization of
@@ -528,10 +710,9 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r ,
-                 typename ... params_t >
+                 typename func_r>
         using forward_iter_t =
-            navigate_t<begin_t, end_t, next_, idem_, init_t, func_r, params_t...>;
+            navigate_t<begin_t, end_t, next_, idem_, init_t, func_r>;
 
 
         /// Specialization of
@@ -540,78 +721,15 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r ,
-                 typename ... params_t >
+                 typename func_r >
         using backward_iter_t =
-            navigate_t<begin_t, end_t, prev_, idem_, init_t, func_r, params_t...>;
+            navigate_t<begin_t, end_t, prev_, idem_, init_t, func_r>;
 
-
-        template < typename begin_t,
-                 typename end_t,
-                 template<typename> typename direction_,
-                 template<typename, typename ...> typename test_t,
-                 typename ... params_t >
-        struct while_t_
-        {
-            template < typename current_t,
-                     typename is_valid_test_t >
-            struct while_t_impl_:
-                    while_t_impl_ <
-                    direction_<current_t>,
-                    test_t<next_<current_t>, params_t...> >
-            {
-            };
-
-
-            template <typename current_t>
-            struct while_t_impl_<current_t, std::true_type>
-            {
-                using type =
-                    current_t ;
-            };
-
-
-            template <typename is_valid_test_t>
-            struct while_t_impl_<end_t, is_valid_test_t>
-            {
-                using type =
-                    end_t;
-            };
-
-
-            using type =
-                lazy_t<while_t_impl_, begin_t, test_t<begin_t, params_t...>>;
-        };
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 template<typename> typename direction_,
-                 template<typename, typename ...> typename test_t,
-                 typename ... params_t >
-        using while_t =
-            t_<while_t_<begin_t, end_t, direction_, test_t, params_t...>>;
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 template<typename, typename ...> typename test_t,
-                 typename ... params_t >
-        using while_forward_t =
-            while_t<begin_t, end_t, next_, test_t, params_t...>;
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 template<typename, typename ...> typename test_t,
-                 typename ... params_t >
-        using while_backward_t =
-            while_t<begin_t, end_t, prev_, test_t, params_t...>;
 
 
         template < typename begin_t,
                  template<typename, typename ...> typename transform_t,
-                 typename ... args_t >
+                 typename args_t >
         struct iterate_t_;
 
 
@@ -629,17 +747,50 @@ namespace brain
         };
 
 
-        template < typename current_t,
-                 typename begin_t,
+
+        template < typename begin_t,
                  typename nb_steps_t >
-        using is_same_distance_t =
-            equal_to_t<nb_steps_t, distance_t<begin_t, current_t>>;
+        struct is_same_distance_r_
+        {
+            template<typename current_t>
+            using return_ =
+                equal_to_t <
+                nb_steps_t,
+                distance_t<begin_t, current_t >>;
+        };
 
 
         template < typename begin_t,
                  typename nb_steps_t >
         using advance_t =
-            item_<while_forward_t<begin_t, next_<last_t<begin_t>>, is_same_distance_t, next_<begin_t>, nb_steps_t>>;
+            while_forward_t <
+            begin_t,
+            next_<last_t<begin_t>>,
+            is_same_distance_r_<begin_t, nb_steps_t >>;
+
+        namespace test_advance
+        {
+            using begin_t = forward_iterator_builder_t<pack<int, double, short>>;
+            using next1_t = next_<begin_t>; /// double
+            using next2_t = next_<next1_t>; /// short
+            using end_t = next_<next2_t>; /// nil
+
+            static_assert(v_<std::is_same<begin_t, advance_t<begin_t, long_t<0>>>>, "");
+            static_assert(v_<std::is_same<next1_t, advance_t<next1_t, long_t<0>>>>, "");
+            static_assert(v_<std::is_same<next2_t, advance_t<next2_t, long_t<0>>>>, "");
+            static_assert(v_<std::is_same<end_t, advance_t<end_t, long_t<0>>>>, "");
+
+            static_assert(v_<std::is_same<next1_t, advance_t<begin_t, long_t<1>>>>, "");
+            static_assert(v_<std::is_same<next2_t, advance_t<begin_t, long_t<2>>>>, "");
+            static_assert(v_<std::is_same<end_t, advance_t<begin_t, long_t<3>>>>, "");
+
+            static_assert(v_<std::is_same<end_t, advance_t<next1_t, long_t<2>>>>, "");
+        }
+
+
+        
+
+
     }
 }
 
