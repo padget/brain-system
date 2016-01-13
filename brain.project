@@ -116,6 +116,7 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/meta/meta.hpp"/>
       <File Name="src/meta/iterator.hpp"/>
       <File Name="src/meta/sequence.hpp"/>
+      <File Name="src/meta/view.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

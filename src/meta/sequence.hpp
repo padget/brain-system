@@ -172,12 +172,12 @@ namespace brain
             end_t ,
             sequence_t<>,
             as_r_<push_back_t> >;
-            
-            
+
+
         namespace test_sub_sequence
         {
             using seq_t = forward_list<int, short, double, unsigned>;
-            
+
             static_assert(v_<std::is_same<forward_list<short, double, unsigned>, sub_sequence_t<forward_list, next_<begin_<seq_t>>, end_<seq_t>>>>, "");
         }
 

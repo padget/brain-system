@@ -204,8 +204,8 @@ namespace brain
             using index = index_t;
             using item = item_t;
             using next = next_t;
-            
-            
+
+
         };
 
 
@@ -503,55 +503,6 @@ namespace brain
             static_assert(v_<std::is_same<next2_t, last_t<begin_t>>>, "");
         }
 
-        /// Computes the
-        /// distance between
-        /// two iterators
-        template < typename begin_t,
-                 typename end_t >
-        struct distance_t_
-        {
-            using type =
-                minus_t <
-                index_<end_t>,
-                index_<begin_t> >;
-        };
-
-
-        /// Specialization for
-        /// end iterator that
-        /// returns the distance
-        /// between the begin_t
-        /// and prev_<end_t>
-        template < typename begin_t>
-        struct distance_t_<begin_t, next_<last_t<begin_t>>>
-        {
-            using type =
-                inc_t < minus_t <
-                index_<last_t<begin_t>> ,
-                index_<begin_t> >>;
-        };
-
-
-        /// t_ shortcut for
-        /// distance_t_
-        template < typename begin_t,
-                 typename end_t >
-        using distance_t =
-            lazy_t<distance_t_, begin_t, end_t>;
-
-        namespace test_distance
-        {
-            using begin_t = forward_iterator_builder_t<pack<int, double, short>>;
-            using next1_t = next_<begin_t>; /// double
-            using next2_t = next_<next1_t>; /// short
-            using end_t = next_<next2_t>; /// nil
-
-            static_assert(v_<equal_to_t<distance_t<begin_t, end_t>, long_t<3>>>, "");
-            static_assert(v_<equal_to_t<distance_t<begin_t, next2_t>, long_t<2>>>, "");
-            static_assert(v_<equal_to_t<distance_t<begin_t, next1_t>, long_t<1>>>, "");
-            static_assert(v_<equal_to_t<distance_t<begin_t, begin_t>, long_t<0>>>, "");
-        }
-
 
         /// /////////////// ///
         /// While Iteration ///
@@ -643,7 +594,7 @@ namespace brain
                  template<typename> typename direction_,
                  template<typename> typename accessor_,
                  typename init_t,
-                 typename func_r>
+                 typename func_r >
         struct navigate_t_
         {
             template < typename current_t,
@@ -653,7 +604,7 @@ namespace brain
                 using type =
                     lazy_t < navigate_t_impl_,
                     direction_<current_t>,
-                    r_<func_r, tmp_t, accessor_<current_t>>>;
+                    r_<func_r, tmp_t, accessor_<current_t> >>;
             };
 
 
@@ -688,7 +639,7 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r>
+                 typename func_r >
         using forward_item_t =
             navigate_t<begin_t, end_t, next_, item_, init_t, func_r>;
 
@@ -699,7 +650,7 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r>
+                 typename func_r >
         using backward_item_t =
             navigate_t<begin_t, end_t, prev_, item_, init_t, func_r>;
 
@@ -710,7 +661,7 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename init_t,
-                 typename func_r>
+                 typename func_r >
         using forward_iter_t =
             navigate_t<begin_t, end_t, next_, idem_, init_t, func_r>;
 
@@ -745,6 +696,57 @@ namespace brain
             using type =
                 begin_t<pack<transform_t<items_t, args_t...>...>>;
         };
+
+
+        /// Computes the
+        /// distance between
+        /// two iterators
+        template < typename begin_t,
+                 typename end_t >
+        struct distance_t_
+        {
+            using type =
+                minus_t <
+                index_<end_t>,
+                index_<begin_t> >;
+        };
+
+
+        /// Specialization for
+        /// end iterator that
+        /// returns the distance
+        /// between the begin_t
+        /// and prev_<end_t>
+        template < typename begin_t>
+        struct distance_t_<begin_t, next_<last_t<begin_t>>>
+        {
+            using type =
+                inc_t < minus_t <
+                index_<last_t<begin_t>> ,
+                index_<begin_t> >>;
+        };
+
+
+        /// t_ shortcut for
+        /// distance_t_
+        template < typename begin_t,
+                 typename end_t >
+        using distance_t =
+            lazy_t<distance_t_, begin_t, end_t>;
+
+        namespace test_distance
+        {
+            using begin_t = forward_iterator_builder_t<pack<int, double, short>>;
+            using next1_t = next_<begin_t>; /// double
+            using next2_t = next_<next1_t>; /// short
+            using end_t = next_<next2_t>; /// nil
+
+            static_assert(v_<equal_to_t<distance_t<begin_t, end_t>, long_t<3>>>, "");
+            static_assert(v_<equal_to_t<distance_t<begin_t, next2_t>, long_t<2>>>, "");
+            static_assert(v_<equal_to_t<distance_t<begin_t, next1_t>, long_t<1>>>, "");
+            static_assert(v_<equal_to_t<distance_t<begin_t, begin_t>, long_t<0>>>, "");
+        }
+
 
 
 
@@ -787,10 +789,66 @@ namespace brain
             static_assert(v_<std::is_same<end_t, advance_t<next1_t, long_t<2>>>>, "");
         }
 
+        /*
+         * template < typename index_t,
+                         typename item_t,
+                         typename next_t >
+         *
+         * */
 
-        
+        template < typename begin_t,
+                 typename end_t,
+                 typename index_t,
+                 typename can_continue_t = has_next_t<begin_t >>
+        struct clone_t_;
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename index_t >
+        struct clone_t_<begin_t, end_t, index_t, std::true_type>
+        {
+            using type = forward_iterator <
+                         index_t,
+                         item_<begin_t>,
+                         t_<clone_t_<next_<begin_t>, end_t, inc_t<index_t> > > >;
+        };
+
+        template < typename end_t,
+                 typename index_t >
+        struct clone_t_<end_t, end_t, index_t, std::true_type>
+        {
+            using type = forward_iterator_end;
+        };
 
 
+        template < typename begin_t,
+                 typename end_t,
+                 typename index_t >
+        struct clone_t_<begin_t, end_t, index_t, std::false_type>
+        {
+            using type = forward_iterator_end;
+        };
+
+
+        template < typename begin_t,
+                 typename end_t >
+        using clone_t =
+            lazy_t<clone_t_, begin_t, end_t, begin_iterator_index_t>;
+
+        namespace test_clone
+        {
+            using begin_t = forward_iterator_builder_t<pack<int, short, double, float>>;
+            using a_range = clone_t<next_<begin_t>, next_<last_t<begin_t>>>;
+
+            static_assert(v_<std::is_same<item_<a_range>, short>>, "");
+            static_assert(v_<std::is_same<item_<last_t<a_range>>, float>>, "");
+
+            static_assert(v_<std::is_same<index_<a_range>, long_t<0>>>, "");
+            static_assert(v_<std::is_same<index_<next_<a_range>>, long_t<1>>>, "");
+
+            static_assert(v_<std::is_same<index_<next_<next_<a_range>>>, long_t<2>>>, "");
+            static_assert(v_<std::is_same<index_<next_<next_<next_<a_range>>>>, end_iterator_index_t>>, "");
+        }
     }
 }
 
