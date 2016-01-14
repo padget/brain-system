@@ -228,7 +228,7 @@ namespace brain
         {
             using type =
                 forward_iterator < index_t, item_t,
-                lazy_t< forward_iterator_builder_t_, pack<items_t...>, inc_t<index_t >> >;
+                lazy_t<forward_iterator_builder_t_, pack<items_t...>, inc_t<index_t>> >;
         };
 
         template<typename index_t>
@@ -272,7 +272,7 @@ namespace brain
                  typename item_t,
                  typename next_t,
                  typename prev_builder_t >
-        struct biderectional_iterator:
+        struct bidirectional_iterator:
                 forward_iterator<index_t, item_t, next_t>
         {
             using prev = t_<prev_builder_t>;
@@ -311,7 +311,7 @@ namespace brain
         {
             using type = bidirectional_iterator_begin <
                          item_t,
-                         lazy_t < bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<begin_iterator_index_t> >>;
+                         lazy_t <bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<begin_iterator_index_t> >>;
         };
 
 
@@ -321,7 +321,7 @@ namespace brain
                  typename index_t >
         struct bidirectional_iterator_builder_t_<pack<item_t, items_t...>, prev_builder_t, index_t>
         {
-            using type = biderectional_iterator <
+            using type = bidirectional_iterator <
                          index_t,
                          item_t,
                          lazy_t<bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<index_t>>,
@@ -526,11 +526,11 @@ namespace brain
                      or_t <
                      r_<test_r, current_t>,
                      std::is_same<end_t, current_t>,
-                     not_t<is_valid_direction_t<direction_, current_t > >> >
+                     not_t<is_valid_direction_t<direction_, current_t> >> >
             struct while_t_impl_;
 
 
-            template < typename current_t >
+            template <typename current_t>
             struct while_t_impl_ <
                     current_t,
                     std::false_type > :
@@ -539,7 +539,7 @@ namespace brain
             };
 
 
-            template < typename current_t>
+            template <typename current_t>
             struct while_t_impl_ <
                     current_t,
                     std::true_type >
@@ -677,27 +677,6 @@ namespace brain
             navigate_t<begin_t, end_t, prev_, idem_, init_t, func_r>;
 
 
-
-        template < typename begin_t,
-                 template<typename, typename ...> typename transform_t,
-                 typename args_t >
-        struct iterate_t_;
-
-
-        template < template<typename...> typename begin_t,
-                 typename ... items_t,
-                 template<typename, typename ...> typename transform_t,
-                 typename ... args_t >
-        struct iterate_t_ <
-                begin_t<pack<items_t...>>,
-                                       transform_t,
-                                       args_t... >
-        {
-            using type =
-                begin_t<pack<transform_t<items_t, args_t...>...>>;
-        };
-
-
         /// Computes the
         /// distance between
         /// two iterators
@@ -717,7 +696,7 @@ namespace brain
         /// returns the distance
         /// between the begin_t
         /// and prev_<end_t>
-        template < typename begin_t>
+        template <typename begin_t>
         struct distance_t_<begin_t, next_<last_t<begin_t>>>
         {
             using type =
@@ -800,22 +779,22 @@ namespace brain
                  typename end_t,
                  typename index_t,
                  typename can_continue_t = has_next_t<begin_t >>
-        struct clone_t_;
+        struct clone_forward_t_;
 
         template < typename begin_t,
                  typename end_t,
                  typename index_t >
-        struct clone_t_<begin_t, end_t, index_t, std::true_type>
+        struct clone_forward_t_<begin_t, end_t, index_t, std::true_type>
         {
             using type = forward_iterator <
                          index_t,
                          item_<begin_t>,
-                         t_<clone_t_<next_<begin_t>, end_t, inc_t<index_t> > > >;
+                         t_<clone_forward_t_<next_<begin_t>, end_t, inc_t<index_t>>> >;
         };
 
         template < typename end_t,
                  typename index_t >
-        struct clone_t_<end_t, end_t, index_t, std::true_type>
+        struct clone_forward_t_<end_t, end_t, index_t, std::true_type>
         {
             using type = forward_iterator_end;
         };
@@ -824,7 +803,7 @@ namespace brain
         template < typename begin_t,
                  typename end_t,
                  typename index_t >
-        struct clone_t_<begin_t, end_t, index_t, std::false_type>
+        struct clone_forward_t_<begin_t, end_t, index_t, std::false_type>
         {
             using type = forward_iterator_end;
         };
@@ -832,13 +811,13 @@ namespace brain
 
         template < typename begin_t,
                  typename end_t >
-        using clone_t =
-            lazy_t<clone_t_, begin_t, end_t, begin_iterator_index_t>;
+        using clone_forward_t =
+            lazy_t<clone_forward_t_, begin_t, end_t, begin_iterator_index_t>;
 
-        namespace test_clone
+        namespace test_clone_forward
         {
             using begin_t = forward_iterator_builder_t<pack<int, short, double, float>>;
-            using a_range = clone_t<next_<begin_t>, next_<last_t<begin_t>>>;
+            using a_range = clone_forward_t<next_<begin_t>, next_<last_t<begin_t>>>;
 
             static_assert(v_<std::is_same<item_<a_range>, short>>, "");
             static_assert(v_<std::is_same<item_<last_t<a_range>>, float>>, "");
@@ -849,6 +828,34 @@ namespace brain
             static_assert(v_<std::is_same<index_<next_<next_<a_range>>>, long_t<2>>>, "");
             static_assert(v_<std::is_same<index_<next_<next_<next_<a_range>>>>, end_iterator_index_t>>, "");
         }
+
+
+        /*
+         *
+                template < typename index_t,
+                         typename item_t,
+                         typename next_t,
+                         typename prev_builder_t >
+         *
+         * */
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename prev_t,
+                 typename index_t,
+                 typename can_continue_t = has_next_t<begin_t >>
+        struct clone_bidirectional_t_;
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename prev_t,
+                 typename index_t >
+        struct clone_bidirectional_t_<begin_t, end_t, prev_t, begin_iterator_index_t, std::true_type>
+        {
+            using type = bidirectional_iterator<begin_t>;
+        };
+
     }
 }
 
