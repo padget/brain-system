@@ -267,7 +267,6 @@ namespace brain
         /// Bidirectional Iterator ///
         /// ////////////////////// ///
 
-
         template < typename index_t,
                  typename item_t,
                  typename next_t,
@@ -279,6 +278,15 @@ namespace brain
         };
 
 
+        template < typename item_t,
+                 typename next_t >
+        struct bidirectional_iterator_begin:
+                forward_iterator<begin_iterator_index_t, item_t, next_t>
+        {
+            using prev = bidirectional_iterator_begin;
+        };
+
+
         template<typename prev_builder_t>
         struct bidirectional_iterator_end
         {
@@ -286,15 +294,6 @@ namespace brain
             using item = nil;
             using next = bidirectional_iterator_end;
             using prev = t_<prev_builder_t>;
-        };
-
-
-        template < typename item_t,
-                 typename next_t >
-        struct bidirectional_iterator_begin:
-                forward_iterator<begin_iterator_index_t, item_t, next_t>
-        {
-            using prev = bidirectional_iterator_begin;
         };
 
 
@@ -502,79 +501,16 @@ namespace brain
 
             static_assert(v_<std::is_same<next2_t, last_t<begin_t>>>, "");
         }
+        
+        
+        /// ////////////// ///
+        /// Iteration Ways ///
+        /// ////////////// ///
 
 
-        /// /////////////// ///
-        /// While Iteration ///
-        /// /////////////// ///
+        
 
-
-        /// Returns the first
-        /// that match true with
-        /// the test_r or if the
-        /// next step is invalid
-        /// or if the end_t of the
-        /// sequence is reached
-        template < typename begin_t,
-                 typename end_t,
-                 template<typename> typename direction_,
-                 typename test_r >
-        struct while_t_
-        {
-            template < typename current_t,
-                     typename must_stop_t =
-                     or_t <
-                     r_<test_r, current_t>,
-                     std::is_same<end_t, current_t>,
-                     not_t<is_valid_direction_t<direction_, current_t> >> >
-            struct while_t_impl_;
-
-
-            template <typename current_t>
-            struct while_t_impl_ <
-                    current_t,
-                    std::false_type > :
-                    while_t_impl_<direction_<current_t>>
-            {
-            };
-
-
-            template <typename current_t>
-            struct while_t_impl_ <
-                    current_t,
-                    std::true_type >
-            {
-                using type =
-                    current_t ;
-            };
-
-
-
-            using type =
-                lazy_t<while_t_impl_, begin_t>;
-        };
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 template<typename> typename direction_,
-                 typename test_r >
-        using while_t =
-            t_<while_t_<begin_t, end_t, direction_, test_r>>;
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 typename test_r >
-        using while_forward_t =
-            while_t<begin_t, end_t, next_, test_r>;
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 typename test_r >
-        using while_backward_t =
-            while_t<begin_t, end_t, prev_, test_r>;
+        
 
 
         /// ////////////////// ///
@@ -675,6 +611,87 @@ namespace brain
                  typename func_r >
         using backward_iter_t =
             navigate_t<begin_t, end_t, prev_, idem_, init_t, func_r>;
+            
+            
+        /// /////////////// ///
+        /// While Iteration ///
+        /// /////////////// ///
+
+        /*template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 typename test_r >
+        using while_t_ = navigate_t<begin_t, end_t, direction_, idem_, end_t, as_r_<if_t<test_r>>*/
+
+        /// TOCHANGE While iteration is equivalent with an filter on the current
+        /// sequence filtered by the test_r and where we retrieve the first element
+
+        /// Returns the first
+        /// that match true with
+        /// the test_r or if the
+        /// next step is invalid
+        /// or if the end_t of the
+        /// sequence is reached
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 typename test_r >
+        struct while_t_ /// TOCHANGE <=> navigate_t jusquaceque
+        {
+            template < typename current_t,
+                     typename must_stop_t =
+                     or_t <
+                     r_<test_r, current_t>,
+                     std::is_same<end_t, current_t>,
+                     not_t<is_valid_direction_t<direction_, current_t> >> >
+            struct while_t_impl_;
+
+
+            template <typename current_t>
+            struct while_t_impl_ <
+                    current_t,
+                    std::false_type > :
+                    while_t_impl_<direction_<current_t>>
+            {
+            };
+
+
+            template <typename current_t>
+            struct while_t_impl_ <
+                    current_t,
+                    std::true_type >
+            {
+                using type =
+                    current_t ;
+            };
+
+
+
+            using type =
+                lazy_t<while_t_impl_, begin_t>;
+        };
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 template<typename> typename direction_,
+                 typename test_r >
+        using while_t =
+            t_<while_t_<begin_t, end_t, direction_, test_r>>;
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename test_r >
+        using while_forward_t =
+            while_t<begin_t, end_t, next_, test_r>;
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename test_r >
+        using while_backward_t =
+            while_t<begin_t, end_t, prev_, test_r>;
 
 
         /// Computes the
@@ -768,12 +785,6 @@ namespace brain
             static_assert(v_<std::is_same<end_t, advance_t<next1_t, long_t<2>>>>, "");
         }
 
-        /*
-         * template < typename index_t,
-                         typename item_t,
-                         typename next_t >
-         *
-         * */
 
         template < typename begin_t,
                  typename end_t,
@@ -849,12 +860,78 @@ namespace brain
 
         template < typename begin_t,
                  typename end_t,
-                 typename prev_t,
-                 typename index_t >
+                 typename prev_t >
         struct clone_bidirectional_t_<begin_t, end_t, prev_t, begin_iterator_index_t, std::true_type>
         {
-            using type = bidirectional_iterator<begin_t>;
+            using type = bidirectional_iterator_begin <
+                         item_<begin_t>,
+                         lazy_t < clone_bidirectional_t_,
+                         next_<begin_t>,
+                         end_t,
+                         clone_bidirectional_t_,
+                         inc_t<begin_iterator_index_t >>>;
         };
+
+
+        template < typename begin_t,
+                 typename end_t,
+                 typename prev_t,
+                 typename index_t >
+        struct clone_bidirectional_t_<begin_t, end_t, prev_t, index_t, std::true_type>
+        {
+            using type = bidirectional_iterator <
+                         index_t,
+                         item_<begin_t>,
+                         lazy_t < clone_bidirectional_t_,
+                         next_<begin_t>,
+                         end_t,
+                         clone_bidirectional_t_,
+                         inc_t<index_t> > ,
+                         prev_t >;
+        };
+
+
+        template < typename end_t,
+                 typename prev_t,
+                 typename index_t >
+        struct clone_bidirectional_t_<end_t, end_t, prev_t, index_t, std::true_type>
+        {
+            using type = bidirectional_iterator_end<prev_t>;
+        };
+
+
+        template < typename end_t,
+                 typename prev_t,
+                 typename index_t >
+        struct clone_bidirectional_t_<end_t, end_t, prev_t, index_t, std::false_type>
+        {
+            using type = bidirectional_iterator_end<prev_t>;
+        };
+
+
+        template < typename begin_t,
+                 typename end_t >
+        using clone_bidirectional_t =
+            lazy_t<clone_bidirectional_t_, begin_t, end_t, void, begin_iterator_index_t>;
+
+
+        namespace test_clone_bidirectional
+        {
+            using begin_t = bidirectional_iterator_builder_t<pack<int, short, double, float>>;
+            using a_range = clone_bidirectional_t<next_<begin_t>, next_<last_t<begin_t>>>;
+
+            static_assert(v_<std::is_same<item_<a_range>, short>>, "");
+            static_assert(v_<std::is_same<item_<last_t<a_range>>, float>>, "");
+            
+            static_assert(v_<std::is_same<item_<prev_<next_<a_range>>>, short>>, "");
+            static_assert(v_<std::is_same<item_<prev_<next_<last_t<a_range>>>>, float>>, "");
+
+            static_assert(v_<std::is_same<index_<a_range>, long_t<0>>>, "");
+            static_assert(v_<std::is_same<index_<next_<a_range>>, long_t<1>>>, "");
+
+            static_assert(v_<std::is_same<index_<next_<next_<a_range>>>, long_t<2>>>, "");
+            static_assert(v_<std::is_same<index_<next_<next_<next_<a_range>>>>, end_iterator_index_t>>, "");
+        }
 
     }
 }

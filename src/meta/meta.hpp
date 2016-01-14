@@ -15,6 +15,8 @@
 */
 
 #include "sequence.hpp"
+#include "lambda.hpp"
+#include "view.hpp"
 
 namespace brain
 {

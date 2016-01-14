@@ -1,4 +1,4 @@
-#include __BRAIN_META_VIEW_HPP__
+#ifndef __BRAIN_META_VIEW_HPP__
 # define  __BRAIN_META_VIEW_HPP__
 
 #include "iterator.hpp"
@@ -19,10 +19,29 @@ namespace brain
 
         template < typename begin_t,
                  typename end_t >
-        using forward_view =
-            view<clone_forward_t, begin_t, end_t>;
+        struct forward_view :
+                view<clone_forward_t, begin_t, end_t>
+        {
+        };
+
+        template < typename begin_t,
+                 typename end_t >
+        using forward_list_view =
+            forward_view<begin_t, end_t>;
 
 
+        template < typename begin_t,
+                 typename end_t >
+        struct bidirectional_view :
+                view<clone_bidirectional_t, begin_t, end_t>
+        {
+        };
+
+
+        template < typename begin_t,
+                 typename end_t >
+        using list_view =
+            bidirectional_view<begin_t, end_t>;
     }
 }
 

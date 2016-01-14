@@ -63,7 +63,22 @@ namespace brain
                  typename ... args_t >
         using lazy_t =
             t_<t_<lazy_t_<func_t, args_t...>>>;
+            
+        
+         /// Defers the instation of
+        /// a template
+        template <typename type_t>
+        struct lazy_v_
+        {
+            static constexpr auto value =
+               t_<type_t>::value;
+        };
 
+
+        /// t_ shortcut for defer_t_
+        template < typename type_t>
+        constexpr auto lazy_v =
+            v_<lazy_v_<type_t>>;
 
         /// /////////////////// ///
         /// Has Type Definition ///
@@ -1103,6 +1118,8 @@ namespace brain
         }
 
 
+        template<typename pack_t>
+        struct unpack_t_;
     }
 }
 

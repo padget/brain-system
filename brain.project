@@ -96,7 +96,7 @@ C:\users\benjamin\projets\code_lite_w\brain
     <VirtualDirectory Name="lang">
       <File Name="src/lang/language.hpp"/>
     </VirtualDirectory>
-    <File Name="src/main.cpp"/>
+    <File Name="src/main.cpp" ExcludeProjConfig=""/>
     <File Name="src/test.h"/>
     <VirtualDirectory Name="test">
       <VirtualDirectory Name="utest">
@@ -107,7 +107,7 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/meta/core.hpp"/>
       <File Name="src/meta/list.hpp"/>
       <File Name="src/meta/state.hpp"/>
-      <File Name="src/meta/lambda.hpp"/>
+      <File Name="src/meta/lambda.hpp" ExcludeProjConfig=""/>
       <File Name="src/meta/string.hpp"/>
       <File Name="src/meta/map.hpp"/>
       <File Name="src/meta/standart.hpp"/>
