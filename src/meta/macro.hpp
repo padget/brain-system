@@ -42,6 +42,7 @@
     
 #  define member_(name) \
     has_(name) \
-    access_(name)
+    access_(name) \
+    lazy_(name)
     
 #endif
