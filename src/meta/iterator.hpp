@@ -7,126 +7,11 @@ namespace brain
 {
     namespace meta
     {
-        /// Determines if
-        /// type_t has item
-        /// member or not
-        template < typename type_t,
-                 typename = void >
-        struct has_item_member_t_:
-                std::false_type
-        {
-        };
+        has_(item)
+        has_(next)
+        has_(prev)
+        has_(index)
 
-
-        /// Specialization for
-        /// has_item_t_ that
-        /// returns true_type
-        /// because of presence
-        /// of item member
-        template<typename type_t>
-        struct has_item_member_t_<type_t, void_t<typename type_t::item>> :
-                        std::true_type
-        {
-        };
-
-
-        /// t_ shortcut for
-        /// has_item_t_
-        template<typename type_t>
-        using has_item_member_t =
-            lazy_t<has_item_member_t_, type_t>;
-
-
-        /// Determines if
-        /// type_t has next
-        /// member or not
-        template < typename type_t,
-                 typename = void >
-        struct has_next_member_t_:
-                std::false_type
-        {
-        };
-
-
-        /// Specialization for
-        /// has_item_t_ that
-        /// returns true_type
-        /// because of presence
-        /// of next member
-        template<typename type_t>
-        struct has_next_member_t_<type_t, void_t<typename type_t::next>> :
-                        std::true_type
-        {
-        };
-
-
-        /// t_ shortcut for
-        /// has_next_t_
-        template<typename type_t>
-        using has_next_member_t =
-            lazy_t<has_next_member_t_, type_t>;
-
-
-        /// Determines if
-        /// type_t has prev
-        /// member or not
-        template < typename type_t,
-                 typename = void >
-        struct has_prev_member_t_:
-                std::false_type
-        {
-        };
-
-
-        /// Specialization for
-        /// has_item_t_ that
-        /// returns true_type
-        /// because of presence
-        /// of prev member
-        template<typename type_t>
-        struct has_prev_member_t_<type_t, void_t<typename type_t::prev>> :
-                        std::true_type
-        {
-        };
-
-
-        /// t_ shortcut for
-        /// has_prev_t_
-        template<typename type_t>
-        using has_prev_member_t =
-            lazy_t<has_prev_member_t_, type_t>;
-
-
-        /// Determines if
-        /// type_t has index
-        /// member or not
-        template < typename type_t,
-                 typename = void >
-        struct has_index_member_t_:
-                std::false_type
-        {
-        };
-
-
-        /// Specialization for
-        /// has_item_t_ that
-        /// returns true_type
-        /// because of presence
-        /// of index member
-        template<typename type_t>
-        struct has_index_member_t_ <
-                type_t,
-                void_t<typename type_t::index> > :
-                std::true_type
-        {
-        };
-
-
-        /// t_ shortcut for
-        /// has_index_t_
-        template<typename type_t>
-        using has_index_member_t =
-            lazy_t<has_index_member_t_, type_t>;
 
 
         /// Determines if type_t
@@ -134,9 +19,9 @@ namespace brain
         template<typename type_t>
         using is_forward_iterator_t =
             and_t <
-            has_item_member_t<type_t>,
-            has_next_member_t<type_t>,
-            has_index_member_t<type_t >>;
+            has_item_member<type_t>,
+            has_next_member<type_t>,
+            has_index_member<type_t >>;
 
 
         /// Determines if type_t
@@ -144,9 +29,9 @@ namespace brain
         template<typename type_t>
         using is_backward_iterator_t =
             and_t <
-            has_item_member_t<type_t>,
-            has_prev_member_t<type_t>,
-            has_index_member_t<type_t >>;
+            has_item_member<type_t>,
+            has_prev_member<type_t>,
+            has_index_member<type_t >>;
 
 
         /// Determines if type_t
@@ -159,32 +44,10 @@ namespace brain
             is_backward_iterator_t<type_t >>;
 
 
-        /// Accessor for
-        /// next member
-        template<typename iterator_t>
-        using next_ =
-            typename iterator_t::next;
-
-
-        /// Accessor for
-        /// prev member
-        template<typename iterator_t>
-        using prev_ =
-            typename iterator_t::prev;
-
-
-        /// Accessor for
-        /// index member
-        template<typename iterator_t>
-        using index_ =
-            typename iterator_t::index;
-
-
-        /// Accessor for
-        /// item member
-        template<typename iterator_t>
-        using item_ =
-            typename iterator_t::item;
+        access_(next)
+        access_(item)
+        access_(index)
+        access_(prev)
 
 
         /// //////////////// ///
@@ -201,11 +64,14 @@ namespace brain
                  typename next_t >
         struct forward_iterator
         {
-            using index = index_t;
-            using item = item_t;
-            using next = next_t;
+            using index =
+                index_t;
 
+            using item =
+                item_t;
 
+            using next =
+                next_t;
         };
 
 
@@ -274,7 +140,8 @@ namespace brain
         struct bidirectional_iterator:
                 forward_iterator<index_t, item_t, next_t>
         {
-            using prev = t_<prev_builder_t>;
+            using prev =
+                type_<prev_builder_t>;
         };
 
 
@@ -283,17 +150,25 @@ namespace brain
         struct bidirectional_iterator_begin:
                 forward_iterator<begin_iterator_index_t, item_t, next_t>
         {
-            using prev = bidirectional_iterator_begin;
+            using prev =
+                bidirectional_iterator_begin;
         };
 
 
         template<typename prev_builder_t>
         struct bidirectional_iterator_end
         {
-            using index = end_iterator_index_t;
-            using item = nil;
-            using next = bidirectional_iterator_end;
-            using prev = t_<prev_builder_t>;
+            using index =
+                end_iterator_index_t;
+
+            using item =
+                nil;
+
+            using next =
+                bidirectional_iterator_end;
+
+            using prev =
+                type_<prev_builder_t>;
         };
 
 
@@ -308,9 +183,10 @@ namespace brain
                  typename prev_builder_t >
         struct bidirectional_iterator_builder_t_<pack<item_t, items_t...>, prev_builder_t, begin_iterator_index_t>
         {
-            using type = bidirectional_iterator_begin <
-                         item_t,
-                         lazy_t <bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<begin_iterator_index_t> >>;
+            using type =
+                bidirectional_iterator_begin <
+                item_t,
+                lazy_t <bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<begin_iterator_index_t> >>;
         };
 
 
@@ -320,11 +196,12 @@ namespace brain
                  typename index_t >
         struct bidirectional_iterator_builder_t_<pack<item_t, items_t...>, prev_builder_t, index_t>
         {
-            using type = bidirectional_iterator <
-                         index_t,
-                         item_t,
-                         lazy_t<bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<index_t>>,
-                         prev_builder_t >;
+            using type =
+                bidirectional_iterator <
+                index_t,
+                item_t,
+                lazy_t<bidirectional_iterator_builder_t_, pack<items_t...>, bidirectional_iterator_builder_t_, inc_t<index_t>>,
+                prev_builder_t >;
         };
 
 
@@ -486,7 +363,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for
+        /// type_ shortcut for
         /// last_valid_t_
         template<typename iterator_t>
         using last_t =
@@ -501,16 +378,16 @@ namespace brain
 
             static_assert(v_<std::is_same<next2_t, last_t<begin_t>>>, "");
         }
-        
-        
+
+
         /// ////////////// ///
         /// Iteration Ways ///
         /// ////////////// ///
 
 
-        
 
-        
+
+
 
 
         /// ////////////////// ///
@@ -557,7 +434,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for
+        /// type_ shortcut for
         /// navigate_t_
         template < typename begin_t,
                  typename end_t,
@@ -566,7 +443,7 @@ namespace brain
                  typename init_t,
                  typename func_r >
         using navigate_t =
-            t_<navigate_t_<begin_t, end_t, direction_, accessor_, init_t, func_r>>;
+            type_<navigate_t_<begin_t, end_t, direction_, accessor_, init_t, func_r>>;
 
 
         /// Specialization of
@@ -611,8 +488,8 @@ namespace brain
                  typename func_r >
         using backward_iter_t =
             navigate_t<begin_t, end_t, prev_, idem_, init_t, func_r>;
-            
-            
+
+
         /// /////////////// ///
         /// While Iteration ///
         /// /////////////// ///
@@ -677,7 +554,7 @@ namespace brain
                  template<typename> typename direction_,
                  typename test_r >
         using while_t =
-            t_<while_t_<begin_t, end_t, direction_, test_r>>;
+            type_<while_t_<begin_t, end_t, direction_, test_r>>;
 
 
         template < typename begin_t,
@@ -723,7 +600,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for
+        /// type_ shortcut for
         /// distance_t_
         template < typename begin_t,
                  typename end_t >
@@ -800,7 +677,7 @@ namespace brain
             using type = forward_iterator <
                          index_t,
                          item_<begin_t>,
-                         t_<clone_forward_t_<next_<begin_t>, end_t, inc_t<index_t>>> >;
+                         type_<clone_forward_t_<next_<begin_t>, end_t, inc_t<index_t>>> >;
         };
 
         template < typename end_t,
@@ -922,7 +799,7 @@ namespace brain
 
             static_assert(v_<std::is_same<item_<a_range>, short>>, "");
             static_assert(v_<std::is_same<item_<last_t<a_range>>, float>>, "");
-            
+
             static_assert(v_<std::is_same<item_<prev_<next_<a_range>>>, short>>, "");
             static_assert(v_<std::is_same<item_<prev_<next_<last_t<a_range>>>>, float>>, "");
 

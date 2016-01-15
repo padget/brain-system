@@ -2,12 +2,24 @@
 # define __BRAIN_META_CORE_HPP__
 
 #include <type_traits>
+#include "macro.hpp"
 
 namespace brain
 {
     namespace meta
     {
         struct nil {};
+
+        /// Wrapper for void
+        template<typename ...>
+        using void_ =
+            void;
+
+
+        /// Definition
+        /// of pack
+        template<typename ...>
+        struct pack;
 
 
         /// //////////////////// ///
@@ -16,35 +28,109 @@ namespace brain
 
 
         /// Access to type member
-        /// of type_t
-        template<typename type_t>
-        using t_ =
-            typename type_t::type;
+        /// of type_t. Evaluates
+        /// the result of the meta
+        /// function type_t
+        member_(type)
+
+
+
+
 
 
         /// Access to value member
         /// of type_t
         template<typename type_t>
-        constexpr decltype(t_<type_t>::value) v_ =
-            t_<type_t>::value;
+        constexpr decltype(type_<type_t>::value) v_ =
+            type_<type_t>::value;
 
 
-        /// Wrapper for void
-        template<typename ...>
-        using void_t =
-            void;
-
-
-        /// Access to type_t
-        /// itself
         template<typename type_t>
-        using idem_ =
-            type_t;
+        using idem_ = type_t;
+
+
+        /// identity that
+        /// returns the
+        /// type_t itself
+        template<typename type_t>
+        struct identity_
+        {
+            using type = type_t;
+        };
 
 
         /// ////////////////////////// ///
         /// Lazy instanciation of type ///
         /// ////////////////////////// ///
+
+
+        namespace impl
+        {
+            template < template<typename ...> typename func_t,
+                     typename args_t,
+                     typename = void >
+            struct function_;
+
+            template < template<typename ...> typename func_t,
+                     typename ... args_t >
+            struct function_ <
+                    func_t,
+                    pack<args_t...>,
+                    void_<func_t<args_t...>> >
+            {
+                using type =
+                    func_t<args_t...>;
+            };
+        }
+
+        template < template<typename ...> typename func_t,
+                 typename ... args_t >
+        using function_ =
+            impl::function_ <
+            func_t,
+            pack<args_t... >>;
+
+        namespace lazy
+        {
+            template<typename type_t>
+            using type_ =
+                function_<type_, type_t>;
+        }
+
+
+        namespace test_function
+        {
+
+            template<typename type_t>
+            using identity_function =
+                function_<identity_, type_t>;
+
+            template<typename type_t>
+            using lazy_type =
+                lazy::type_<type_t>;
+
+            static_assert(v_<std::is_same<type_<type_<identity_function<int>>>, int>>, "");
+            /// Example of lazy use :
+            /// if this expression will be evaluated,
+            /// the compilation will fail because of
+            /// int has no member type ! So the type
+            /// member of function_ demanding of the
+            /// evaluation of the type member of int
+            /// is not evaluated while the type of
+            /// function_ is not used in code !
+            static_assert(!v_<std::is_same<lazy_type<int>, int>>, "");
+            /// static_assert(v_<std::is_same<lazy::type_<function_<idem_, int>>, int>>, "");
+        }
+
+
+        template<template<typename ...> typename func_t>
+        struct function_class_
+        {
+            template<typename ... args_t>
+            using return_ = type_<function_<func_t, args_t...>>;
+        };
+
+
 
 
         /// Defers the instation of
@@ -58,60 +144,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for defer_t_
-        template < template<typename ...> typename func_t,
-                 typename ... args_t >
-        using lazy_t =
-            t_<t_<lazy_t_<func_t, args_t...>>>;
-            
-        
-         /// Defers the instation of
-        /// a template
-        template <typename type_t>
-        struct lazy_v_
-        {
-            static constexpr auto value =
-               t_<type_t>::value;
-        };
-
-
-        /// t_ shortcut for defer_t_
-        template < typename type_t>
-        constexpr auto lazy_v =
-            v_<lazy_v_<type_t>>;
-
-        /// /////////////////// ///
-        /// Has Type Definition ///
-        /// /////////////////// ///
-
-
-        /// Determines if a
-        /// type_t has the
-        /// 'type' member
-        template < typename ,
-                 typename = void >
-        struct has_type_t_:
-                std::false_type
-        {
-        };
-
-
-        /// Specialisation for
-        /// has_type_ if type_t
-        /// has 'type' member
-        template<typename type_t>
-        struct has_type_t_ < type_t,
-                void_t<typename type_t::type> > :
-                std::true_type
-        {
-        };
-
-
-        /// Evaluates the result
-        /// of t_<has_type_<type_t>>
-        template<typename type_t>
-        using has_type_t =
-            lazy_t<has_type_t_, type_t>;
+        lazy_(type)
 
 
         /// ///////////// ///
@@ -142,7 +175,7 @@ namespace brain
         {
             template<typename ... args_t>
             using return_ =
-                t_<lazy_t_<func_t, args_t...>>;
+                type_<lazy_t_<func_t, args_t...>>;
         };
 
 
@@ -194,46 +227,6 @@ namespace brain
         template<typename ... funcs_t>
         using compose_r =
             compose_r_<funcs_t...>;
-
-
-        /// Determines if a
-        /// type has a return_
-        /// member
-        template < typename,
-                 typename = void >
-        struct has_return_t_
-        {
-            using type =
-                std::false_type;
-        };
-
-
-        /// Specialisation for
-        /// has_return_ if
-        /// type_t has return_
-        template <typename type_t>
-        struct has_return_t_ < type_t,
-                void_t < typename
-                type_t::template return_<> > >
-        {
-            using type =
-                std::true_type;
-        };
-
-
-        /// Evaluates the result
-        /// of t_<has_return_<type_t>>
-        template<typename type_t>
-        using has_return_t =
-            lazy_t<has_return_t_, type_t>;
-
-
-        /// Determines if type_t
-        /// is a meta function
-        /// or not.
-        template<typename type_t>
-        using is_meta_function_t =
-            has_return_t<type_t>;
 
 
         /// Meta function that
@@ -294,7 +287,7 @@ namespace brain
 
 
         /// Evaluates the result of
-        /// t_<private_::expand<func_t, list_t>>
+        /// type_<private_::expand<func_t, list_t>>
         template < typename func_t,
                  typename list_t >
         using expand_t =
@@ -314,11 +307,11 @@ namespace brain
             std::integral_constant<literal_t, _l>;
 
 
-        /// t_ shortcut for igral_t_
+        /// type_ shortcut for igral_t_
         template < typename literal_t,
                  literal_t _l >
         using igral_t =
-            t_<igral_t_<literal_t, _l>>;
+            type_<igral_t_<literal_t, _l>>;
 
 
         /// Wrapper for bool
@@ -327,37 +320,37 @@ namespace brain
             igral_t_<bool, _b>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for bool_t_
         template<bool _b>
         using bool_t =
-            t_<bool_t_<_b>>;
+            type_<bool_t_<_b>>;
 
 
         /// Wrapper for short
         template<short _s>
-        using short_t_ =
+        using short_type_ =
             igral_t_<short, _s>;
 
 
-        /// t_ shortcut
-        /// for short_t_
+        /// type_ shortcut
+        /// for short_type_
         template<short _s>
         using short_t =
-            t_<short_t_<_s>>;
+            type_<short_type_<_s>>;
 
 
         /// Wrapper for unsigned short
         template<unsigned short _us>
-        using ushort_t_ =
+        using ushort_type_ =
             igral_t_<unsigned short, _us>;
 
 
-        /// t_ shortcut
-        /// for ushort_t_
+        /// type_ shortcut
+        /// for ushort_type_
         template<unsigned short _us>
         using ushort_t =
-            t_<ushort_t_<_us>>;
+            type_<ushort_type_<_us>>;
 
 
         /// Wrapper for char
@@ -366,24 +359,24 @@ namespace brain
             igral_t_<char, _c>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for char_t_
         template<char _c>
         using char_t =
-            t_<char_t_<_c>>;
+            type_<char_t_<_c>>;
 
 
         /// Wrapper for int
         template<int _i>
-        using int_t_ =
+        using int_type_ =
             igral_t_<int, _i>;
 
 
-        /// t_ shortcut
-        /// for int_t_
+        /// type_ shortcut
+        /// for int_type_
         template<int _i>
         using int_t =
-            t_<int_t_<_i>>;
+            type_<int_type_<_i>>;
 
 
         /// Wrapper for long
@@ -392,11 +385,11 @@ namespace brain
             igral_t_<long, _l>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for long_t_
         template<long _l>
         using long_t =
-            t_<long_t_<_l>>;
+            type_<long_t_<_l>>;
 
 
         /// Wrapper for long long
@@ -405,11 +398,11 @@ namespace brain
             igral_t_<long long, _ll>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for longlong_t_
         template<long long _ll>
         using longlong_t =
-            t_<longlong_t_<_ll>>;
+            type_<longlong_t_<_ll>>;
 
 
         /// Wrapper for unsigned
@@ -418,11 +411,11 @@ namespace brain
             igral_t_<unsigned, _u>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for unsigned_t_
         template<unsigned _u>
         using unsigned_t =
-            t_<unsigned_t_<_u>>;
+            type_<unsigned_t_<_u>>;
 
 
         /// Wrapper for unsigned long
@@ -431,11 +424,11 @@ namespace brain
             igral_t_<unsigned long, _ul>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for unsignedl_t_
         template<unsigned long _ul>
         using unsignedl_t =
-            t_<unsignedl_t_<_ul>>;
+            type_<unsignedl_t_<_ul>>;
 
 
         /// Wrapper for unsigned long long
@@ -444,11 +437,11 @@ namespace brain
             igral_t_<unsigned long long, _ull>;
 
 
-        /// t_ shortcut
+        /// type_ shortcut
         /// for unsignedll_t_
         template<unsigned long long _ull>
         using unsignedll_t =
-            t_<unsignedll_t_<_ull>>;
+            type_<unsignedll_t_<_ull>>;
 
 
         /// Wrapper for size_t
@@ -471,7 +464,7 @@ namespace brain
             == v_<other_t >>;
 
 
-        /// t_ shortcut for equal_to_t_
+        /// type_ shortcut for equal_to_t_
         template < typename type_t,
                  typename other_t >
         using equal_to_t =
@@ -487,7 +480,7 @@ namespace brain
             != v_<other_t >>;
 
 
-        /// t_ shortcut for not_equal_to_t_
+        /// type_ shortcut for not_equal_to_t_
         template < typename type_t,
                  typename other_t >
         using not_equal_to_t =
@@ -503,7 +496,7 @@ namespace brain
                        > v_<other_t>) >;
 
 
-        /// t_ shortcut for greater_t_
+        /// type_ shortcut for greater_t_
         template < typename type_t,
                  typename other_t >
         using greater_t =
@@ -519,7 +512,7 @@ namespace brain
                        < v_<other_t>) >;
 
 
-        /// t_ shortcut for less_t_
+        /// type_ shortcut for less_t_
         template < typename type_t,
                  typename other_t >
         using less_t =
@@ -535,7 +528,7 @@ namespace brain
                        >= v_<other_t>) >;
 
 
-        /// t_ shortcut for greater_equal_t_
+        /// type_ shortcut for greater_equal_t_
         template < typename type_t,
                  typename other_t >
         using greater_equal_t =
@@ -551,7 +544,7 @@ namespace brain
                        <= v_<other_t>) >;
 
 
-        /// t_ shortcut for less_equal_t_
+        /// type_ shortcut for less_equal_t_
         template < typename type_t,
                  typename other_t >
         using less_equal_t =
@@ -567,7 +560,7 @@ namespace brain
             & v_<other_t >>;
 
 
-        /// t_ shortcut for bit_and_t_
+        /// type_ shortcut for bit_and_t_
         template < typename type_t,
                  typename other_t >
         using bit_and_t =
@@ -583,7 +576,7 @@ namespace brain
             | v_<other_t >>;
 
 
-        /// t_ shortcut for bit_or_t_
+        /// type_ shortcut for bit_or_t_
         template < typename type_t,
                  typename other_t >
         using bit_or_t =
@@ -599,7 +592,7 @@ namespace brain
             ^ v_<other_t >>;
 
 
-        /// t_ shortcut for bit_xor_t_
+        /// type_ shortcut for bit_xor_t_
         template < typename type_t,
                  typename other_t >
         using bit_xor_t =
@@ -610,15 +603,15 @@ namespace brain
         /// operator
         template < typename type_t,
                  typename other_t >
-        using bit_not_t_ =
+        using bit_not_type_ =
             bool_t_ < ~v_<type_t >>;
 
 
-        /// t_ shortcut for bit_not_t_
+        /// type_ shortcut for bit_not_type_
         template < typename type_t,
                  typename other_t >
         using bit_not_t =
-            lazy_t<bit_not_t_, type_t, other_t>;
+            lazy_t<bit_not_type_, type_t, other_t>;
 
 
         /// Returns std::true_type
@@ -641,13 +634,13 @@ namespace brain
         template < typename test_t,
                  typename ... other_t >
         struct and_t_<test_t, other_t...> :
-                bool_t_<v_<test_t> and v_<t_<and_t_<other_t...>>>>
+                bool_t_<v_<test_t> and v_<type_<and_t_<other_t...>>>>
         {
         };
 
 
         /// Evaluates the result
-        /// of t_<_and_<bools_t...>>
+        /// of type_<_and_<bools_t...>>
         template<typename ... bools_t>
         using and_t =
             lazy_t<and_t_, bools_t...>;
@@ -679,14 +672,14 @@ namespace brain
         template < typename bool_t,
                  typename... bools_t >
         struct or_t_<bool_t, bools_t...> :
-                bool_t_<v_<bool_t> or v_<t_<or_t_<bools_t...>>>>
+                bool_t_<v_<bool_t> or v_<type_<or_t_<bools_t...>>>>
 
         {
         };
 
 
         /// Evaluates the result
-        /// of t_<_or_<bools_t...>>
+        /// of type_<_or_<bools_t...>>
         template<typename ... bools_t>
         using or_t =
             lazy_t<or_t_, bools_t...>;
@@ -694,14 +687,14 @@ namespace brain
 
         /// Negates the bool_t
         template<typename bool_t>
-        using not_t_ =
+        using not_type_ =
             bool_t_ < !v_<bool_t >>;
 
 
-        /// t_ shortcut for not_t_
+        /// type_ shortcut for not_type_
         template<typename bool_t>
         using not_t =
-            lazy_t<not_t_, bool_t>;
+            lazy_t<not_type_, bool_t>;
 
 
         /// /////////// ///
@@ -744,7 +737,7 @@ namespace brain
             size_t_<sizeof(type_t)>;
 
 
-        /// t_ shortcut for sizeof_t_
+        /// type_ shortcut for sizeof_t_
         template<typename type_t>
         using sizeof_t =
             lazy_t<sizeof_t_, type_t>;
@@ -756,7 +749,7 @@ namespace brain
             size_t_<sizeof...(types_t)>;
 
 
-        /// t_ shortcut for sizeof_pack_t_
+        /// type_ shortcut for sizeof_pack_t_
         template<typename ... types_t>
         using sizeof_pack_t =
             lazy_t<sizeof_pack_t_, types_t...>;
@@ -768,7 +761,7 @@ namespace brain
             size_t_<alignof(type_t)>;
 
 
-        /// t_ shortcut for alignof_t_
+        /// type_ shortcut for alignof_t_
         template<typename type_t>
         using alignof_t =
             lazy_t<alignof_t_, type_t>;
@@ -826,7 +819,7 @@ namespace brain
             v_<type_t> + 1 >;
 
 
-        /// t_ shortcut for inc_t_
+        /// type_ shortcut for inc_t_
         template<typename type_t>
         using inc_t =
             lazy_t<inc_t_, type_t>;
@@ -840,7 +833,7 @@ namespace brain
             v_<type_t> - 1 >;
 
 
-        /// t_ shortcut for dec_t_
+        /// type_ shortcut for dec_t_
         template<typename type_t>
         using dec_t =
             lazy_t<dec_t_, type_t>;
@@ -855,7 +848,7 @@ namespace brain
             v_<type_t> + v_<other_t >>;
 
 
-        /// t_ shortcut for plus_t_
+        /// type_ shortcut for plus_t_
         template < typename type_t,
                  typename other_t >
         using plus_t =
@@ -871,7 +864,7 @@ namespace brain
             v_<type_t> - v_<other_t >>;
 
 
-        /// t_ shortcut for minus_t_
+        /// type_ shortcut for minus_t_
         template < typename type_t,
                  typename other_t >
         using minus_t =
@@ -887,7 +880,7 @@ namespace brain
             v_<type_t> * v_<other_t >>;
 
 
-        /// t_ shortcut for multiplies_t_
+        /// type_ shortcut for multiplies_t_
         template < typename type_t,
                  typename other_t >
         using multiplies_t =
@@ -903,7 +896,7 @@ namespace brain
             v_<type_t> / v_<other_t >>;
 
 
-        /// t_ shortcut for divides_t_
+        /// type_ shortcut for divides_t_
         template < typename type_t,
                  typename other_t >
         using divides_t =
@@ -918,7 +911,7 @@ namespace brain
             -v_<type_t >>;
 
 
-        /// t_ shortcut for negate_t_
+        /// type_ shortcut for negate_t_
         template<typename type_t>
         using negate_t =
             lazy_t<negate_t_, type_t>;
@@ -933,7 +926,7 @@ namespace brain
             v_<type_t> % v_<other_t >>;
 
 
-        /// t_ shortcut for modulus_t_
+        /// type_ shortcut for modulus_t_
         template < typename type_t,
                  typename other_t >
         using modulus_t =
@@ -988,7 +981,7 @@ namespace brain
 
 
         /// Evaluates the result
-        /// of t_<_if_<args_t...>>
+        /// of type_<_if_<args_t...>>
         template<typename ... args_t>
         using if_t =
             lazy_t<if_t_, args_t...>;
@@ -1018,13 +1011,13 @@ namespace brain
                  typename else_t >
         using select_c =
             if_c<_b, then_t, else_t> ;
-            
-            
+
+
         /// ///////////// ///
         /// Pack Features ///
         /// ///////////// ///
-            
-            
+
+
         /// Main support of the
         /// parameters pack
         template<typename ... items_t>
@@ -1040,9 +1033,9 @@ namespace brain
         template<typename sequence_t>
         using size_ =
             typename sequence_t::size;
-            
-        
-                /// Definition of
+
+
+        /// Definition of
         /// push_back_t_
         template < typename sequence_t,
                  typename type_t >
@@ -1064,7 +1057,7 @@ namespace brain
         };
 
 
-        /// t_ shortcut for
+        /// type_ shortcut for
         /// push_back_t_
         template < typename sequence_t,
                  typename type_t >
@@ -1081,10 +1074,10 @@ namespace brain
 
 
         /// Definition of
-        /// push_front_t_
+        /// push_front_type_
         template < typename sequence_t,
                  typename type_t >
-        struct push_front_t_;
+        struct push_front_type_;
 
 
         /// Pushes type_t at
@@ -1093,7 +1086,7 @@ namespace brain
         template < template<typename...> typename sequence_t,
                  typename ... items_t,
                  typename type_t >
-        struct push_front_t_ <
+        struct push_front_type_ <
                 sequence_t<items_t...>,
                 type_t >
         {
@@ -1102,12 +1095,12 @@ namespace brain
         };
 
 
-        /// t_ shortcut for
-        /// push_front_t_
+        /// type_ shortcut for
+        /// push_front_type_
         template < typename sequence_t,
                  typename type_t >
         using push_front_t =
-            lazy_t<push_front_t_, sequence_t, type_t>;
+            lazy_t<push_front_type_, sequence_t, type_t>;
 
 
         namespace test_push_front
