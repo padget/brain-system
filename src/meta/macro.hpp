@@ -33,6 +33,10 @@
         template<typename type_t> \
         using has_##name##_member = \
             function_<has_##name##_member, type_t>; \
+        \
+        template<typename type_t> \
+        using name##_ = \
+            function_<name##_, type_t>; \
     } 
     
     

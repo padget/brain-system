@@ -14,19 +14,19 @@
 using namespace brain::meta;
 using namespace std;
 
- namespace test_is_placeholder_expression
-        {
-              // using expression_t = if_t<_0_, _1_, _3_>; 
-               /// static_assert(v_<is_placeholder_expression<if_t_<if_t_<_0_>>>>, "");
-               //static_assert(false, "";)
-        }
+namespace test_is_placeholder_expression
+{
+    // using expression_t = if_t<_0_, _1_, _3_>;
+    /// static_assert(v_<is_placeholder_expression<if_t_<if_t_<_0_>>>>, "");
+    //static_assert(false, "";)
+}
 
 
 /// Main function for
 /// C++ compiler.
 int main()
 {
-    std::cout << typeid(type_<lazy::type_<identity_<int>>>).name() << std::endl;
-    
+
+   
     return 0;
 }
