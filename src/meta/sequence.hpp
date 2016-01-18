@@ -263,6 +263,11 @@ namespace brain
             using return_ =
                 std::is_same<target_iterator_t, current_t>;
         };
+        
+        
+        
+        
+        /// TODO Introduire une version sequence de tous les algorithmes [begin_t, end_t)
     }
 }
 

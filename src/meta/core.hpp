@@ -591,7 +591,7 @@ namespace brain
             /// for default case
             template <>
             struct or_<> :
-                    true_
+                    false_
             {
             };
 
