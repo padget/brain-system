@@ -25,18 +25,18 @@ namespace brain
             /// Last iterator of
             /// the sequence
             using end =
-                next_<last_t<begin>>;
+                next_<last_valid_<begin>>;
 
             /// Size of the
             /// pack items_t...
             using size =
-                sizeof_pack_t<items_t...>;
+                sizeof_pack_<items_t...>;
 
 
             /// Type of the iterator
             template<typename ... args_t>
             using iterator =
-                lazy_t<iterator_builder_t, pack<args_t...>>;
+                iterator_builder_t<pack<args_t...>>;
         };
 
 
@@ -46,7 +46,7 @@ namespace brain
         /// iterator
         template<typename ... items_t>
         struct list :
-            public sequence<bidirectional_iterator_builder_t, items_t...>
+            public sequence<bidirectional_iterator_builder_, items_t...>
         { };
 
 
@@ -56,7 +56,7 @@ namespace brain
         /// iterator
         template<typename ... items_t>
         struct forward_list :
-            public sequence<forward_iterator_builder_t, items_t...>
+            public sequence<forward_iterator_builder_, items_t...>
         { };
 
 
@@ -89,9 +89,9 @@ namespace brain
         /// or not
         template<typename sequence_t>
         using empty_t =
-            equal_to_t <
+            equal_to_ <
             size_<sequence_t>,
-            unsigned_t<0> >;
+            unsigned_<0> >;
 
         namespace test_empty
         {
