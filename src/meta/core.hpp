@@ -101,8 +101,7 @@ namespace brain
             /// of a signature of
             /// a meta function.
             template < template<typename ...> typename func_t,
-                     typename args_t,
-                     typename = void >
+                     typename args_t >
             struct function_;
 
 
@@ -114,8 +113,7 @@ namespace brain
                      typename ... args_t >
             struct function_ <
                     func_t,
-                    pack<args_t...>,
-                    void_<func_t<args_t...>> >
+                    pack<args_t...>>
             {
                 /// Only the call to
                 /// type member compute
@@ -1209,6 +1207,53 @@ namespace brain
             using seq_t = pack<int, short>;
 
             static_assert(v_<is_same_<pack<double, int, short>, push_front_<seq_t, double>>>, "");
+        }
+
+
+        namespace impl
+        {
+            /// Definition of
+            /// clear_
+            template<typename pack_t>
+            struct clear_;
+
+
+            /// Returns an empty
+            /// sequence of the
+            /// same type of the
+            /// pack_t
+            template < template<typename...> typename pack_t,
+                     typename ... items_t >
+            struct clear_<pack_t<items_t...>>
+            {
+                using type =
+                    pack_t<>;
+            };
+        }
+
+
+        /// t_ shortcut for
+        /// clear_t_
+        template<typename pack_t>
+        using clear_ =
+            type_<impl::clear_<pack_t>>;
+
+
+        namespace lazy
+        {
+            /// Lazy signature
+            /// of clear_
+            template<typename pack_t>
+            using clear_ =
+                function_<clear_, pack_t>;
+        }
+
+
+        namespace test_clear
+        {
+            using pack_t = pack<int, short>;
+
+            static_assert(v_<std::is_same<clear_<pack_t>, pack<>>>, "");
         }
     }
 }

@@ -572,6 +572,20 @@ namespace brain
         };
 
 
+        /// Default test
+        /// that returns only
+        /// the true_ value if
+        /// the current_t is
+        /// same type as end_t.
+        template<typename end_t>
+        struct default_test_
+        {
+            template<typename current_t>
+            using return_ =
+                not_<is_same_<end_t, current_t>>;
+        };
+
+
         namespace impl
         {
             /// Navigates between
@@ -593,28 +607,32 @@ namespace brain
             {
                 template < typename current_t,
                          typename tmp_t,
-                         typename test_validated_t = meta::return_<test_r, current_t>, /// Nominal stop condition
-                         typename is_out_range_t = /// Overflow conditions
-                         meta::or_ <
-                         meta::is_same_<end_t, current_t>,
-                         meta::not_<meta::is_valid_direction_<direction_, current_t> > > >
+                         typename test_validated_t = meta::return_<test_r, current_t>, /// Nominal continue condition
+                         typename is_out_range_t = meta::is_same_<end_t, current_t> >
                 struct navigate_impl_;
 
 
                 template < typename current_t,
                          typename tmp_t >
-                struct navigate_impl_<current_t, tmp_t, false_, false_>:
+                struct navigate_impl_<current_t, tmp_t, true_, false_>:
                         navigate_impl_<direction_<current_t>, return_<accum_r, tmp_t, return_<unary_r, accessor_<current_t>>>>
                 {
                 };
-
-
+                
                 template < typename current_t,
                          typename tmp_t >
-                struct navigate_impl_<current_t, tmp_t, true_, false_>
+                struct navigate_impl_<current_t, tmp_t, false_, false_>
                 {
                     using type =
-                        return_<accum_r, tmp_t, return_<unary_r, current_t>> ;
+                        tmp_t;
+                };
+                
+                template < typename current_t,
+                         typename tmp_t >
+                struct navigate_impl_<current_t, tmp_t, true_, true_>
+                {
+                    using type =
+                        return_<accum_r, tmp_t, return_<unary_r, current_t>>;
                 };
 
 
@@ -624,17 +642,7 @@ namespace brain
                 {
                     using type =
                         tmp_t;
-                };
-
-
-                template < typename current_t,
-                         typename tmp_t >
-                struct navigate_impl_<current_t, tmp_t, true_, true_>
-                {
-                    using type =
-                        return_<accum_r, tmp_t, return_<unary_r, current_t>>;
-                };
-
+                };      
 
                 using type =
                     type_<navigate_impl_<begin_t, init_t>>;
@@ -775,9 +783,10 @@ namespace brain
         {
             template<typename current_t>
             using return_ =
-                equal_to_ <
-                nb_steps_t,
-                distance_<begin_t, current_t> >;
+                less_equal_ <
+                distance_<begin_t, current_t>,
+                nb_steps_t
+                 >;
         };
 
 
@@ -788,7 +797,7 @@ namespace brain
             begin_t,
             next_<last_valid_<begin_t>>,
             idem_,
-            int,
+            nil,
             function_class_<idem_>,
             is_same_distance_r_<begin_t, nb_steps_t >,
             default_accumulator_ >;

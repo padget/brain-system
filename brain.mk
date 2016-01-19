@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=TSCG2704
-Date                   :=18/01/2016
+Date                   :=19/01/2016
 CodeLitePath           :="C:\Program Files\CodeLite"
 LinkerName             :=C:/TDM-GCC-64/bin/g++.exe
 SharedObjectLinkerName :=C:/TDM-GCC-64/bin/g++.exe -shared -fPIC
@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch).
 AR       := C:/TDM-GCC-64/bin/ar.exe rcu
 CXX      := C:/TDM-GCC-64/bin/g++.exe
 CC       := C:/TDM-GCC-64/bin/gcc.exe
-CXXFLAGS :=  -g -O0 -std=c++14 -Wall $(Preprocessors)
+CXXFLAGS :=  -g -O0 -std=c++14 -Wall -ftemplate-backtrace-limit=0 $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := C:/TDM-GCC-64/bin/as.exe
