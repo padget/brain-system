@@ -8,6 +8,19 @@ namespace brain
 {
     namespace meta
     {
+        /// ////////////////////// ///
+        /// Sequence over iterator ///
+        /// ////////////////////// ///
+        ///
+        /// A sequence is a pack of
+        /// types that has been populated
+        /// by an iterator builder.
+        /// It contains the begin and
+        /// the end member that
+        /// respectively point to
+        /// the first and the last
+        /// elements of the sequence.
+        ///
 
         /// Basic sequence that
         /// is built given an
@@ -94,10 +107,13 @@ namespace brain
             unsigned_<0> >;
 
 
+        /// Unitary test of
+        /// empty_
         namespace test_empty
         {
             using seq_t = forward_list<>;
             static_assert(v_<empty_<seq_t>>, "");
+            static_assert(!v_<empty_<forward_list<int>>>, "");
         }
 
 
@@ -115,12 +131,16 @@ namespace brain
             item_<last_valid_<begin_<sequence_t>>>;
 
 
+        /// Unitary test of
+        /// front_ and back_
         namespace test_front_back
         {
             using seq_t = forward_list<int, short>;
 
-            static_assert(v_<std::is_same<int, front_<seq_t>>>, "");
-            static_assert(v_<std::is_same<short, back_<seq_t>>>, "");
+            static_assert(v_<is_same_<int, front_<seq_t>>>, "");
+            static_assert(v_<is_same_<short, back_<seq_t>>>, "");
+            static_assert(v_<is_same_<nil, back_<clear_<seq_t>>>>, "");
+            static_assert(v_<is_same_<nil, front_<clear_<seq_t>>>>, "");
         }
 
 
@@ -138,81 +158,113 @@ namespace brain
             function_class_<push_front_> >;
 
 
+        namespace lazy
+        {
+            /// Lazy signature
+            /// of reverse_
+            template<typename sequence_t>
+            using reverse_ =
+                function_<reverse_, sequence_t>;
+        }
+
+
+        /// Unitary test of
+        /// reverse_
         namespace test_reverse
         {
             using seq_t = forward_list<int, short>;
             static_assert(v_<std::is_same<forward_list<short, int>, reverse_<seq_t>>>, "");
+            static_assert(v_<std::is_same<forward_list<>, reverse_<clear_<seq_t>>>>, "");
         }
 
-/// HERE
 
-        /*   /// Pops the first
-           /// item of sequence_t
-           template<typename sequence_t>
-           using pop_front_t =
-               forward_item_t <
-               next_<begin_<sequence_t>>,
-               end_<sequence_t>,
-               clear_t<sequence_t>,
-               as_r_<push_back_t> >;
-
-
-           namespace test_pop_front
-           {
-               using seq_t = forward_list<int, short>;
-
-               static_assert(v_<std::is_same<forward_list<short>, pop_front_t<seq_t>>>, "");
-           }
+        /// Pops the first
+        /// item of sequence_t
+        template<typename sequence_t>
+        using pop_front_ =
+            navigate_next_ <
+            next_<begin_<sequence_t>>,
+            end_<sequence_t>,
+            idem_,
+            clear_<sequence_t>,
+            function_class_<item_>,
+            default_test_<end_<sequence_t>>,
+            function_class_<push_back_> >;
 
 
-           /// Pops the last
-           /// item of sequence_t
-           template<typename sequence_t>
-           using pop_back_t =
-               reverse_t<pop_front_t<reverse_t<sequence_t>>>;
+        /// Pops the last
+        /// item of sequence_t
+        template<typename sequence_t>
+        using pop_back_ =
+            reverse_<pop_front_<reverse_<sequence_t>>>;
 
 
-           namespace test_pop_back
-           {
-               using seq_t = forward_list<int, short>;
-
-               static_assert(v_<std::is_same<forward_list<int>, pop_back_t<seq_t>>>, "");
-           }
-
-
-
-           template < typename sequence_t,
-                    typename index_t >
-           using at_t =
-               advance_t<begin_<sequence_t>, index_t>;
-
-           namespace test_at
-           {
-               using seq_t = forward_list<int, short>;
-               using begin_t = begin_<seq_t>;
-               using next1_t = next_<begin_t>;
-               using end_t = next_<next1_t>;
-
-               static_assert(v_<std::is_same<begin_t, at_t<seq_t, long_t<0>>>>, "");
-               static_assert(v_<std::is_same<next1_t, at_t<seq_t, long_t<1>>>>, "");
-               static_assert(v_<std::is_same<end_t, at_t<seq_t, long_t<2>>>>, "");
-               static_assert(v_<std::is_same<end_t, at_t<seq_t, long_t<3>>>>, "");
-               static_assert(v_<std::is_same<end_t, at_t<seq_t, long_t<4>>>>, "");
-           }
+        namespace lazy
+        {
+            /// Lazy signature
+            /// of pop_front_
+            template<typename sequence_t>
+            using pop_front_ =
+                function_<pop_front_, sequence_t>;
 
 
-           template<typename target_iterator_t>
-           struct is_same_position_t
-           {
-               template<typename current_t>
-               using return_ =
-                   std::is_same<target_iterator_t, current_t>;
-           };
+            /// Lazy signature
+            /// of pop_back_
+            template<typename sequence_t>
+            using pop_back_ =
+                function_<pop_back_, sequence_t>;
+        }
 
 
-               */
+        /// Unitary test of
+        /// pop_front_ and
+        /// pop_back_
+        namespace test_pop_back
+        {
+            using seq_t = forward_list<int, short>;
 
-        /// TODO Introduire une version sequence de tous les algorithmes [begin_t, end_t)
+            static_assert(v_<is_same_<forward_list<>, pop_back_<forward_list<>>>>, "");
+            static_assert(v_<is_same_<forward_list<>, pop_front_<forward_list<>>>>, "");
+            static_assert(v_<is_same_<forward_list<short>, pop_front_<seq_t>>>, "");
+            static_assert(v_<is_same_<forward_list<int>, pop_back_<seq_t>>>, "");
+        }
+
+
+        /// Returns the iterator
+        /// at the index_t from
+        /// the sequence_t
+        template < typename sequence_t,
+                 typename index_t >
+        using at_ =
+            advance_<begin_<sequence_t>, index_t>;
+
+
+        namespace lazy
+        {
+            /// Lazy signature
+            /// of at_
+            template < typename sequence_t,
+                     typename index_t >
+            using at_ =
+                function_<at_, sequence_t, index_t>;
+        }
+
+
+        /// Unitary test of
+        /// at_
+        namespace test_at
+        {
+            using seq_t = forward_list<int, short>;
+            using begin_t = begin_<seq_t>;
+            using next1_t = next_<begin_t>;
+            using end_t = next_<next1_t>;
+
+            static_assert(v_<is_same_<begin_t, at_<seq_t, long_<0>>>>, "");
+            static_assert(v_<is_same_<next1_t, at_<seq_t, long_<1>>>>, "");
+            static_assert(v_<is_same_<end_t, at_<seq_t, long_<2>>>>, "");
+            static_assert(v_<is_same_<end_t, at_<seq_t, long_<3>>>>, "");
+            static_assert(v_<is_same_<end_t, at_<seq_t, long_<4>>>>, "");
+        }
     }
 }
 

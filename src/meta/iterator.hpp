@@ -625,7 +625,7 @@ namespace brain
                 {
                     using type =
                         tmp_t;
-                };
+                }; 
                 
                 template < typename current_t,
                          typename tmp_t >
@@ -659,7 +659,7 @@ namespace brain
                  typename init_t,
                  typename unary_r,
                  typename test_r,
-                 typename accum_r >
+                 typename accum_r = default_accumulator_ >
         using navigate_ =
             type_<impl::navigate_<begin_t, end_t, direction_, accessor_, init_t, unary_r, test_r, accum_r>>;
 
@@ -675,7 +675,7 @@ namespace brain
                      typename init_t,
                      typename unary_r,
                      typename test_r ,
-                     typename accum_r >
+                     typename accum_r = default_accumulator_ >
             using navigate_ =
                 impl::navigate_<begin_t, end_t, direction_, accessor_, init_t, unary_r, test_r, accum_r>;
         }
@@ -689,7 +689,7 @@ namespace brain
                  typename init_t,
                  typename unary_r,
                  typename test_r ,
-                 typename accum_r >
+                 typename accum_r  = default_accumulator_>
         using navigate_next_ =
             navigate_<begin_t, end_t, next_, accessor_, init_t, unary_r, test_r, accum_r>;
 
@@ -702,9 +702,9 @@ namespace brain
                  typename init_t,
                  typename unary_r,
                  typename test_r ,
-                 typename accum_r >
+                 typename accum_r  = default_accumulator_>
         using navigate_prev_ =
-            navigate_<begin_t, end_t, next_, accessor_, init_t, unary_r, test_r, accum_r>;
+            navigate_<begin_t, end_t, prev_, accessor_, init_t, unary_r, test_r, accum_r>;
 
 
         namespace impl

@@ -111,7 +111,7 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/meta/string.hpp"/>
       <File Name="src/meta/map.hpp"/>
       <File Name="src/meta/standart.hpp"/>
-      <File Name="src/meta/algorithm.hpp"/>
+      <File Name="src/meta/algorithm.hpp" ExcludeProjConfig=""/>
       <File Name="src/meta/runtime.hpp"/>
       <File Name="src/meta/meta.hpp"/>
       <File Name="src/meta/iterator.hpp"/>
