@@ -2,7 +2,7 @@
 # define __BRAIN_META_LAMBDA_HPP__
 
 /// #include "map.hpp"
-#include "core.hpp"
+///#include "core.hpp"
 
 namespace brain
 {
@@ -10,7 +10,7 @@ namespace brain
     {
         //// placeholders
         template<unsigned _u>
-        struct placeholder;
+        struct placeholder {};
 
         template<unsigned _u>
         using arg = placeholder<_u>;
@@ -34,77 +34,44 @@ namespace brain
 
 
         template<typename ... expressions_t>
-        struct is_placeholder_expression:
-                or_t<is_placeholder_expression<expressions_t>...>
+        struct is_placeholder_expression
         {
+            using type = 
+                or_<type_<is_placeholder_expression<expressions_t>>...>;
         };
-        
-        
-        template<template<typename ...> typename caller_t, 
-        typename ... expressions_t>
-        struct is_placeholder_expression<caller_t<expressions_t...>>:
-                or_t<is_placeholder_expression<expressions_t>...>
+
+
+        template < template<typename ...> typename caller_t,
+                 typename ... expressions_t >
+        struct is_placeholder_expression<caller_t<expressions_t...>>
         {
+            using type = or_<type_<is_placeholder_expression<expressions_t>>...>;
         };
 
 
         template < template<unsigned> typename placeholder_t,
                  unsigned _rank >
-        struct is_placeholder_expression<placeholder_t<_rank>>:
-                        std::is_same <
-                        placeholder_t<_rank>,
-                        placeholder<_rank> >
+        struct is_placeholder_expression<placeholder_t<_rank>>
         {
+            using type =
+                is_same_ <
+                placeholder_t<_rank>,
+                placeholder<_rank> >;
         };
 
 
         template<typename type_t>
-        struct is_placeholder_expression<type_t>:
-                std::false_type
+        struct is_placeholder_expression<type_t>
         {
+            using type = false_;
         };
 
 
-        /*namespace test_is_placeholder_expression
+        namespace test_is_placeholder_expression
         {
-              // using expression_t = if_t<_0_, _1_, _3_>;
-               static_assert(!v_<is_placeholder_expression<if_t<_0_, _0_, _0_>>>, "");
-               static_assert(false, "";)
-        }*/
-
-
-        /* /// A lambda is a anonymous
-         /// meta function that can
-         /// support placeholding
-         /// feature between lambda
-         /// arguments and meta function
-         /// func_t arguments
-         template < typename lambda_args_t,
-                  typename func_t ,
-                  typename func_args_t >
-         struct lambda;
-
-
-         /// Specialisation for
-         /// lambda that distings
-         /// each type of lambda_args_t
-         /// and of func_args_t
-         template < typename ... lambda_args_t,
-                  typename func_t,
-                  typename ... func_args_t >
-         struct lambda < list<lambda_args_t...>,
-                 func_t, list<func_args_t... >>
-         {
-             using lambda_args_ =
-                 list<lambda_args_t...>;
-             using func_args_ =
-                 list<func_args_t...>;
-
-             template<typename ... args_t>
-             using return_ =
-                 expand_t<func_t, map_replace_t<func_args_, to_map_t<lambda_args_, list<args_t...>>>>;
-         };
-        */
+            // using expression_t = if_t<_0_, _1_, _3_>;
+            static_assert(v_<type_<is_placeholder_expression<_0_>>>, "");
+        }
 
     }
 }
