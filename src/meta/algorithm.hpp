@@ -46,13 +46,13 @@ namespace brain
         {
             template < typename sequence_t,
                      typename pred_r >
-            using find_if_ =
-                function_<find_if_, sequence_t, pred_r>;
+            struct find_if_ :
+                    function_<meta::find_if_, sequence_t, pred_r> {};
 
             template < typename sequence_t,
                      typename type_t >
-            using find_ =
-                function_<find_, sequence_t, type_t>;
+            struct find_ :
+                    function_<meta::find_, sequence_t, type_t> {};
         }
 
 
@@ -111,8 +111,13 @@ namespace brain
         {
             template < typename sequence_t,
                      typename pred_r >
-            using count_if_ =
-                function_<count_if_, sequence_t, pred_r>;
+            struct count_if_ :
+                    function_<meta::count_if_, sequence_t, pred_r> {};
+
+            template < typename sequence_t,
+                     typename type_t >
+            struct count_ :
+                    function_<meta::count_, sequence_t, type_t> {} ;
         }
 
         namespace test_count
@@ -121,6 +126,6 @@ namespace brain
             static_assert(v_<equal_to_<count_if_<seq_t, is_not_same_iter_r_<short>>, unsigned_<2> > >, "");
             static_assert(v_<equal_to_<count_if_<seq_t, is_same_iter_r_<short>>, unsigned_<3> > >, "");
         }
+    }
 }
-
 #endif

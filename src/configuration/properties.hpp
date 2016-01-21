@@ -60,7 +60,7 @@ namespace brain
                 property<std::string> key;
                 property<std::string> value;
         };
-        
+
 
         class props_properties :
             public object
@@ -70,58 +70,58 @@ namespace brain
         };
 
 
-        
-        
+
+
 
         class brainproperties :
             public singleton<brainproperties>
         {
             public:
-              /*  static std::string get(const std::string& key)
-                {
-                    static bool initialized {false};
+                /*  static std::string get(const std::string& key)
+                  {
+                      static bool initialized {false};
 
-                    if(not initialized)
-                    {
-                        refresh();
-                       initialized = true;
-                    }
+                      if(not initialized)
+                      {
+                          refresh();
+                         initialized = true;
+                      }
 
-                    return single().result().count(key) == 1u ?
-                           std::regex_replace(single().result().at(key), std::regex("\""), "") :
-                           "undefined";
-                }
+                      return single().result().count(key) == 1u ?
+                             std::regex_replace(single().result().at(key), std::regex("\""), "") :
+                             "undefined";
+                  }
 
-                static std::vector<std::string> getsplitted(
-                    const std::string& key,
-                    const std::string& regexdelim)
-                {
-                    std::string && value {get(key)};
-                    std::vector<std::string> result;
+                  static std::vector<std::string> getsplitted(
+                      const std::string& key,
+                      const std::string& regexdelim)
+                  {
+                      std::string && value {get(key)};
+                      std::vector<std::string> result;
 
-                    if(not fct::empty(value))
-                    {
-                        std::regex rgx(regexdelim);
-                        std::sregex_token_iterator iter(value.begin(), value.end(), rgx, -1);
-                        result.assign(iter, std::sregex_token_iterator());
-                    }
+                      if(not fct::empty(value))
+                      {
+                          std::regex rgx(regexdelim);
+                          std::sregex_token_iterator iter(value.begin(), value.end(), rgx, -1);
+                          result.assign(iter, std::sregex_token_iterator());
+                      }
 
-                    return result;
-                }
+                      return result;
+                  }
 
-                static void refresh()
-                {
-                    props_scanner scan;
-                    props_parser pars;
-                    props_compiler exec;
+                  static void refresh()
+                  {
+                      props_scanner scan;
+                      props_parser pars;
+                      props_compiler exec;
 
-                    single().subbilink( {&scan, &pars, &exec});
+                      single().subbilink( {&scan, &pars, &exec});
 
-                    single().init( {"resources/conf/brain.properties"});
-                    single().compile();
+                      single().init( {"resources/conf/brain.properties"});
+                      single().compile();
 
-                    single().subsystems().clear();
-                }*/
+                      single().subsystems().clear();
+                  }*/
         };
     }
 }

@@ -145,16 +145,16 @@ namespace brain
             /// Lazy signature
             /// of idem_
             template<typename type_t>
-            using idem_ =
-                function_<idem_, type_t>;
+            struct idem_ :
+                    function_<meta::idem_, type_t> {};
 
 
             /// Lazy signature
             /// of is_same_
             template < typename type_t,
                      typename other_t >
-            using is_same_ =
-                function_<is_same_, type_t, other_t>;
+            struct is_same_ :
+                    function_<meta::is_same_, type_t, other_t> {};
         }
 
 
@@ -180,7 +180,7 @@ namespace brain
             /// is not evaluated while the type of
             /// function_ is not used in code !
             static_assert(!v_<is_same_<lazy_type<int>, int>>, "");
-            static_assert(v_<is_same_<type_<lazy::type_<function_<idem_, int>>>, int>>, "");
+            static_assert(v_<is_same_<type_<lazy::type_<function_<idem_, int>>> , int>>, "");
         }
 
 
@@ -293,8 +293,8 @@ namespace brain
             /// of compose_
             template < typename func_t,
                      typename ... funcs_t >
-            using compose_ =
-                function_<compose_, func_t, funcs_t...>;
+            struct compose_ :
+                    function_<meta::compose_, func_t, funcs_t...> {};
         }
 
 
@@ -357,16 +357,16 @@ namespace brain
             /// of bind_front_
             template < typename func_t,
                      typename ... front_args_t >
-            using bind_front_ =
-                function_<bind_front_, func_t, front_args_t...>;
+            struct bind_front_ :
+                    function_<meta::bind_front_, func_t, front_args_t...> {};
 
 
             /// Lazy signature
             /// of bind_back_
             template < typename func_t,
                      typename ... back_args_t >
-            using bind_back_ =
-                function_<bind_back_, func_t, back_args_t...>;
+            struct bind_back_ :
+                    function_<meta::bind_back_, func_t, back_args_t...> {};
         }
 
 
@@ -562,80 +562,80 @@ namespace brain
             /// of equal_to_
             template < typename type_t,
                      typename other_t >
-            using equal_to_ =
-                function_<equal_to_, type_t, other_t>;
+            struct equal_to_ :
+                    function_<meta::equal_to_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of not_equal_to_
             template < typename type_t,
                      typename other_t >
-            using not_equal_to_ =
-                function_<not_equal_to_, type_t, other_t>;
+            struct not_equal_to_ :
+                    function_<meta::not_equal_to_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of greater_
             template < typename type_t,
                      typename other_t >
-            using greater_ =
-                function_<greater_, type_t, other_t>;
+            struct greater_ :
+                    function_<meta::greater_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of less_
             template < typename type_t,
                      typename other_t >
-            using less_ =
-                function_<less_, type_t, other_t>;
+            struct less_ :
+                    function_<meta::less_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of greater_equal_
             template < typename type_t,
                      typename other_t >
-            using greater_equal_ =
-                function_<greater_equal_, type_t, other_t>;
+            struct greater_equal_ :
+                    function_<meta::greater_equal_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of less_equal_
             template < typename type_t,
                      typename other_t >
-            using less_equal_ =
-                function_<less_equal_, type_t, other_t>;
+            struct less_equal_ :
+                    function_<meta::less_equal_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of bit_and_
             template < typename type_t,
                      typename other_t >
-            using bit_and_ =
-                function_<bit_and_, type_t, other_t>;
+            struct bit_and_ :
+                    function_<meta::bit_and_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of bit_or_
             template < typename type_t,
                      typename other_t >
-            using bit_or_ =
-                function_<bit_or_, type_t, other_t>;
+            struct bit_or_ :
+                    function_<meta::bit_or_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of bit_xor_
             template < typename type_t,
                      typename other_t >
-            using bit_xor_ =
-                function_<bit_xor_, type_t, other_t>;
+            struct bit_xor_ :
+                    function_<meta::bit_xor_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of bit_not_
             template < typename type_t,
                      typename other_t >
-            using bit_not_ =
-                function_<bit_not_, type_t>;
+            struct bit_not_ :
+                    function_<meta::bit_not_, type_t> {};
         }
 
 
@@ -730,22 +730,22 @@ namespace brain
             /// Lazy signature
             /// of and_
             template<typename ... bools_t>
-            using and_ =
-                function_<and_, bools_t...>;
+            struct and_ :
+                    function_<meta::and_, bools_t...> {};
 
 
             /// Lazy signature
             /// of or_
             template<typename ... bools_t>
-            using or_ =
-                function_<or_, bools_t...>;
+            struct or_ :
+                    function_<meta::or_, bools_t...> {};
 
 
             /// Lazy signature
             /// of not_
             template<typename bool_t>
-            using not_ =
-                function_<not_, bool_t>;
+            struct not_ :
+                    function_<meta::not_, bool_t> {};
         }
 
 
@@ -783,22 +783,22 @@ namespace brain
             /// Lazy signature
             /// of sizeof_
             template<typename type_t>
-            using sizeof_ =
-                function_<sizeof_, type_t>;
+            struct sizeof_ :
+                    function_<meta::sizeof_, type_t> {};
 
 
             /// Lazy signature
             /// of sizeof_pack_
             template<typename ... types_t>
-            using sizeof_pack_ =
-                function_<sizeof_pack_, types_t...>;
+            struct sizeof_pack_ :
+                    function_<meta::sizeof_pack_, types_t...> {};
 
 
             /// Lazy signature
             /// of alignof_
             template<typename type_t>
-            using alignof_ =
-                function_<alignof_, type_t>;
+            struct alignof_ :
+                    function_<alignof_, type_t> {};
         }
 
 
@@ -918,23 +918,23 @@ namespace brain
             /// Lazy signature
             /// of inc_
             template<typename type_t>
-            using inc_ =
-                function_<inc_, type_t>;
+            struct inc_ :
+                    function_<meta::inc_, type_t> {};
 
 
             /// Lazy signature
             /// of dec_
             template<typename type_t>
-            using dec_ =
-                function_<dec_, type_t>;
+            struct dec_ :
+                    function_<meta::dec_, type_t> {};
 
 
             /// Lazy signature
             /// of plus_
             template < typename type_t,
                      typename other_t >
-            using plus_ =
-                function_<plus_, type_t, other_t>;
+            struct plus_ :
+                    function_<meta::plus_, type_t, other_t> {};
 
 
 
@@ -942,39 +942,39 @@ namespace brain
             /// of minus_
             template < typename type_t,
                      typename other_t >
-            using minus_ =
-                function_<minus_, type_t, other_t>;
+            struct minus_ :
+                    function_<meta::minus_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of multiplies_
             template < typename type_t,
                      typename other_t >
-            using multiplies_ =
-                function_<multiplies_, type_t, other_t>;
+            struct multiplies_:
+                    function_<meta::multiplies_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of divides_
             template < typename type_t,
                      typename other_t >
-            using divides_ =
-                function_<divides_, type_t, other_t>;
+            struct divides_ :
+                    function_<meta::divides_, type_t, other_t> {};
 
 
             /// Lazy signature
             /// of negate_
             template <typename type_t>
-            using negate_ =
-                function_<negate_, type_t>;
+            struct negate_ :
+                    function_<meta::negate_, type_t> {};
 
 
             /// Lazy signature
             /// of modulus_
             template < typename type_t,
                      typename other_t >
-            using modulus_ =
-                function_<modulus_, type_t, other_t>;
+            struct modulus_ :
+                    function_<meta::modulus_, type_t, other_t> {};
         }
 
 
@@ -1066,8 +1066,8 @@ namespace brain
             /// Lazy signature
             /// of if_
             template<typename ... args_t>
-            using if_ =
-                function_<if_, args_t...>;
+            struct if_ :
+                    function_<meta::if_, args_t...> {};
 
 
             /// Lazy signature
@@ -1075,8 +1075,8 @@ namespace brain
             template < typename test_t,
                      typename then_t,
                      typename else_t >
-            using select_ =
-                function_<select_, test_t, then_t, else_t>;
+            struct select_ :
+                        function_<meta::select_, test_t, then_t, else_t> {};
         }
 
 
@@ -1171,8 +1171,8 @@ namespace brain
             /// Lazy signature
             /// of concat_
             template<typename ... packs_t>
-            using concat_ =
-                function_<concat_, packs_t...>;
+            struct concat_ :
+                    function_<meta::concat_, packs_t...> {};
         }
 
 
@@ -1195,17 +1195,6 @@ namespace brain
                  typename type_t >
         using push_back_ =
             concat_<pack_t, pack<type_t>>;
-
-
-        namespace lazy
-        {
-            /// Lazy signature
-            /// of push_back_
-            template < typename pack_t,
-                     typename type_t >
-            using push_back_ =
-                function_<push_back_, pack_t, type_t>;
-        }
 
 
         namespace impl
@@ -1231,7 +1220,7 @@ namespace brain
                     pack_t<type_t, items_t...>;
             };
         }
-        
+
 
         /// type_ shortcut for
         /// push_front_
@@ -1243,15 +1232,27 @@ namespace brain
 
         namespace lazy
         {
+
+            /// Lazy signature
+            /// of push_back_
+            template < typename pack_t,
+                     typename type_t >
+            struct push_back_ :
+                function_<meta::push_back_, pack_t, type_t>{};
+
+
             /// Lazy signature
             /// of push_front_
             template < typename pack_t,
                      typename type_t >
-            using push_front_ =
-                function_<push_front_, pack_t, type_t>;
+            struct push_front_ :
+                function_<meta::push_front_, pack_t, type_t>{};
         }
 
 
+        /// Unitary test 
+        /// for push_front_
+        /// and push_back_
         namespace test_push_front_back
         {
             using seq_t = pack<int, short>;
@@ -1295,8 +1296,8 @@ namespace brain
             /// Lazy signature
             /// of clear_
             template<typename pack_t>
-            using clear_ =
-                function_<clear_, pack_t>;
+            struct clear_ :
+                function_<meta::clear_, pack_t>{};
         }
 
 

@@ -75,16 +75,12 @@ namespace brain
 
         /// Accessor to
         /// begin member
-        template<typename sequence_t>
-        using begin_ =
-            typename sequence_t::begin;
+        member_(begin)
 
 
         /// Accessor to
         /// end member
-        template<typename sequence_t>
-        using end_ =
-            typename sequence_t::end;
+        member_(end)
 
 
         /// Accessor to
@@ -163,8 +159,8 @@ namespace brain
             /// Lazy signature
             /// of reverse_
             template<typename sequence_t>
-            using reverse_ =
-                function_<reverse_, sequence_t>;
+            struct reverse_ :
+                function_<meta::reverse_, sequence_t>{};
         }
 
 
@@ -204,15 +200,15 @@ namespace brain
             /// Lazy signature
             /// of pop_front_
             template<typename sequence_t>
-            using pop_front_ =
-                function_<pop_front_, sequence_t>;
+            struct pop_front_ :
+                function_<meta::pop_front_, sequence_t>{};
 
 
             /// Lazy signature
             /// of pop_back_
             template<typename sequence_t>
-            using pop_back_ =
-                function_<pop_back_, sequence_t>;
+            struct pop_back_ :
+                function_<meta::pop_back_, sequence_t>{};
         }
 
 
@@ -245,8 +241,8 @@ namespace brain
             /// of at_
             template < typename sequence_t,
                      typename index_t >
-            using at_ =
-                function_<at_, sequence_t, index_t>;
+            struct at_ :
+                function_<meta::at_, sequence_t, index_t>{};
         }
 
 

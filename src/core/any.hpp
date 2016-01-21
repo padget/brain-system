@@ -112,7 +112,7 @@ namespace brain
                 if(this != &other)
                 {
                     /// Moves the content
-                    /// of the other and 
+                    /// of the other and
                     /// replaces the other
                     /// content by a nullptr
                     content(other.content());
@@ -263,7 +263,7 @@ namespace brain
             }
     };
 
-    
+
     /// Cast the any pointer
     /// to pointer of type_t
     template<typename type_t>
@@ -333,7 +333,7 @@ namespace brain
     inline type_t any_cast(any && operand)
     {
         static_assert(
-            meta::v_<std::is_rvalue_reference<type_t &&>>
+            meta::v_ < std::is_rvalue_reference < type_t && >>
             || meta::v_<std::is_const<std::remove_reference_t<type_t>>>,
             "boost::any_cast shall not be used for getting nonconst references to temporary objects"
         );

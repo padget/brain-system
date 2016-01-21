@@ -148,8 +148,8 @@ namespace brain
         namespace lazy
         {
             template<typename pack_t>
-            using forward_iterator_builder_ =
-                function_<forward_iterator_builder_, pack_t>;
+            struct forward_iterator_builder_ :
+                    function_<meta::forward_iterator_builder_, pack_t> {};
         }
 
 
@@ -272,8 +272,8 @@ namespace brain
         namespace lazy
         {
             template<typename pack_t>
-            using bidirectional_iterator_builder_ =
-                function_<bidirectional_iterator_builder_, pack_t>;
+            struct bidirectional_iterator_builder_ :
+                    function_<meta::bidirectional_iterator_builder_, pack_t> {};
         }
 
 
@@ -322,7 +322,8 @@ namespace brain
         namespace lazy
         {
             template<typename iterator_t>
-            using has_next_ = function_<has_next_, iterator_t>;
+            struct has_next_ :
+                    function_<meta::has_next_, iterator_t> {};
         }
 
         namespace test_has_next
@@ -348,8 +349,8 @@ namespace brain
         namespace lazy
         {
             template<typename iterator_t>
-            using has_prev_ =
-                function_<has_prev_, iterator_t>;
+            struct has_prev_ :
+                function_<meta::has_prev_, iterator_t>{};
         }
 
 
@@ -475,8 +476,8 @@ namespace brain
             /// Lazy signature
             /// of last_valid_
             template<typename iterator_t>
-            using last_valid_ =
-                function_<last_valid_, iterator_t>;
+            struct last_valid_ :
+                function_<meta::last_valid_, iterator_t>{};
         }
 
 
@@ -533,8 +534,8 @@ namespace brain
             /// Lazy signature
             /// of first_valid_
             template<typename iterator_t>
-            using first_valid_ =
-                function_<first_valid_, iterator_t>;
+            struct first_valid_ :
+                function_<meta::first_valid_, iterator_t>{};
         }
 
         namespace test_first_valid
@@ -618,15 +619,15 @@ namespace brain
                         navigate_impl_<direction_<current_t>, return_<accum_r, tmp_t, return_<unary_r, accessor_<current_t>>>>
                 {
                 };
-                
+
                 template < typename current_t,
                          typename tmp_t >
                 struct navigate_impl_<current_t, tmp_t, false_, false_>
                 {
                     using type =
                         tmp_t;
-                }; 
-                
+                };
+
                 template < typename current_t,
                          typename tmp_t >
                 struct navigate_impl_<current_t, tmp_t, true_, true_>
@@ -642,7 +643,7 @@ namespace brain
                 {
                     using type =
                         tmp_t;
-                };      
+                };
 
                 using type =
                     type_<navigate_impl_<begin_t, init_t>>;
@@ -689,7 +690,7 @@ namespace brain
                  typename init_t,
                  typename unary_r,
                  typename test_r ,
-                 typename accum_r  = default_accumulator_>
+                 typename accum_r  = default_accumulator_ >
         using navigate_next_ =
             navigate_<begin_t, end_t, next_, accessor_, init_t, unary_r, test_r, accum_r>;
 
@@ -702,7 +703,7 @@ namespace brain
                  typename init_t,
                  typename unary_r,
                  typename test_r ,
-                 typename accum_r  = default_accumulator_>
+                 typename accum_r  = default_accumulator_ >
         using navigate_prev_ =
             navigate_<begin_t, end_t, prev_, accessor_, init_t, unary_r, test_r, accum_r>;
 
@@ -753,8 +754,8 @@ namespace brain
             /// of distance_
             template < typename begin_t,
                      typename end_t >
-            using distance_ =
-                function_<distance_, begin_t, end_t>;
+            struct distance_ :
+                function_<meta::distance_, begin_t, end_t>{};
         }
 
 
@@ -786,7 +787,7 @@ namespace brain
                 less_equal_ <
                 distance_<begin_t, current_t>,
                 nb_steps_t
-                 >;
+                >;
         };
 
 
@@ -874,8 +875,8 @@ namespace brain
             /// of clone_forward_
             template < typename begin_t,
                      typename end_t >
-            using clone_forward_ =
-                function_<clone_forward_, begin_t, end_t>;
+            struct clone_forward_ :
+                function_<meta::clone_forward_, begin_t, end_t>{};
         }
 
 
@@ -972,8 +973,8 @@ namespace brain
             /// of clone_bidirectional_
             template < typename begin_t,
                      typename end_t >
-            using clone_bidirectional_ =
-                function_<clone_bidirectional_, begin_t, end_t>;
+            struct clone_bidirectional_ :
+                function_<meta::clone_bidirectional_, begin_t, end_t>{};
         }
 
 

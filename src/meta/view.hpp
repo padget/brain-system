@@ -62,7 +62,7 @@ namespace brain
         };
 
 
-        /// Alias for 
+        /// Alias for
         /// bidirectional_view
         template < typename begin_t,
                  typename end_t >

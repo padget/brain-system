@@ -1,14 +1,15 @@
 #ifndef __BRAIN_META_LAMBDA_HPP__
 # define __BRAIN_META_LAMBDA_HPP__
 
-/// #include "map.hpp"
-///#include "core.hpp"
+
+//#include "core.hpp"
 
 namespace brain
 {
     namespace meta
     {
         //// placeholders
+
         template<unsigned _u>
         struct placeholder {};
 
@@ -32,47 +33,81 @@ namespace brain
         using _14_ = arg<14>;
         using _15_ = arg<15>;
 
-
-        template<typename ... expressions_t>
-        struct is_placeholder_expression
+        namespace impl
         {
-            using type = 
-                or_<type_<is_placeholder_expression<expressions_t>>...>;
-        };
+            template<typename type_t>
+            struct is_placeholder_expression_
+            {
+                using type = false_;
+            };
 
+            template < template<typename ...> typename type_t,
+                     typename ... args_t >
+            struct is_placeholder_expression_<type_t<args_t...>>
+            {
+                using type =
+                    or_<type_<is_placeholder_expression_<args_t>>...>;
+            };
 
-        template < template<typename ...> typename caller_t,
-                 typename ... expressions_t >
-        struct is_placeholder_expression<caller_t<expressions_t...>>
-        {
-            using type = or_<type_<is_placeholder_expression<expressions_t>>...>;
-        };
-
-
-        template < template<unsigned> typename placeholder_t,
-                 unsigned _rank >
-        struct is_placeholder_expression<placeholder_t<_rank>>
-        {
-            using type =
-                is_same_ <
-                placeholder_t<_rank>,
-                placeholder<_rank> >;
-        };
-
-
-        template<typename type_t>
-        struct is_placeholder_expression<type_t>
-        {
-            using type = false_;
-        };
-
-
-        namespace test_is_placeholder_expression
-        {
-            // using expression_t = if_t<_0_, _1_, _3_>;
-            static_assert(v_<type_<is_placeholder_expression<_0_>>>, "");
+            template < template<unsigned> typename holder_t,
+                     unsigned _rank >
+            struct is_placeholder_expression_<holder_t<_rank>>
+            {
+                using type =
+                    meta::is_same_<meta::placeholder<_rank>, holder_t<_rank>>;
+            };
         }
 
+        template<typename type_t>
+        using is_placeholder_expression_ =
+            type_<impl::is_placeholder_expression_<type_t>>;
+
+
+        namespace lazy
+        {
+            template<typename type_t>
+            struct is_placeholder_expression_ :
+                    function_<is_placeholder_expression_, type_t> {};
+        }
+
+
+        namespace test_is_placeholder
+        {
+            static_assert(v_<is_placeholder_expression_<_0_>>, "");
+            static_assert(v_<is_placeholder_expression_<lazy::if_<lazy::if_<_1_, _1_, _1_>, int, int>>>, "");
+        }
+
+
+        namespace impl
+        {
+            template<typename lfunc_t>
+            struct lambda;
+
+
+            template < template<typename... > typename lfunc_t,
+                     typename ... args_t >
+            struct lambda<lfunc_t<args_t...>>
+            {
+                using type = lfunc_t<args_t...>;
+            };
+        }
+
+
+        template<typename lfunc_t>
+        using lambda =
+            type_<impl::lambda<lfunc_t>>;
+
+        namespace lazy
+        {
+            template<typename lfunc_t>
+            struct lambda :
+                function_<meta::lambda, lfunc_t>{}; 
+        }
+
+        namespace test_lambda
+        {
+            static_assert(v_<is_placeholder_expression_<lambda<lazy::if_<lazy::if_<_1_, _1_, _1_>, _0_>>>>, "");
+        }
     }
 }
 
