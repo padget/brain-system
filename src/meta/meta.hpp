@@ -1,5 +1,5 @@
 #ifndef __META_BRAIN_HPP
-#define __META_BRAIN_HPP
+# define __META_BRAIN_HPP
 
 
 /*
@@ -13,12 +13,12 @@
 #include "state.hpp"
 #include "string.hpp"
 */
-#include "core.hpp"
-#include "iterator.hpp"
- #include "sequence.hpp"
- /// #include "lambda.hpp"
-#include "view.hpp"
-#include "algorithm.hpp"
+# include "core.hpp"
+# include "iterator.hpp"
+# include "sequence.hpp"
+# include "lambda.hpp"
+# include "view.hpp"
+# include "algorithm.hpp"
 
 namespace brain
 {

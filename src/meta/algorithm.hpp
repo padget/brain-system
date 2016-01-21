@@ -121,15 +121,6 @@ namespace brain
             static_assert(v_<equal_to_<count_if_<seq_t, is_not_same_iter_r_<short>>, unsigned_<2> > >, "");
             static_assert(v_<equal_to_<count_if_<seq_t, is_same_iter_r_<short>>, unsigned_<3> > >, "");
         }
-
-        /*template < typename sequence1_t,
-                 typename sequence2_t >
-                 using sequence_equal_ = 
-                    and_<
-                    equal_to_<size_<sequence1_t>, size_<sequence2_t>>, 
-                    navigate_next_<>;
-                    >;               */
-    }
 }
 
 #endif
