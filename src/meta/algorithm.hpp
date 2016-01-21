@@ -115,7 +115,7 @@ namespace brain
                 function_<count_if_, sequence_t, pred_r>;
         }
 
-        namespace test_count_
+        namespace test_count
         {
             using seq_t = forward_list<int, short, short, short, double>;
             static_assert(v_<equal_to_<count_if_<seq_t, is_not_same_iter_r_<short>>, unsigned_<2> > >, "");
