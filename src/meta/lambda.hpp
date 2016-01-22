@@ -1,37 +1,53 @@
 #ifndef __BRAIN_META_LAMBDA_HPP__
 # define __BRAIN_META_LAMBDA_HPP__
 
-
-//#include "core.hpp"
+#include "sequence.hpp"
 
 namespace brain
 {
     namespace meta
     {
-        //// placeholders
+        /// //////////// ///
+        /// placeholders ///
+        /// //////////// ///
+        template<typename  index_t>
+        struct placeholder
+        {
+            template<typename ... args_t>
+            using return_ =
+                item_<at_<forward_list<args_t...>, index_t>>;
+        };
 
-        template<unsigned _u>
-        struct placeholder {};
+        template<typename index_t>
+        using arg =
+            placeholder<index_t>;
 
-        template<unsigned _u>
-        using arg = placeholder<_u>;
 
-        using _0_ = arg<0>;
-        using _1_ = arg<1>;
-        using _2_ = arg<2>;
-        using _3_ = arg<3>;
-        using _4_ = arg<4>;
-        using _5_ = arg<5>;
-        using _6_ = arg<6>;
-        using _7_ = arg<7>;
-        using _8_ = arg<8>;
-        using _9_ = arg<9>;
-        using _10_ = arg<10>;
-        using _11_ = arg<11>;
-        using _12_ = arg<12>;
-        using _13_ = arg<13>;
-        using _14_ = arg<14>;
-        using _15_ = arg<15>;
+        using _0_ = arg<long_<0>>;
+        using _1_ = arg<long_<1>>;
+        using _2_ = arg<long_<2>>;
+        using _3_ = arg<long_<3>>;
+        using _4_ = arg<long_<4>>;
+        using _5_ = arg<long_<5>>;
+        using _6_ = arg<long_<6>>;
+        using _7_ = arg<long_<7>>;
+        using _8_ = arg<long_<8>>;
+        using _9_ = arg<long_<9>>;
+        using _10_ = arg<long_<10>>;
+        using _11_ = arg<long_<11>>;
+        using _12_ = arg<long_<12>>;
+        using _13_ = arg<long_<13>>;
+        using _14_ = arg<long_<14>>;
+        using _15_ = arg<long_<15>>;
+
+
+        namespace test_placeholder
+        {
+            static_assert(v_<is_same_<int, return_<_0_, int, double, char>>>, "");
+            static_assert(v_<is_same_<double, return_<_1_, int, double, char>>>, "");
+            static_assert(v_<is_same_<char, return_<_2_, int, double, char>>>, "");
+            static_assert(v_<is_same_<nil, return_<_3_, int, double, char>>>, "");
+        }
 
         namespace impl
         {
@@ -49,8 +65,8 @@ namespace brain
                     or_<type_<is_placeholder_expression_<args_t>>...>;
             };
 
-            template < template<unsigned> typename holder_t,
-                     unsigned _rank >
+            template < template<typename > typename holder_t,
+                     typename  _rank >
             struct is_placeholder_expression_<holder_t<_rank>>
             {
                 using type =
@@ -76,6 +92,8 @@ namespace brain
             static_assert(v_<is_placeholder_expression_<_0_>>, "");
             static_assert(v_<is_placeholder_expression_<lazy::if_<lazy::if_<_1_, _1_, _1_>, int, int>>>, "");
         }
+        
+        is_lambda_expression
 
 
         namespace impl
@@ -84,28 +102,31 @@ namespace brain
             struct lambda;
 
 
-            template < template<typename... > typename lfunc_t,
-                     typename ... args_t >
-            struct lambda<lfunc_t<args_t...>>
+            template < template<typename...> typename lfunc_t,
+                     typename ... holders_t >
+            struct lambda<lfunc_t<holders_t...>>
             {
-                using type = lfunc_t<args_t...>;
+                template<typename ... args_t>
+                using return_ = lfunc_t<return_<holders_t, args_t...>...>;
             };
         }
 
 
         template<typename lfunc_t>
         using lambda =
-            type_<impl::lambda<lfunc_t>>;
+            impl::lambda<lfunc_t>;
 
         namespace lazy
         {
             template<typename lfunc_t>
             struct lambda :
-                function_<meta::lambda, lfunc_t>{}; 
+                    function_<meta::lambda, lfunc_t> {};
         }
 
         namespace test_lambda
         {
+
+            using a_lambda = lambda<lazy::if_<_0_, _1_, _2_>>;
             static_assert(v_<is_placeholder_expression_<lambda<lazy::if_<lazy::if_<_1_, _1_, _1_>, _0_>>>>, "");
         }
     }
