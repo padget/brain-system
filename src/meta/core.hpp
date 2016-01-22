@@ -221,6 +221,17 @@ namespace brain
             template return_<args_t...>;
 
 
+        namespace lazy
+        {
+            /// Lazy signature
+            /// of return_
+            template < typename type_r,
+                     typename ... args_t >
+            struct return_ :
+                    function_<meta::return_, type_r, args_t...> {};
+        }
+
+
         /// Unitary Test
         /// of function_class_
         namespace test_function_class
@@ -985,33 +996,26 @@ namespace brain
 
         namespace impl
         {
-            /// Type selector
-            template<typename ...>
-            struct if_;
+            template < bool _test,
+                     typename then_t,
+                     typename else_t >
+            struct if_c_;
 
-
-            /// Type selector
-            /// specialisation that
-            /// returns void
-            /// if_t is true
-            template<typename test_t>
-            struct if_<test_t> :
-                    std::enable_if<v_<test_t>>
+            template < typename then_t,
+                     typename else_t >
+            struct if_c_<true, then_t, else_t>
             {
+                using type =
+                    then_t;
             };
 
-
-            /// Type selector
-            /// specialisation that
-            /// returns then_t
-            /// if_t is true
-            template < typename test_t,
-                     typename then_t >
-            struct if_<test_t, then_t>:
-                    std::enable_if<v_<test_t>, then_t>
+            template < typename then_t,
+                     typename else_t >
+            struct if_c_<false, then_t, else_t>
             {
+                using type =
+                    else_t;
             };
-
 
             /// Type selector
             /// specialisation that
@@ -1021,62 +1025,60 @@ namespace brain
             template < typename test_t,
                      typename then_t,
                      typename else_t >
-            struct if_<test_t, then_t, else_t>:
-                    std::conditional<v_<test_t>, then_t, else_t>
+            struct if_
             {
+                using type =
+                    type_<if_c_<v_<test_t>, then_t, else_t>> ;
+            };
+
+
+            template < typename test_t,
+                     typename lthen_t,
+                     typename lelse_t >
+            struct eval_if_
+            {
+                using type =
+                    type_<type_<if_<test_t, lthen_t, lelse_t>>>;
             };
         }
 
 
-        /// Evaluates the result
-        /// of type_<_if_<args_t...>>
-        template<typename ... args_t>
-        using if_ =
-            type_<impl::if_<args_t...>>;
-
-
-        /// Evaluates the result
-        /// of if_<bool_<_b>, args_t... >
-        template < bool _b,
-                 typename... args_t >
-        using if_c =
-            if_<bool_<_b>, args_t...>;
-
-
-        /// Evaluates the result
-        /// of if_<if_t, then_t, else_t>
+        /// type_ shorcut
+        /// for if_
         template < typename test_t,
                  typename then_t,
                  typename else_t >
-        using select_ =
-            if_<test_t, then_t, else_t> ;
+        using if_ =
+            type_<impl::if_<test_t, then_t, else_t>>;
 
 
-        /// Evaluates the result
-        /// of if_c<_b, then_t, else_t>
-        template < bool _b,
-                 typename then_t,
-                 typename else_t >
-        using select_c =
-            if_c<_b, then_t, else_t> ;
+        /// type_ shortcut for
+        /// eval_if_
+        template < typename test_t,
+                 typename lthen_t,
+                 typename lelse_t >
+        using eval_if_ =
+            type_<impl::eval_if_<test_t, lthen_t, lelse_t>>;
 
 
         namespace lazy
         {
             /// Lazy signature
             /// of if_
-            template<typename ... args_t>
-            struct if_ :
-                    function_<meta::if_, args_t...> {};
-
-
-            /// Lazy signature
-            /// of select_
             template < typename test_t,
                      typename then_t,
                      typename else_t >
-            struct select_ :
-                        function_<meta::select_, test_t, then_t, else_t> {};
+            struct if_ :
+                    function_<meta::if_, test_t, then_t, else_t> {};
+
+            /// Lazy signature
+            /// of eval_if_
+            template < typename test_t,
+                     typename lthen_t,
+                     typename lelse_t >
+            struct eval_if_ :
+                    function_<meta::eval_if_, test_t, lthen_t, lelse_t> {};
+
         }
 
 
@@ -1084,7 +1086,6 @@ namespace brain
         {
             /// TODO Test for all selection features
         }
-
 
         /// ///////////// ///
         /// Pack Features ///
@@ -1238,7 +1239,7 @@ namespace brain
             template < typename pack_t,
                      typename type_t >
             struct push_back_ :
-                function_<meta::push_back_, pack_t, type_t>{};
+                    function_<meta::push_back_, pack_t, type_t> {};
 
 
             /// Lazy signature
@@ -1246,11 +1247,11 @@ namespace brain
             template < typename pack_t,
                      typename type_t >
             struct push_front_ :
-                function_<meta::push_front_, pack_t, type_t>{};
+                    function_<meta::push_front_, pack_t, type_t> {};
         }
 
 
-        /// Unitary test 
+        /// Unitary test
         /// for push_front_
         /// and push_back_
         namespace test_push_front_back
@@ -1297,7 +1298,7 @@ namespace brain
             /// of clear_
             template<typename pack_t>
             struct clear_ :
-                function_<meta::clear_, pack_t>{};
+                    function_<meta::clear_, pack_t> {};
         }
 
 

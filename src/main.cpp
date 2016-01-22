@@ -6,6 +6,7 @@
 //#include "configuration/properties.hpp"
 //#include <iostream>
 
+#include <vector>
 #include "meta/meta.hpp"
 #include <typeinfo>
 #include <iostream>
@@ -15,10 +16,12 @@ using namespace brain::meta;
 using namespace std;
 
 
-
 /// Main function for
 /// C++ compiler.
 int main()
 {
+
+    std::cout << typeid(type_<impl::bind<lazy::is_same_<_0_, _1_>, int, float>>).name() << std::endl;
+    
     return 0;
 }

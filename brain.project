@@ -105,12 +105,8 @@ C:\users\benjamin\projets\code_lite_w\brain
     </VirtualDirectory>
     <VirtualDirectory Name="meta">
       <File Name="src/meta/core.hpp"/>
-      <File Name="src/meta/list.hpp"/>
-      <File Name="src/meta/state.hpp"/>
       <File Name="src/meta/lambda.hpp" ExcludeProjConfig=""/>
       <File Name="src/meta/string.hpp"/>
-      <File Name="src/meta/map.hpp"/>
-      <File Name="src/meta/standart.hpp"/>
       <File Name="src/meta/algorithm.hpp" ExcludeProjConfig=""/>
       <File Name="src/meta/runtime.hpp"/>
       <File Name="src/meta/meta.hpp"/>
@@ -132,8 +128,8 @@ C:\users\benjamin\projets\code_lite_w\brain
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug" CompilerType="MinGW ( gcc.exe (tdm64-1) 5.1.0 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-backtrace-limit=0" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+    <Configuration Name="Debug" CompilerType="MinGW ( TDM-GCC-32 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++1z;-Wall;-ftemplate-backtrace-limit=0" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
       </Compiler>
       <Linker Options="" Required="yes">
@@ -172,8 +168,8 @@ C:\users\benjamin\projets\code_lite_w\brain
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Release" CompilerType="MinGW ( gcc.exe (tdm64-1) 5.1.0 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-O2;-std=c++14;-Wall" C_Options="-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+    <Configuration Name="Release" CompilerType="clang ( 3.7.1 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++17;-Wall;-ftemplate-backtrace-limit=0" C_Options="-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <Preprocessor Value="NDEBUG"/>
       </Compiler>
