@@ -616,7 +616,7 @@ namespace brain
                 template < typename current_t,
                          typename tmp_t >
                 struct navigate_impl_<current_t, tmp_t, true_, false_>:
-                        navigate_impl_<direction_<current_t>, return_<accum_r, tmp_t, return_<unary_r, accessor_<current_t>>>>
+                        navigate_impl_<direction_<current_t>, meta::return_<accum_r, tmp_t, meta::return_<unary_r, accessor_<current_t>>>>
                 {
                 };
 
@@ -633,7 +633,7 @@ namespace brain
                 struct navigate_impl_<current_t, tmp_t, true_, true_>
                 {
                     using type =
-                        return_<accum_r, tmp_t, return_<unary_r, current_t>>;
+                        meta::return_<accum_r, tmp_t, meta::return_<unary_r, current_t>>;
                 };
 
 
