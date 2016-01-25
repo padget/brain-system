@@ -20,9 +20,7 @@ using namespace std;
 /// C++ compiler.
 int main()
 {
-   
-    std::cout << typeid(is_placeholder_expression_<_0_>).name() << std::endl;
-    std::cout << typeid(return_<_0_, std::string, double, char>).name() << std::endl;
+
 
     return 0;
 }

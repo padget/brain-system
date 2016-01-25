@@ -113,7 +113,14 @@ C:\users\benjamin\projets\code_lite_w\brain
       <File Name="src/meta/iterator.hpp"/>
       <File Name="src/meta/sequence.hpp"/>
       <File Name="src/meta/view.hpp"/>
-      <File Name="src/meta/macro.hpp"/>
+      <VirtualDirectory Name="core">
+        <File Name="src/meta/core/base.hpp"/>
+        <File Name="src/meta/core/pack.hpp"/>
+        <File Name="src/meta/core/select.hpp"/>
+        <File Name="src/meta/core/logic.hpp"/>
+        <File Name="src/meta/core/math.hpp"/>
+        <File Name="src/meta/core/functionclass.hpp"/>
+      </VirtualDirectory>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

@@ -350,7 +350,7 @@ namespace brain
         {
             template<typename iterator_t>
             struct has_prev_ :
-                function_<meta::has_prev_, iterator_t>{};
+                    function_<meta::has_prev_, iterator_t> {};
         }
 
 
@@ -477,7 +477,7 @@ namespace brain
             /// of last_valid_
             template<typename iterator_t>
             struct last_valid_ :
-                function_<meta::last_valid_, iterator_t>{};
+                    function_<meta::last_valid_, iterator_t> {};
         }
 
 
@@ -535,7 +535,7 @@ namespace brain
             /// of first_valid_
             template<typename iterator_t>
             struct first_valid_ :
-                function_<meta::first_valid_, iterator_t>{};
+                    function_<meta::first_valid_, iterator_t> {};
         }
 
         namespace test_first_valid
@@ -755,7 +755,7 @@ namespace brain
             template < typename begin_t,
                      typename end_t >
             struct distance_ :
-                function_<meta::distance_, begin_t, end_t>{};
+                    function_<meta::distance_, begin_t, end_t> {};
         }
 
 
@@ -800,7 +800,7 @@ namespace brain
             idem_,
             nil,
             function_class_<idem_>,
-            is_same_distance_r_<begin_t, nb_steps_t >,
+            is_same_distance_r_<begin_t, nb_steps_t>,
             default_accumulator_ >;
 
 
@@ -876,7 +876,7 @@ namespace brain
             template < typename begin_t,
                      typename end_t >
             struct clone_forward_ :
-                function_<meta::clone_forward_, begin_t, end_t>{};
+                    function_<meta::clone_forward_, begin_t, end_t> {};
         }
 
 
@@ -974,7 +974,7 @@ namespace brain
             template < typename begin_t,
                      typename end_t >
             struct clone_bidirectional_ :
-                function_<meta::clone_bidirectional_, begin_t, end_t>{};
+                    function_<meta::clone_bidirectional_, begin_t, end_t> {};
         }
 
 
