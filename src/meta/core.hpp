@@ -1162,7 +1162,8 @@ namespace brain
             template<typename type_t>
             struct is_placeholder_expression_
             {
-                using type = false_;
+                using type =
+                    false_;
             };
 
             template < template<typename ...> typename type_t,
@@ -1170,7 +1171,7 @@ namespace brain
             struct is_placeholder_expression_<type_t<args_t...>>
             {
                 using type =
-                   meta::or_<type_<is_placeholder_expression_<args_t>>...>;
+                    meta::or_<type_<is_placeholder_expression_<args_t>>...>;
             };
 
             template < template<typename> typename holder_t,
@@ -1245,6 +1246,15 @@ namespace brain
             {
                 using type =
                     type_<type_<return_<type_<lambda<func_t>>, true_, args_t...>>>;
+            };
+
+
+            template < typename index_t,
+                     typename ... args_t >
+            struct  return_<placeholder<index_t>, true_, args_t...>
+            {
+                using type =
+                    typename placeholder<index_t>::template return_<args_t...>;
             };
 
 

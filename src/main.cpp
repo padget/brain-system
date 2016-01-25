@@ -20,12 +20,9 @@ using namespace std;
 /// C++ compiler.
 int main()
 {
-    using foo = list<int, short, double>;
-    
-    using fii = advance_<begin_<foo>, unsigned_<1>>;
-
-    /// static_assert(v_<is_same_<res, true_>>, "");
-    std::cout << typeid(fii).name() << std::endl;
+   
+    std::cout << typeid(is_placeholder_expression_<_0_>).name() << std::endl;
+    std::cout << typeid(return_<_0_, std::string, double, char>).name() << std::endl;
 
     return 0;
 }
