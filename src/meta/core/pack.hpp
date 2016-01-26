@@ -13,7 +13,7 @@ namespace brain
             struct pack
             {
                 using size =
-                    size_t_<sizeof(items_t...)>;
+                    size_t_<sizeof...(items_t)>;
             };
 
 
@@ -97,46 +97,21 @@ namespace brain
             }
 
 
-            /// type_ shortcut for
-            /// push_back_t_
+            /// Push back type_t
+            /// at the end of pack_t
             template < typename pack_t,
                      typename type_t >
             using push_back_ =
                 concat_<pack_t, pack<type_t>>;
-
-
-            namespace impl
-            {
-                /// Definition of
-                /// push_front_
-                template < typename pack_t,
-                         typename type_t >
-                struct push_front_;
-
-
-                /// Pushes type_t at
-                /// the front of
-                /// pack_t
-                template < template<typename...> typename pack_t,
-                         typename ... items_t,
-                         typename type_t >
-                struct push_front_ <
-                        pack_t<items_t...>,
-                        type_t >
-                {
-                    using type =
-                        pack_t<type_t, items_t...>;
-                };
-            }
-
-
-            /// type_ shortcut for
-            /// push_front_
-            template < typename pack_t,
-                     typename type_t >
-            using push_front_ =
-                type_<impl::push_front_<pack_t, type_t>>;
-
+                
+                
+            /// Push front type_t
+            /// at the begin of pack_t
+            template<typename pack_t, 
+            typename type_t>
+            using push_front_ = 
+                concat_<pack<type_t>, pack_t>;
+                
 
             /// Unitary test
             /// for push_front_
@@ -187,6 +162,9 @@ namespace brain
 
                 static_assert(v_<std::is_same<clear_<pack_t>, pack<>>>, "");
             }
+            
+            
+            at
         }
     }
 }

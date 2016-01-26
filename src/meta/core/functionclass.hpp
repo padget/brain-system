@@ -83,7 +83,7 @@ namespace brain
                 struct is_placeholder_expression_<type_t<args_t...>>
                 {
                     using type =
-                        or_<type_<is_placeholder_expression_<args_t>>...>;
+                        type_<or_<type_<is_placeholder_expression_<args_t>>...>>;
                 };
 
                 template < template<typename> typename holder_t,

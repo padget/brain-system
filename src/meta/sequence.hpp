@@ -43,7 +43,7 @@ namespace brain
             /// Size of the
             /// pack items_t...
             using size =
-                sizeof_pack_<items_t...>;
+                size_t_<sizeof...(items_t)>;
 
 
             /// Type of the iterator
