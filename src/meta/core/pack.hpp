@@ -1,29 +1,83 @@
 #ifndef __BRAIN_META_CORE_PACk_HPP__
 # define  __BRAIN_META_CORE_PACk_HPP__
 
+#include "base.hpp"
+#include "select.hpp"
+#include "logic.hpp"
+
 namespace brain
 {
     namespace meta
     {
+        /// /////////////////// ///
+        /// Pack basic features ///
+        /// /////////////////// ///
+        ///
+        /// Some metafunction that
+        /// operates directly on 
+        /// paramters pack of types :
+        ///  - size_
+        ///  - empty_
+        ///  - cat_
+        ///  - push_back_/front_
+        ///  - at_
+        ///  - clear_
         namespace core
         {
             /// Main support of the
             /// parameters pack
             template<typename ... items_t>
-            struct pack
+            struct pack { };
+
+
+            namespace impl
             {
-                using size =
-                    size_t_<sizeof...(items_t)>;
-            };
+                /// Returns the size
+                /// of a parameters pack
+                template<typename pack_t>
+                struct size_;
 
 
-            /// size member
-            /// accessor
+                /// Returns the number
+                /// of types_t in pack_t
+                template < template<typename...> typename pack_t,
+                         typename... types_t >
+                struct size_<pack_t<types_t...>>
+                {
+                    using type =
+                        core::size_t_<sizeof...(types_t)>;
+                };
+            }
+
+
+            /// type_ shortcut
+            /// for impl::size_
             template<typename pack_t>
             using size_ =
-                typename pack_t::size;
+                core::type_<impl::size_<pack_t>>;
+                
+            
+            /// Returns true_
+            /// if the pack_t
+            /// has no item
+            template<typename pack_t>
+            using empty_ =
+                core::equal_to_<core::size_<pack_t>, size_t_<0>>;
 
 
+            /// Unitary test
+            /// for size_
+            namespace test_size_empty
+            {
+                using p = pack<int, short, double>;
+                using p_empty = pack<>;
+
+                static_assert(core::v_<core::equal_to_<core::size_<p>, size_t_<3>>>, "");
+                static_assert(core::v_<core::equal_to_<core::size_<p_empty>, size_t_<0>>>, "");
+                static_assert(core::v_<core::empty_<p_empty>>, "");
+            }
+            
+            
             namespace impl
             {
                 /// Concat any number
@@ -33,7 +87,7 @@ namespace brain
                 /// is the same as the
                 /// first of the list
                 template<typename ... packs_t>
-                struct concat_;
+                struct cat_;
 
 
                 /// Specialization that
@@ -42,10 +96,10 @@ namespace brain
                 /// specializations
                 template < typename pack1_t ,
                          typename ... others_t >
-                struct concat_ <pack1_t, others_t...>
+                struct cat_ <pack1_t, others_t...>
                 {
                     using type =
-                        type_<concat_<pack1_t, type_<concat_<others_t...>>>>;
+                        type_<cat_<pack1_t, type_<cat_<others_t...>>>>;
                 };
 
 
@@ -55,7 +109,7 @@ namespace brain
                          typename ... items1_t,
                          template<typename ...> typename pack2_t,
                          typename ... items2_t >
-                struct concat_ <
+                struct cat_ <
                         pack1_t<items1_t...>,
                         pack2_t<items2_t...> >
                 {
@@ -67,7 +121,7 @@ namespace brain
                 /// one pack
                 template < template<typename ...> typename pack1_t,
                          typename ... items1_t >
-                struct concat_<pack1_t<items1_t...>>
+                struct cat_<pack1_t<items1_t...>>
                 {
                     using type =
                         pack1_t<items1_t...>;
@@ -76,24 +130,24 @@ namespace brain
 
 
             /// type_ shortcut
-            /// for concat_
+            /// for cat_
             template<typename ... packs_t>
-            using concat_ =
-                type_<impl::concat_<packs_t...>>;
+            using cat_ =
+                type_<impl::cat_<packs_t...>>;
 
 
             /// Unitary test for
-            /// concat_
+            /// cat_
             namespace test_concat
             {
                 using a_list = pack<int, double>;
                 using a_list2 = pack<float, short>;
                 using a_list3 = pack<char>;
 
-                static_assert(v_<is_same_<pack<int, double>, concat_<a_list>>>, "");
-                static_assert(v_<is_same_<pack<int, double, float, short>, concat_<a_list, a_list2>>>, "");
-                static_assert(v_<is_same_<pack<int, double, float, short, char>, concat_<a_list, a_list2, a_list3>>>, "");
-                static_assert(v_<is_same_<pack<int, double>, concat_<a_list>>>, "");
+                static_assert(v_<is_same_<pack<int, double>, cat_<a_list>>>, "");
+                static_assert(v_<is_same_<pack<int, double, float, short>, cat_<a_list, a_list2>>>, "");
+                static_assert(v_<is_same_<pack<int, double, float, short, char>, cat_<a_list, a_list2, a_list3>>>, "");
+                static_assert(v_<is_same_<pack<int, double>, cat_<a_list>>>, "");
             }
 
 
@@ -102,16 +156,16 @@ namespace brain
             template < typename pack_t,
                      typename type_t >
             using push_back_ =
-                concat_<pack_t, pack<type_t>>;
-                
-                
+                cat_<pack_t, pack<type_t>>;
+
+
             /// Push front type_t
             /// at the begin of pack_t
-            template<typename pack_t, 
-            typename type_t>
-            using push_front_ = 
-                concat_<pack<type_t>, pack_t>;
-                
+            template < typename pack_t,
+                     typename type_t >
+            using push_front_ =
+                cat_<pack<type_t>, pack_t>;
+
 
             /// Unitary test
             /// for push_front_
@@ -123,6 +177,65 @@ namespace brain
                 static_assert(v_<is_same_<pack<int, short, double>, push_back_<seq_t, double>>>, "");
                 static_assert(v_<is_same_<pack<double, int, short>, push_front_<seq_t, double>>>, "");
             }
+
+
+            namespace impl
+            {
+                /// Returns the nth
+                /// type of pack_t
+                template < typename pack_t,
+                         typename index_t >
+                struct at_;
+
+
+                /// If type_t is
+                /// the nth of
+                /// pack_t, it will
+                /// be returned,
+                /// else, see next.
+                template < template<typename ...> typename pack_t,
+                         typename type_t,
+                         typename ... types_t,
+                         typename index_t >
+                struct at_<pack_t<type_t, types_t...>, index_t>
+                {
+                    using type =
+                        core::eval_if_ <
+                        core::equal_to_<index_t, core::unsigned_<0>>,
+                        core::function_<core::idem_, type_t>,
+                        at_<pack_t<types_t...>, core::dec_<index_t> >>;
+                };
+
+
+                /// Returns nil
+                /// if pack_t is
+                /// empty.
+                template < template<typename...> typename pack_t,
+                         typename index_t >
+                struct at_<pack_t<>, index_t>
+                {
+                    using type =
+                        core::nil;
+                };
+            }
+
+
+            template < typename pack_t,
+                     typename index_t >
+            using at_ =
+                type_<impl::at_<pack_t, index_t>>;
+
+
+            namespace test_at
+            {
+                using p = pack<int, short, double>;
+                static_assert(core::v_<core::is_same_<int, at_<p, unsigned_<0>>>>, "");
+                static_assert(core::v_<core::is_same_<short, at_<p, unsigned_<1>>>>, "");
+                static_assert(core::v_<core::is_same_<double, at_<p, unsigned_<2>>>>, "");
+                static_assert(core::v_<core::is_same_<nil, at_<p, unsigned_<3>>>>, "");
+                static_assert(core::v_ < core::is_same_ < nil, at_ < p, unsigned_ < -1 >>> > , "");
+            }
+
 
 
             namespace impl
@@ -162,9 +275,6 @@ namespace brain
 
                 static_assert(v_<std::is_same<clear_<pack_t>, pack<>>>, "");
             }
-            
-            
-            at
         }
     }
 }

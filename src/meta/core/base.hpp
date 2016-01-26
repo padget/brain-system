@@ -29,7 +29,7 @@
 
 #  define member_(name) \
     has_(name) \
-    access_(name) 
+    access_(name)
 
 
 namespace brain
@@ -109,44 +109,18 @@ namespace brain
                 type_<std::is_same<type_t, other_t>>;
 
 
-            namespace impl
-            {
-                /// A function is
-                /// the declaration
-                /// of a signature of
-                /// a meta function.
-                template < template<typename ...> typename func_t,
-                         typename args_t >
-                struct function_;
-
-
-                /// Specialization that
-                /// expands the args_t
-                /// for the future
-                /// function evaluation
-                template < template<typename ...> typename func_t,
-                         typename ... args_t >
-                struct function_ <
-                        func_t,
-                        pack<args_t... >>
-                {
-                    /// Only the call to
-                    /// type member compute
-                    /// its evaluation.
-                    using type =
-                        func_t<args_t...>;
-                };
-            }
-
-
             /// Public exposition
             /// of the impl::function_
             template < template<typename ...> typename func_t,
                      typename ... args_t >
-            using function_ =
-                impl::function_ <
-                func_t,
-                pack<args_t... >>;
+            struct function_
+            {
+                /// Only the call to
+                /// type member compute
+                /// its evaluation.
+                using type =
+                    func_t<args_t...>;
+            };
 
 
             /// Unitary Test

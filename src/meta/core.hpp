@@ -225,9 +225,43 @@ namespace brain
         using eval_if_ =
             core::eval_if_<test_t, lthen_t, lelse_t>;
 
+
+        /// ////////// ///
+        /// Pack alias ///
+        /// ////////// ///
+
+
+        template<typename ... types_t>
+        using pack =
+            core::pack<types_t...>;
+
+        template<typename pack_t>
+        using size_ =
+            core::size_<pack_t>;
+
+        template<typename ... packs_t>
+        using cat_ =
+            core::cat_<packs_t...>;
+
+        template < typename pack_t,
+                 typename type_t >
+        using push_back_ =
+            core::push_back_<pack_t, type_t>;
+
+        template < typename pack_t,
+                 typename type_t >
+        using push_front_ =
+            core::push_front_<pack_t, type_t>;
+
+        template<typename pack_t>
+        using clear_ =
+            core::clear_<pack_t>;
+
+
         /// //////////////////// ///
         /// Function class alias ///
         /// //////////////////// ///
+
 
         template<template<typename ...> typename func_t>
         using function_class_ =
@@ -235,7 +269,7 @@ namespace brain
 
         template<typename index_t>
         using placeholder =
-            core::placeholder;
+            core::placeholder<index_t>;
 
         using _0_ = core::_0_;
         using _1_ = core::_1_;
@@ -268,10 +302,6 @@ namespace brain
         using bind_ =
             core::bind_<func_r, holders_t...>;
 
-        template<typename lfunc_t>
-        using lambda =
-            core::lambda<lfunc_t>;
-
         template < typename func_t,
                  typename ... funcs_t >
         using compose_ =
@@ -288,34 +318,189 @@ namespace brain
             core::bind_back_<func_t, back_args_t...>;
 
         /// ////////// ///
-        /// Pack alias ///
+        /// Lazy Alias ///
         /// ////////// ///
 
-        template<typename ... types_t>
-        using pack =
-            core::pack<types_t...>;
+        namespace lazy
+        {
+            /// ////////// ///
+            /// Base alias ///
+            /// ////////// ///
 
-        template<typename pack_t>
-        using size_ =
-            core::size_<pack_t>;
+            template<typename ... types_t>
+            struct void_ :
+                function_<meta::void_, types_t...>{};
 
-        template<typename ... packs_t>
-        using concat_ =
-            core::concat_<packs_t...>;
+            template<typename type_t>
+            struct type_ :
+                function_<meta::type_, type_t>{};
 
-        template < typename pack_t,
-                 typename type_t >
-        using push_back_ =
-            core::push_back_<pack_t, type_t>;
+            template<typename type_t>
+            struct idem_ :
+                function_<meta::idem_, type_t>{};
 
-        template < typename pack_t,
-                 typename type_t >
-        using push_front_ =
-            core::push_front_<pack_t, type_t>;
+            template < typename type_t,
+                     typename other_t >
+            struct is_same_ :
+                function_<meta::is_same_, type_t, other_t>{};
 
-        template<typename pack_t>
-        using clear_ =
-            core::clear_<pack_t>;
+
+            /// ////////// ///
+            /// Math alias ///
+            /// ////////// ///
+
+
+            template<typename type_t>
+            struct inc_ :
+                function_<meta::inc_, type_t>{};
+
+            template<typename type_t>
+            struct dec_ :
+                function_<meta::dec_, type_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct plus_ :
+                function_<meta::plus_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct minus_ :
+                function_<meta::minus_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct multiplies_ :
+                function_<meta::multiplies_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct divides_ :
+                function_<meta::divides_, type_t, other_t>{};
+
+            template <typename type_t>
+            struct negate_ :
+                function_<meta::negate_, type_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct modulus_ :
+                function_<meta::modulus_, type_t, other_t>{};
+
+
+            /// /////////// ///
+            /// Logic alias ///
+            /// /////////// ///
+
+
+            template < typename type_t,
+                     typename other_t >
+            struct equal_to_ :
+                function_<meta::equal_to_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct not_equal_to_ :
+                function_<meta::not_equal_to_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct greater_ :
+                function_<meta::greater_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct less_ :
+                function_<meta::less_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct greater_equal_ :
+                function_<meta::greater_equal_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct less_equal_ :
+                function_<meta::less_equal_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct bit_and_ :
+                function_<meta::bit_and_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct bit_or_ :
+                function_<meta::bit_or_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct bit_xor_ :
+                function_<meta::bit_xor_, type_t, other_t>{};
+
+            template < typename type_t,
+                     typename other_t >
+            struct bit_not_ :
+                function_<meta::bit_not_, type_t, other_t>{};
+
+            template<typename ... bools_t>
+            struct and_ :
+                function_<meta::and_, bools_t...>{};
+
+            template<typename ... bools_t>
+            struct or_ :
+                function_<meta::or_, bools_t...>{};
+
+            template<typename bool_t>
+            struct not_ :
+                function_<meta::not_, bool_t>{};
+
+
+            /// /////////////// ///
+            /// Selection alias ///
+            /// /////////////// ///
+
+
+            template < typename test_t,
+                     typename then_t,
+                     typename else_t >
+            struct if_ :
+                    function_<meta::if_, test_t, then_t, else_t> {};
+
+            template < typename test_t,
+                     typename lthen_t,
+                     typename lelse_t >
+            struct eval_if_ :
+                function_<meta::eval_if_, test_t, lthen_t, lelse_t>{};
+
+
+            /// ////////// ///
+            /// Pack alias ///
+            /// ////////// ///
+     
+     
+            template<typename pack_t>
+            struct size_ :
+                function_<meta::size_, pack_t>{};
+
+            template<typename ... packs_t>
+            struct cat_ :
+                function_<meta::cat_, packs_t...>{};
+
+            template < typename pack_t,
+                     typename type_t >
+            struct push_back_ :
+                function_<meta::push_back_, pack_t, type_t>{};
+
+            template < typename pack_t,
+                     typename type_t >
+            struct push_front_ :
+                function_<meta::push_front_, pack_t, type_t>{};
+
+            template<typename pack_t>
+            struct clear_ :
+                function_<meta::clear_, pack_t>{};
+        }
     }
 }
 

@@ -4,7 +4,8 @@
 # include "base.hpp"
 # include "math.hpp"
 # include "select.hpp"
- 
+# include "pack.hpp"
+
 namespace brain
 {
     namespace meta
@@ -46,7 +47,11 @@ namespace brain
             /// declaration and
             /// call instantiation
             template<typename index_t>
-            struct placeholder;
+            struct placeholder
+            {
+                template<typename ... args_t>
+                using return_ = core::at_<pack<args_t...>, index_t>;
+            };
 
 
             /// Predefined placeholders
@@ -101,6 +106,8 @@ namespace brain
                 type_<impl::is_placeholder_expression_<type_t>>;
 
 
+
+
             namespace impl
             {
                 template<typename lfunc_t>
@@ -118,31 +125,16 @@ namespace brain
                 struct return_;
 
 
+                /// Specialization for
+                /// metafunction class 
+                /// that not be made of
+                /// placeholders
                 template < typename func_r,
                          typename ... args_t >
                 struct return_<func_r, false_, args_t...>
                 {
                     using type =
                         typename func_r::template return_<args_t...>;
-                };
-
-
-                template < template<typename ...> typename func_t,
-                         typename ... holders_t,
-                         typename ... args_t >
-                struct  return_<func_t<holders_t...>, false_, args_t...>
-                {
-                    using type =
-                        typename func_t<holders_t...>::template return_<args_t...>;
-                };
-
-
-                template < typename func_t,
-                         typename ... args_t >
-                struct return_<lambda<func_t>, true_, args_t...>
-                {
-                    using type =
-                        type_<type_<return_<type_<lambda<func_t>>, true_, args_t...>>>;
                 };
 
 
@@ -163,7 +155,17 @@ namespace brain
                     using bind =
                         bind_<function_class_<func_t>, holders_t...>;
                     using type =
-                        type_<type_<return_<type_<bind>, false_, args_t...>>>;
+                        type_<type_<return_<type_<bind>, true_, args_t...>>>;
+                };
+
+
+                template < typename func_r,
+                         typename ... bind_args_t,
+                         typename ... args_t >
+                struct return_<bind_<func_r, bind_args_t...>, true_, args_t...>
+                {
+                    using type =
+                        typename bind_<func_r, bind_args_t...>::template return_<args_t...>;
                 };
             }
 
@@ -188,33 +190,14 @@ namespace brain
 
                     template<typename ... reals_t>
                     using return_  =
-                        return_ <
-                        func_r,
-                        core::is_placeholder_expression_<func_r>,
+                        typename func_r::template return_ <
                         core::eval_if_ <
                         core::is_placeholder_expression_<holders_t>,
                         return_<holders_t, core::is_placeholder_expression_<holders_t>, reals_t...>,
                         core::function_<idem_, holders_t>
                         > ...
                         >;
-                };
-
-
-                template <typename lfunc_t>
-                struct lambda;
-
-
-                template < template<typename...> typename lfunc_t,
-                         typename ... holders_t >
-                struct lambda<lfunc_t<holders_t...>>
-                {
-                    using type =
-                        bind_<function_class_<lfunc_t>, holders_t...> ;
-
-                    template<typename ... args_t>
-                    using return_ =
-                        type_<type_<core::return_<type, core::is_placeholder_expression_<type>, args_t...>>>;
-                };
+                };               
             }
 
 
@@ -224,33 +207,10 @@ namespace brain
                 type_<impl::bind_<func_r, holders_t...>>;
 
 
-            template<typename lfunc_t>
-            using lambda =
-                impl::lambda<lfunc_t>;
-
-
-            namespace impl
+            namespace test_is_placeholder_expression
             {
-                template<typename lambda_t>
-                struct is_lambda_;
-
-                template < template<typename> typename lambda_t,
-                         typename lfunc_t >
-                struct is_lambda_<lambda_t<lfunc_t>>
-                {
-                    using type =
-                        core::is_same_<core::lambda<lfunc_t>, lambda_t<lfunc_t>>;
-                };
-            }
-
-            template<typename lambda_t>
-            using is_lambda_ =
-                type_<impl::is_lambda_<lambda_t>>;
-
-
-            namespace test_is_lambda
-            {
-                static_assert(v_<is_lambda_<lambda<_0_>>>, "");
+                static_assert(v_<is_placeholder_expression_<bind_<_0_, int>>>, "");
+                static_assert(v_<is_placeholder_expression_<_0_>>, "");
             }
 
 
@@ -372,7 +332,7 @@ namespace brain
                 using return_ =
                     return_<func_t, args_t..., back_args_t...>;
             };
-            
+
 
             namespace test_bind_front_back
             {

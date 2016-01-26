@@ -14,11 +14,11 @@
 #include "string.hpp"
 */
 # include "core.hpp"
-# include "iterator.hpp"
-# include "sequence.hpp"
-# include "lambda.hpp"
-# include "view.hpp"
-# include "algorithm.hpp"
+/// # include "iterator.hpp"
+/// # include "sequence.hpp"
+/// # include "lambda.hpp"
+/// # include "view.hpp"
+/// # include "algorithm.hpp"
 
 namespace brain
 {
