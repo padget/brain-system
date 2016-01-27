@@ -14,7 +14,7 @@
 #include "string.hpp"
 */
 # include "core.hpp"
-/// # include "iterator.hpp"
+# include "iterator.hpp"
 /// # include "sequence.hpp"
 /// # include "lambda.hpp"
 /// # include "view.hpp"

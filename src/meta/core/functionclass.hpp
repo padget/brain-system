@@ -30,8 +30,12 @@ namespace brain
                 /// Returns the result
                 /// of func_t
                 template<typename ... args_t>
-                using return_ =
-                    type_<function_<func_t, args_t...>>;
+                using return_ = //core::type_<function_<func_t, args_t...>>;
+                   core::eval_if_<
+                    core::has_type_member<core::type_<core::function_<func_t, args_t...>>>, 
+                    core::function_<type_, core::type_<core::function_<func_t, args_t...>> >, 
+                    core::type_<core::function_<func_t, args_t...>>
+                    >;
             };
 
 
@@ -88,7 +92,7 @@ namespace brain
                 struct is_placeholder_expression_<type_t<args_t...>>
                 {
                     using type =
-                        type_<or_<type_<is_placeholder_expression_<args_t>>...>>;
+                        core::or_<type_<is_placeholder_expression_<args_t>>...>;
                 };
 
                 template < template<typename> typename holder_t,
@@ -155,7 +159,7 @@ namespace brain
                     using bind =
                         bind_<function_class_<func_t>, holders_t...>;
                     using type =
-                        type_<type_<return_<type_<bind>, true_, args_t...>>>;
+                        type_<return_<bind, true_, args_t...>>;
                 };
 
 
