@@ -14,8 +14,7 @@
 #include "string.hpp"
 */
 # include "core.hpp"
-# include "iterator/forward.hpp"
-# include "iterator/bidirectionnal.hpp"
+# include "iterator.hpp"
 /// # include "sequence.hpp"
 /// # include "lambda.hpp"
 /// # include "view.hpp"
@@ -25,6 +24,7 @@ namespace brain
 {
     namespace meta
     {
+        
     }
 }
 

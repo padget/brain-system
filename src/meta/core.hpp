@@ -306,16 +306,7 @@ namespace brain
                  typename ... funcs_t >
         using compose_ =
             core::compose_<func_t, funcs_t...>;
-
-        template < typename func_t,
-                 typename... front_args_t >
-        using bind_front_ =
-            core::bind_front_<func_t, front_args_t...>;
-
-        template < typename func_t,
-                 typename... back_args_t >
-        using bind_back_ =
-            core::bind_back_<func_t, back_args_t...>;
+            
 
         /// ////////// ///
         /// Lazy Alias ///
@@ -329,20 +320,20 @@ namespace brain
 
             template<typename ... types_t>
             struct void_ :
-                function_<meta::void_, types_t...>{};
+                    function_<meta::void_, types_t...> {};
 
             template<typename type_t>
             struct type_ :
-                function_<meta::type_, type_t>{};
+                    function_<meta::type_, type_t> {};
 
             template<typename type_t>
             struct idem_ :
-                function_<meta::idem_, type_t>{};
+                    function_<meta::idem_, type_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct is_same_ :
-                function_<meta::is_same_, type_t, other_t>{};
+                    function_<meta::is_same_, type_t, other_t> {};
 
 
             /// ////////// ///
@@ -352,40 +343,40 @@ namespace brain
 
             template<typename type_t>
             struct inc_ :
-                function_<meta::inc_, type_t>{};
+                    function_<meta::inc_, type_t> {};
 
             template<typename type_t>
             struct dec_ :
-                function_<meta::dec_, type_t>{};
+                    function_<meta::dec_, type_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct plus_ :
-                function_<meta::plus_, type_t, other_t>{};
+                    function_<meta::plus_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct minus_ :
-                function_<meta::minus_, type_t, other_t>{};
+                    function_<meta::minus_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct multiplies_ :
-                function_<meta::multiplies_, type_t, other_t>{};
+                    function_<meta::multiplies_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct divides_ :
-                function_<meta::divides_, type_t, other_t>{};
+                    function_<meta::divides_, type_t, other_t> {};
 
             template <typename type_t>
             struct negate_ :
-                function_<meta::negate_, type_t>{};
+                    function_<meta::negate_, type_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct modulus_ :
-                function_<meta::modulus_, type_t, other_t>{};
+                    function_<meta::modulus_, type_t, other_t> {};
 
 
             /// /////////// ///
@@ -396,64 +387,64 @@ namespace brain
             template < typename type_t,
                      typename other_t >
             struct equal_to_ :
-                function_<meta::equal_to_, type_t, other_t>{};
+                    function_<meta::equal_to_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct not_equal_to_ :
-                function_<meta::not_equal_to_, type_t, other_t>{};
+                    function_<meta::not_equal_to_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct greater_ :
-                function_<meta::greater_, type_t, other_t>{};
+                    function_<meta::greater_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct less_ :
-                function_<meta::less_, type_t, other_t>{};
+                    function_<meta::less_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct greater_equal_ :
-                function_<meta::greater_equal_, type_t, other_t>{};
+                    function_<meta::greater_equal_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct less_equal_ :
-                function_<meta::less_equal_, type_t, other_t>{};
+                    function_<meta::less_equal_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct bit_and_ :
-                function_<meta::bit_and_, type_t, other_t>{};
+                    function_<meta::bit_and_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct bit_or_ :
-                function_<meta::bit_or_, type_t, other_t>{};
+                    function_<meta::bit_or_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct bit_xor_ :
-                function_<meta::bit_xor_, type_t, other_t>{};
+                    function_<meta::bit_xor_, type_t, other_t> {};
 
             template < typename type_t,
                      typename other_t >
             struct bit_not_ :
-                function_<meta::bit_not_, type_t, other_t>{};
+                    function_<meta::bit_not_, type_t, other_t> {};
 
             template<typename ... bools_t>
             struct and_ :
-                function_<meta::and_, bools_t...>{};
+                    function_<meta::and_, bools_t...> {};
 
             template<typename ... bools_t>
             struct or_ :
-                function_<meta::or_, bools_t...>{};
+                    function_<meta::or_, bools_t...> {};
 
             template<typename bool_t>
             struct not_ :
-                function_<meta::not_, bool_t>{};
+                    function_<meta::not_, bool_t> {};
 
 
             /// /////////////// ///
@@ -471,35 +462,45 @@ namespace brain
                      typename lthen_t,
                      typename lelse_t >
             struct eval_if_ :
-                function_<meta::eval_if_, test_t, lthen_t, lelse_t>{};
+                    function_<meta::eval_if_, test_t, lthen_t, lelse_t> {};
 
 
             /// ////////// ///
             /// Pack alias ///
             /// ////////// ///
-     
-     
+
+
             template<typename pack_t>
             struct size_ :
-                function_<meta::size_, pack_t>{};
+                    function_<meta::size_, pack_t> {};
 
             template<typename ... packs_t>
             struct cat_ :
-                function_<meta::cat_, packs_t...>{};
+                    function_<meta::cat_, packs_t...> {};
 
             template < typename pack_t,
                      typename type_t >
             struct push_back_ :
-                function_<meta::push_back_, pack_t, type_t>{};
+                    function_<meta::push_back_, pack_t, type_t> {};
 
             template < typename pack_t,
                      typename type_t >
             struct push_front_ :
-                function_<meta::push_front_, pack_t, type_t>{};
+                    function_<meta::push_front_, pack_t, type_t> {};
 
             template<typename pack_t>
             struct clear_ :
-                function_<meta::clear_, pack_t>{};
+                    function_<meta::clear_, pack_t> {};
+
+            /// ////////////// ///
+            /// Function class ///
+            /// ////////////// ///
+
+
+            template < typename type_r,
+                     typename ... args_t >
+            using return_ =
+                function_<return_, type_r, args_t...>;
         }
     }
 }

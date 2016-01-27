@@ -30,7 +30,7 @@ namespace brain
                 /// Returns the result
                 /// of func_t
                 template<typename ... args_t>
-                using return_ = //core::type_<function_<func_t, args_t...>>;
+                using return_ =
                    core::eval_if_<
                     core::has_type_member<core::type_<core::function_<func_t, args_t...>>>, 
                     core::function_<type_, core::type_<core::function_<func_t, args_t...>> >, 
@@ -301,54 +301,6 @@ namespace brain
 
                 static_assert(v_<core::return_<is_int_true_compo, int>> , "");
             }
-
-
-            /// ///////////////////////// ///
-            /// Basic bind front and back ///
-            /// ///////////////////////// ///
-
-
-            /// Meta function that
-            /// binds the front_args_t...
-            /// at the beginning of
-            /// the parameters of the
-            /// meta function func_t
-            template < typename func_t,
-                     typename... front_args_t >
-            struct bind_front_
-            {
-                template<typename ... args_t>
-                using return_ =
-                    return_<func_t, front_args_t..., args_t...>;
-            };
-
-
-            /// Metafunction that
-            /// binds the back_args_t...
-            /// at the ending of
-            /// the parameters of the
-            /// meta function func_t
-            template < typename func_t,
-                     typename ... back_args_t >
-            struct bind_back_
-            {
-                template<typename ... args_t>
-                using return_ =
-                    return_<func_t, args_t..., back_args_t...>;
-            };
-
-
-            namespace test_bind_front_back
-            {
-                using is_float_front = bind_front_<function_class_<is_same_>, float>;
-                using is_float_back = bind_back_<function_class_<is_same_>, float>;
-
-                static_assert(v_<return_<is_float_front, float>>, "");
-                static_assert(v_<return_<is_float_back, float>>, "");
-                static_assert(!v_<return_<is_float_front, int>>, "");
-                static_assert(!v_<return_<is_float_back, int>>, "");
-            }
-
         }
     }
 }

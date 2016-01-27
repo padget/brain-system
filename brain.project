@@ -123,11 +123,12 @@ C:\users\benjamin\projets\code_lite_w\brain
       <VirtualDirectory Name="iterator">
         <File Name="src/meta/iterator/forward.hpp"/>
         <File Name="src/meta/iterator/bidirectionnal.hpp"/>
+        <File Name="src/meta/iterator/iteration.hpp"/>
+        <File Name="src/meta/iterator/algorithm.hpp"/>
       </VirtualDirectory>
+      <VirtualDirectory Name="sequence"/>
     </VirtualDirectory>
   </VirtualDirectory>
-  <Dependencies Name="Debug"/>
-  <Dependencies Name="Release"/>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="" C_Options="" Assembler="">
@@ -218,4 +219,6 @@ C:\users\benjamin\projets\code_lite_w\brain
       </Completion>
     </Configuration>
   </Settings>
+  <Dependencies Name="Debug"/>
+  <Dependencies Name="Release"/>
 </CodeLite_Project>
