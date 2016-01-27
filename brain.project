@@ -120,6 +120,10 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/meta/core/math.hpp"/>
         <File Name="src/meta/core/functionclass.hpp"/>
       </VirtualDirectory>
+      <VirtualDirectory Name="iterator">
+        <File Name="src/meta/iterator/forward.hpp"/>
+        <File Name="src/meta/iterator/bidirectionnal.hpp"/>
+      </VirtualDirectory>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

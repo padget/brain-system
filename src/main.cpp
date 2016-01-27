@@ -19,7 +19,7 @@ using namespace std;
 using return_int_if_is_float =
     lazy::if_<
         lazy::if_<
-            lazy::if_<
+            lazy::if_<  
                 _0_, 
                 _1_, 
                 _2_>, 
@@ -27,6 +27,7 @@ using return_int_if_is_float =
             _1_>, 
         _3_, 
         _4_>;
+        
 
 template<typename foo>
 struct void_r_
