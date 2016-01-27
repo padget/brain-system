@@ -15,17 +15,20 @@ namespace brain
             template < typename begin_t,
                      typename nb_steps_t >
             using advance_ =
-                navigate_next_ <
-                begin_t,
-                next_<last_valid_<begin_t>>,
-                idem_,
-                nil,
-                function_class_<idem_>,
-                meta::lazy::less_equal_<impl::distance_<begin_t, _0_>, nb_steps_t>,
-                default_accumulator_ >;
+                fold_ <
+                    begin_t,
+                    next_<last_valid_<begin_t>>,
+                    begin_t,
+                    meta::lazy::if_ <
+                        meta::lazy::less_ <
+                            iter::impl::distance_<begin_t, _1_>,
+                            nb_steps_t > ,
+                        member::next_<_1_>,
+                        _0_ >>;
 
 
-           /* namespace test_advance
+
+            namespace test_advance
             {
                 using begin_t = forward_iterator_builder_<pack<int, double, short>>;
 
@@ -43,7 +46,7 @@ namespace brain
                 static_assert(v_<is_same_<end_t, advance_<begin_t, long_<3>>>>, "");
 
                 static_assert(v_<is_same_<end_t, advance_<next1_t, long_<2>>>>, "");
-            }   */
+            }
         }
     }
 }

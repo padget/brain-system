@@ -31,9 +31,9 @@ namespace brain
                 /// of func_t
                 template<typename ... args_t>
                 using return_ =
-                   core::eval_if_<
-                    core::has_type_member<core::type_<core::function_<func_t, args_t...>>>, 
-                    core::function_<type_, core::type_<core::function_<func_t, args_t...>> >, 
+                    core::eval_if_ <
+                    core::has_type_member<core::type_<core::function_<func_t, args_t...>>>,
+                    core::function_<type_, core::type_<core::function_<func_t, args_t...>> >,
                     core::type_<core::function_<func_t, args_t...>>
                     >;
             };
@@ -50,32 +50,34 @@ namespace brain
             /// expression in
             /// declaration and
             /// call instantiation
-            template<typename index_t>
-            struct placeholder
+            template<unsigned index_t>
+            struct placeholder:
+                core::unsigned_<index_t>
             {
                 template<typename ... args_t>
-                using return_ = core::at_<pack<args_t...>, index_t>;
+                using return_ =
+                    core::at_<pack<args_t...>, core::unsigned_<index_t>>;
             };
 
 
             /// Predefined placeholders
             /// from 1 to 15
-            using _0_ = placeholder<long_<0>>;
-            using _1_ = placeholder<long_<1>>;
-            using _2_ = placeholder<long_<2>>;
-            using _3_ = placeholder<long_<3>>;
-            using _4_ = placeholder<long_<4>>;
-            using _5_ = placeholder<long_<5>>;
-            using _6_ = placeholder<long_<6>>;
-            using _7_ = placeholder<long_<7>>;
-            using _8_ = placeholder<long_<8>>;
-            using _9_ = placeholder<long_<9>>;
-            using _10_ = placeholder<long_<10>>;
-            using _11_ = placeholder<long_<11>>;
-            using _12_ = placeholder<long_<12>>;
-            using _13_ = placeholder<long_<13>>;
-            using _14_ = placeholder<long_<14>>;
-            using _15_ = placeholder<long_<15>>;
+            using _0_ = placeholder<0>;
+            using _1_ = placeholder<1>;
+            using _2_ = placeholder<2>;
+            using _3_ = placeholder<3>;
+            using _4_ = placeholder<4>;
+            using _5_ = placeholder<5>;
+            using _6_ = placeholder<6>;
+            using _7_ = placeholder<7>;
+            using _8_ = placeholder<8>;
+            using _9_ = placeholder<9>;
+            using _10_ = placeholder<10>;
+            using _11_ = placeholder<11>;
+            using _12_ = placeholder<12>;
+            using _13_ = placeholder<13>;
+            using _14_ = placeholder<14>;
+            using _15_ = placeholder<15>;
 
 
             namespace impl
@@ -87,6 +89,7 @@ namespace brain
                         false_;
                 };
 
+                
                 template < template<typename ...> typename type_t,
                          typename ... args_t >
                 struct is_placeholder_expression_<type_t<args_t...>>
@@ -95,8 +98,9 @@ namespace brain
                         core::or_<type_<is_placeholder_expression_<args_t>>...>;
                 };
 
-                template < template<typename> typename holder_t,
-                         typename  _rank >
+                
+                template < template<unsigned> typename holder_t,
+                         unsigned  _rank >
                 struct is_placeholder_expression_<holder_t<_rank>>
                 {
                     using type =
@@ -130,7 +134,7 @@ namespace brain
 
 
                 /// Specialization for
-                /// metafunction class 
+                /// metafunction class
                 /// that not be made of
                 /// placeholders
                 template < typename func_r,
@@ -142,7 +146,7 @@ namespace brain
                 };
 
 
-                template < typename index_t,
+                template < unsigned index_t,
                          typename ... args_t >
                 struct  return_<placeholder<index_t>, true_, args_t...>
                 {
@@ -201,7 +205,7 @@ namespace brain
                         core::function_<idem_, holders_t>
                         > ...
                         >;
-                };               
+                };
             }
 
 

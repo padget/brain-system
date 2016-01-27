@@ -267,7 +267,7 @@ namespace brain
         using function_class_ =
             core::function_class_<func_t>;
 
-        template<typename index_t>
+        template<unsigned index_t>
         using placeholder =
             core::placeholder<index_t>;
 

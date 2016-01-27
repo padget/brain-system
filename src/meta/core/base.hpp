@@ -22,9 +22,10 @@
     };
 
 #  define access_(name) \
+    namespace member{template<typename type_t> struct name##_{using type = typename type_t::name;};} \
     template<typename type_t> \
     using name##_ = \
-                    typename type_t::name;
+                    typename member::name##_<type_t>::type;
 
 
 #  define member_(name) \
