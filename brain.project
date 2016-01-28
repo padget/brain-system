@@ -127,6 +127,7 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/meta/iterator/algorithm.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="sequence"/>
+      <File Name="src/meta/unitary.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Executable">

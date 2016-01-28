@@ -20,13 +20,7 @@
 /// # include "view.hpp"
 /// # include "algorithm.hpp"
 
-namespace brain
-{
-    namespace meta
-    {
-        
-    }
-}
+# include "unitary.hpp"
 
 
 #endif
