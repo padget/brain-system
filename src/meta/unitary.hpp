@@ -317,6 +317,8 @@ namespace meta
         using next1_t = next_<begin_t>; /// double
         using next2_t = next_<next1_t>; /// short
         using end_t = next_<next2_t>; /// nil
+        
+        using begin2_t = forward_iterator_builder_<pack<int, int, short>>;
 
         /// Effective test
         static_assert(v_<is_same_<begin_t, advance_<begin_t, long_<0>>>>, "");
@@ -330,8 +332,10 @@ namespace meta
 
         static_assert(v_<is_same_<find_if_<begin_t, end_t, lambda<lazy::is_same_<next_<begin_t>, _0_> > > , next_<begin_t> > >, "");
         static_assert(v_<is_same_<find_<begin_t, end_t, item_<next_<begin_t>>> , next_<begin_t>> > , "");
+        static_assert(v_<equal_to_<count_if_<begin2_t, next_<last_valid_<begin2_t>>, lambda<lazy::is_same_<int, lazy::item_<_0_>>>>, unsigned_<2>>> , "");
+        static_assert(v_<equal_to_<count_<begin2_t, next_<last_valid_<begin2_t>>, int> , unsigned_<2>>> , "");
+        static_assert(v_<contains_<begin2_t, next_<last_valid_<begin2_t>>, int>>, "");
     }
-
 }
 
 #endif
