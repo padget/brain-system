@@ -106,12 +106,9 @@ C:\users\benjamin\projets\code_lite_w\brain
     <VirtualDirectory Name="meta">
       <File Name="src/meta/core.hpp"/>
       <File Name="src/meta/string.hpp"/>
-      <File Name="src/meta/algorithm.hpp" ExcludeProjConfig=""/>
       <File Name="src/meta/runtime.hpp"/>
       <File Name="src/meta/meta.hpp"/>
       <File Name="src/meta/iterator.hpp"/>
-      <File Name="src/meta/sequence.hpp"/>
-      <File Name="src/meta/view.hpp"/>
       <VirtualDirectory Name="core">
         <File Name="src/meta/core/base.hpp"/>
         <File Name="src/meta/core/pack.hpp"/>
@@ -126,8 +123,12 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/meta/iterator/iteration.hpp"/>
         <File Name="src/meta/iterator/algorithm.hpp"/>
       </VirtualDirectory>
-      <VirtualDirectory Name="sequence"/>
+      <VirtualDirectory Name="sequence">
+        <File Name="src/meta/sequence/sequence.hpp"/>
+        <File Name="src/meta/sequence/view.hpp"/>
+      </VirtualDirectory>
       <File Name="src/meta/unitary.hpp"/>
+      <File Name="src/meta/sequence.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Executable">
