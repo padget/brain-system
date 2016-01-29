@@ -47,18 +47,19 @@ namespace meta
     /// expression in
     /// declaration and
     /// call instantiation
-    template<unsigned index_t>
+    template<int index_t>
     struct placeholder:
-            unsigned_<index_t>
+            int_<index_t>
     {
         template<typename ... args_t>
         using return_ =
-            at_<pack<args_t...>, unsigned_<index_t>>;
+            at_<pack<args_t...>, int_<index_t>>;
     };
 
 
     /// Predefined placeholders
     /// from 1 to 15
+    using ___ = placeholder < -1 >; /// TODO see use of ___
     using _0_ = placeholder<0>;
     using _1_ = placeholder<1>;
     using _2_ = placeholder<2>;
@@ -96,8 +97,8 @@ namespace meta
         };
 
 
-        template < template<unsigned> typename holder_t,
-                 unsigned  _rank >
+        template < template<int> typename holder_t,
+                 int  _rank >
         struct is_placeholder_expression_<holder_t<_rank>>
         {
             using type =
@@ -109,6 +110,11 @@ namespace meta
     template<typename type_t>
     using is_placeholder_expression_ =
         type_<impl::is_placeholder_expression_<type_t>>;
+
+
+    template<typename type_t>
+    using is_neutral_placeholder_ =
+        is_same_<___, type_t>;
 
 
     namespace impl
@@ -141,14 +147,6 @@ namespace meta
         };
 
 
-        template < unsigned index_t,
-                 typename ... args_t >
-        struct  return_<meta::placeholder<index_t>, meta::true_, args_t...>
-        {
-            using type =
-                typename meta::placeholder<index_t>::template return_<args_t...>;
-        };
-
 
         template < template<typename ...> typename func_t,
                  typename ... holders_t,
@@ -159,6 +157,15 @@ namespace meta
                 bind_<function_class_<func_t>, holders_t...>;
             using type =
                 meta::type_<return_<bind, meta::true_, args_t...>>;
+        };
+
+
+        template < int index_t,
+                 typename ... args_t >
+        struct  return_<meta::placeholder<index_t>, meta::true_, args_t...>
+        {
+            using type =
+                typename meta::placeholder<index_t>::template return_<args_t...>;
         };
 
 
@@ -186,7 +193,6 @@ namespace meta
                  typename ... holders_t >
         struct bind_
         {
-
             using type =
                 bind_;
 
@@ -195,12 +201,19 @@ namespace meta
                 typename func_r::
                 template return_ <
                 meta::eval_if_ <
+                meta::and_ <
                 meta::is_placeholder_expression_<holders_t>,
-                return_ <
-                holders_t,
-                meta::is_placeholder_expression_<holders_t>,
-                reals_t... > ,
+                meta::not_<meta::is_neutral_placeholder_<holders_t> >> ,
+                return_<holders_t, meta::is_placeholder_expression_<holders_t>, reals_t... > ,
                 meta::function_<idem_, holders_t >> ... >;
+        };
+
+        template < typename index_t,
+                 typename ... reals_t >
+        struct default_bind_
+        {
+            using type =
+                meta::at_<pack<reals_t...>, index_t>;
         };
     }
 
@@ -238,7 +251,7 @@ namespace meta
     {
         template<typename lfunc_t>
         struct lambda:
-                meta::function_<meta::lambda, lfunc_t>{};
+                meta::function_<meta::lambda, lfunc_t> {};
     }
 
 

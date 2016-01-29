@@ -88,7 +88,7 @@ namespace meta
             begin_t, 
             end_t, 
             pack<>, 
-            lambda<lazy::push_back_<_0_, bind_<func_r, _1_>>>>;
+            lambda<lazy::push_back_<_0_, bind_<func_r, lazy::item_<_1_>>>>>;
         
         
     template<typename begin_t, 
@@ -99,10 +99,7 @@ namespace meta
         transform_<
             begin_t, 
             end_t, 
-            lazy::if_<
-                bind_<pred_r, _1_>, 
-                new_t, 
-                _1_>>;
+            lambda<lazy::if_<bind_<pred_r, _0_>, new_t, _0_>>>;
                 
                 
     template<typename begin_t, 
@@ -114,7 +111,7 @@ namespace meta
             begin_t, 
             end_t,
             new_t, 
-            lambda<lazy::is_same_<old_t, lazy::item_<_1_>>>>;
+            lambda<lazy::is_same_<old_t, _0_>>>;
             
     template<typename begin_t, 
             typename end_t, 

@@ -76,6 +76,7 @@ namespace meta
         static_assert(v_<lazy::not_equal_to_<one, two>>, "");
         static_assert(v_<lazy::greater_<two, one>>, "");
         static_assert(v_<lazy::less_<one, two>>, "");
+        static_assert(!v_<lazy::less_<two, one>>, "");
         static_assert(v_<lazy::greater_equal_<two, one>>, "");
         static_assert(v_<lazy::greater_equal_<one, one>>, "");
         static_assert(v_<lazy::less_equal_<one, two>>, "");
@@ -139,8 +140,6 @@ namespace meta
         static_assert(v_<is_same_<int, at_<p, unsigned_<0>>>>, "");
         static_assert(v_<is_same_<short, at_<p, unsigned_<1>>>>, "");
         static_assert(v_<is_same_<double, at_<p, unsigned_<2>>>>, "");
-        static_assert(v_<is_same_<nil, at_<p, unsigned_<3>>>>, "");
-        static_assert(v_ < is_same_ < nil, at_ < p, unsigned_ < -1 >>> > , "");
 
         static_assert(v_<is_same_<clear_<p>, pack<>>>, "");
 
@@ -165,8 +164,6 @@ namespace meta
         static_assert(v_<is_same_<int, type_<lazy::at_<p, unsigned_<0>>>>>, "");
         static_assert(v_<is_same_<short, type_<lazy::at_<p, unsigned_<1>>>>>, "");
         static_assert(v_<is_same_<double, type_<lazy::at_<p, unsigned_<2>>>>>, "");
-        static_assert(v_<is_same_<nil, type_<lazy::at_<p, unsigned_<3>>>>>, "");
-        static_assert(v_ < is_same_ < nil, type_ < lazy::at_ < p, unsigned_ < -1 >>> > > , "");
 
         static_assert(v_<is_same_<clear_<p>, pack<>>>, "");
     }
@@ -317,7 +314,7 @@ namespace meta
         using next1_t = next_<begin_t>; /// double
         using next2_t = next_<next1_t>; /// short
         using end_t = next_<next2_t>; /// nil
-        
+
         using begin2_t = forward_iterator_builder_<pack<int, int, short>>;
 
         /// Effective test
@@ -335,6 +332,12 @@ namespace meta
         static_assert(v_<equal_to_<count_if_<begin2_t, next_<last_valid_<begin2_t>>, lambda<lazy::is_same_<int, lazy::item_<_0_>>>>, unsigned_<2>>> , "");
         static_assert(v_<equal_to_<count_<begin2_t, next_<last_valid_<begin2_t>>, int> , unsigned_<2>>> , "");
         static_assert(v_<contains_<begin2_t, next_<last_valid_<begin2_t>>, int>>, "");
+
+        using func_r = lambda<lazy::if_<true_, short, _0_>>;
+        using pred_r = lambda<lazy::is_same_<short, _0_>>;
+
+        static_assert(v_<is_same_<transform_<begin_t, end_t, func_r>, pack<short, short, short>>>, "");
+        /// static_assert(v_<is_same_<replace_if_<begin_t, end_t, int, pred_r>, pack<int, double, int>>>, "");
     }
 }
 

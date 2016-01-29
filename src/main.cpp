@@ -59,18 +59,13 @@ using namespace meta;
 /// Main function for
 /// C++ compiler.
 int main()
-{
+{                       
+   
+//   using res = return_<bind_<function_class_<lazy::greater_> , _1_, _0_>, int_<1>, int_<2>>;
+    using res = return_<bind_<function_class_<lazy::plus_>, _0_, ___>, int_<1>, int_<2> >;
 
-    using binded = 
-        bind_<function_class_<is_same_>, _1_, int>;
-        
-    std::cout << typeid(binded).name() << std::endl;
-    
-     using binded2 = 
-            bind_<binded, int, _1_>;
-            
-    using res = return_<binded2, int>;
-        
-    std::cout << typeid(res).name() << std::endl;
+
+     //std::cout << typeid(res).name() << std::endl;
+    std::cout << std::boolalpha << v_<res> << std::endl;
     return 0;
 }
