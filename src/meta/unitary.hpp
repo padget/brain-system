@@ -327,8 +327,8 @@ namespace meta
         static_assert(v_<is_same_<end_t, advance_<begin_t, long_<3>>>>, "");
         static_assert(v_<is_same_<end_t, advance_<next1_t, long_<2>>>>, "");
 
-        static_assert(v_<is_same_<find_if_<begin_t, end_t, lambda<lazy::is_same_<next_<begin_t>, _0_> > > , next_<begin_t> > >, "");
-        static_assert(v_<is_same_<find_<begin_t, end_t, item_<next_<begin_t>>> , next_<begin_t>> > , "");
+        static_assert(v_<is_same_<find_if_<begin_t, end_t, lambda<lazy::is_same_<next_<begin_t>, _0_>>> , next_<begin_t>>>, "");
+        static_assert(v_<is_same_<find_<begin_t, end_t, item_<next_<begin_t>>> , next_<begin_t>>> , "");
         static_assert(v_<equal_to_<count_if_<begin2_t, next_<last_valid_<begin2_t>>, lambda<lazy::is_same_<int, lazy::item_<_0_>>>>, unsigned_<2>>> , "");
         static_assert(v_<equal_to_<count_<begin2_t, next_<last_valid_<begin2_t>>, int> , unsigned_<2>>> , "");
         static_assert(v_<contains_<begin2_t, next_<last_valid_<begin2_t>>, int>>, "");
@@ -337,7 +337,10 @@ namespace meta
         using pred_r = lambda<lazy::is_same_<short, _0_>>;
 
         static_assert(v_<is_same_<transform_<begin_t, end_t, func_r>, pack<short, short, short>>>, "");
-        /// static_assert(v_<is_same_<replace_if_<begin_t, end_t, int, pred_r>, pack<int, double, int>>>, "");
+        static_assert(v_<is_same_<replace_if_<begin_t, end_t, int, pred_r>, pack<int, double, int>>>, "");
+        static_assert(v_<is_same_<replace_<begin_t, end_t, int, short>, pack<short, double, short>>>, "");
+        static_assert(v_<is_same_<remove_if_<begin_t, end_t, pred_r>, pack<int, double>>>, "");
+        static_assert(v_<is_same_<remove_<begin_t, end_t, short>, pack<int, double>>>, "");
     }
 }
 

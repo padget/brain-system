@@ -142,12 +142,15 @@ namespace meta
                  typename index_t >
         struct at_<pack_t<type_t, types_t...>, index_t>
         {
-            using tmp = index_t;
             using type =
                 meta::eval_if_ <
                 meta::equal_to_<index_t, meta::unsigned_<0>>,
                 lazy::idem_<type_t>,
                 at_<pack_t<types_t...>, meta::dec_<index_t> >>;
+
+            static_assert(
+                !meta::v_<meta::is_same_<meta::nil, type>>,
+                "at_ : [OVERFLOW] index_t is out of parameters pack boundaries !!") ;
         };
 
 
@@ -158,12 +161,8 @@ namespace meta
                  typename index_t >
         struct at_<pack_t<>, index_t>
         {
-            static_assert(
-                meta::v_<meta::equal_to_<index_t, meta::int_<0>>>,
-                "at_ : [OVERFLOW] index_t is out of parameters pack boundaries !!");
             /// Only here because of use it,
             /// but compilation failed thanks to below
-            using tmp = index_t;
             using type =
                 meta::nil;
 
@@ -207,7 +206,7 @@ namespace meta
         type_<impl::clear_<pack_t>>;
 
 
-   
+
 
 
     namespace lazy

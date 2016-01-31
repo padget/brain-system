@@ -71,7 +71,7 @@ namespace meta
         count_if_<
             begin_t, 
             end_t, 
-            lambda<lazy::is_same_<target_t, lazy::item_<_0_>>>>;
+            lambda<lazy::is_same_<target_t, lazy::item_<___>>>>;
             
     template<typename begin_t,
             typename end_t, 
@@ -88,7 +88,7 @@ namespace meta
             begin_t, 
             end_t, 
             pack<>, 
-            lambda<lazy::push_back_<_0_, bind_<func_r, lazy::item_<_1_>>>>>;
+            lazy::push_back_<_0_, bind_<func_r, lazy::item_<_1_>>>>;
         
         
     template<typename begin_t, 
@@ -122,9 +122,9 @@ namespace meta
             end_t, 
             pack<>, 
             lazy::if_<
-                bind_<pred_r, _1_>, 
+                bind_<pred_r, lazy::item_<_1_>>, 
                 _0_,
-                lazy::push_back_<_0_, _1_>>>;
+                lazy::push_back_<_0_, lazy::item_<_1_>>>>;
     
 
     template<typename begin_t, 
@@ -135,6 +135,7 @@ namespace meta
             begin_t, 
             end_t, 
             lambda<lazy::is_same_<deleted_t, _0_>>>;
+
 
     namespace lazy
     {

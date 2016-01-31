@@ -5,6 +5,7 @@
 # include "math.hpp"
 # include "select.hpp"
 # include "pack.hpp"
+# include <utility>
 
 namespace meta
 {
@@ -30,7 +31,7 @@ namespace meta
         using return_ =
             eval_if_ <
             has_type_member<type_<function_<func_t, args_t...>>>,
-            function_<type_, type_<function_<func_t, args_t...>> >,
+            function_<type_, type_<function_<func_t, args_t...>>>,
             type_<function_<func_t, args_t...>>
             >;
     };
@@ -59,7 +60,7 @@ namespace meta
 
     /// Predefined placeholders
     /// from 1 to 15
-    using ___ = placeholder < -1 >; /// TODO see use of ___
+    using ___ = placeholder < -1 >; 
     using _0_ = placeholder<0>;
     using _1_ = placeholder<1>;
     using _2_ = placeholder<2>;
@@ -124,7 +125,8 @@ namespace meta
 
 
         template < typename func_r,
-                 typename ... holders_t >
+                 typename holders_t,
+                 typename indexes_t >
         struct bind_;
 
 
@@ -154,7 +156,7 @@ namespace meta
         struct  return_<func_t<holders_t...>, true_, args_t...>
         {
             using bind =
-                bind_<function_class_<func_t>, holders_t...>;
+                bind_<function_class_<func_t>, pack<holders_t...>, std::make_index_sequence<sizeof...(holders_t)>>;
             using type =
                 meta::type_<return_<bind, meta::true_, args_t...>>;
         };
@@ -171,11 +173,12 @@ namespace meta
 
         template < typename func_r,
                  typename ... bind_args_t,
+                 std::size_t... indexes_t,
                  typename ... args_t >
-        struct return_<bind_<func_r, bind_args_t...>, true_, args_t...>
+        struct return_<bind_<func_r, pack<bind_args_t...>, std::index_sequence<indexes_t...>>, true_, args_t...>
         {
             using type =
-                typename bind_<func_r, bind_args_t...>::template return_<args_t...>;
+                typename bind_<func_r, pack<bind_args_t...>, std::index_sequence<indexes_t...>>::template return_<args_t...>;
         };
     }
 
@@ -190,8 +193,12 @@ namespace meta
     namespace impl
     {
         template < typename func_r,
-                 typename ... holders_t >
-        struct bind_
+                 typename ... holders_t,
+                 std::size_t ... indexes_t >
+        struct bind_ <
+                func_r,
+                pack<holders_t...>,
+                std::index_sequence<indexes_t... >>
         {
             using type =
                 bind_;
@@ -201,19 +208,12 @@ namespace meta
                 typename func_r::
                 template return_ <
                 meta::eval_if_ <
-                meta::and_ <
-                meta::is_placeholder_expression_<holders_t>,
-                meta::not_<meta::is_neutral_placeholder_<holders_t> >> ,
-                return_<holders_t, meta::is_placeholder_expression_<holders_t>, reals_t... > ,
-                meta::function_<idem_, holders_t >> ... >;
-        };
-
-        template < typename index_t,
-                 typename ... reals_t >
-        struct default_bind_
-        {
-            using type =
-                meta::at_<pack<reals_t...>, index_t>;
+                    meta::is_placeholder_expression_<holders_t> ,
+                    lazy::eval_if_<
+                        meta::is_neutral_placeholder_<holders_t>, 
+                        return_<placeholder<indexes_t>, true_, reals_t...>,
+                        return_<holders_t, meta::is_placeholder_expression_<holders_t>, reals_t...>>,
+                    meta::function_<idem_, holders_t >> ... >;
         };
     }
 
@@ -221,7 +221,7 @@ namespace meta
     template < typename func_r,
              typename ... holders_t >
     using bind_ =
-        type_<impl::bind_<func_r, holders_t...>>;
+        type_<impl::bind_<func_r, pack<holders_t...>, std::make_index_sequence<sizeof...(holders_t)>>>;
 
 
     namespace impl
@@ -233,7 +233,7 @@ namespace meta
                  typename ... holders_t >
         struct lambda <func_t<holders_t...>>
         {
-            using type = bind_<function_class_<func_t>, holders_t...>;
+            using type = bind_<function_class_<func_t>, pack<holders_t...>, std::make_index_sequence<sizeof...(holders_t)>>;
 
             template<typename ... reals_t>
             using return_ =
