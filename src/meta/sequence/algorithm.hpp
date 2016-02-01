@@ -43,7 +43,7 @@ namespace meta
             meta::end_<sequence_t>,
             target_t >;
 
-        template <typename sequence_t,
+        template < typename sequence_t,
                  typename target_t >
         using contains_ =
             meta::contains_ <
@@ -51,19 +51,21 @@ namespace meta
             meta::end_<sequence_t>,
             target_t >;
 
-        template <typename sequence_t,
+        template < typename sequence_t,
                  typename func_r >
         using transform_ =
-            meta::clone_<sequence_t, meta::transform_ <
+            meta::clone_ < sequence_t,
+            meta::transform_ <
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             func_r >>;
 
-        template <typename sequence_t,
+        template < typename sequence_t,
                  typename new_t,
                  typename pred_r >
         using replace_if_ =
-            meta::clone_<sequence_t, meta::replace_if_ <
+            meta::clone_ < sequence_t,
+            meta::replace_if_ <
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             new_t,
@@ -73,7 +75,8 @@ namespace meta
                  typename old_t,
                  typename new_t >
         using replace_ =
-            meta::clone_<sequence_t, meta::replace_ <
+            meta::clone_ < sequence_t,
+            meta::replace_ <
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             old_t,
@@ -82,18 +85,28 @@ namespace meta
         template < typename sequence_t,
                  typename pred_r >
         using remove_if_ =
-            meta::clone_<sequence_t, meta::remove_if_ <
+            meta::clone_ < sequence_t,
+            meta::remove_if_ <
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             pred_r >>;
 
-        template <typename sequence_t,
+        template < typename sequence_t,
                  typename deleted_t >
         using remove_ =
-            meta::clone_<sequence_t, meta::remove_ <
+            meta::clone_ < sequence_t,
+            meta::remove_ <
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             deleted_t >>;
+
+
+        template<typename sequence_t>
+        using reverse_ =
+            meta::clone_ < sequence_t,
+            meta::reverse_ <
+            meta::begin_<sequence_t>,
+            meta::end_<sequence_t >>>;
     }
 }
 #endif

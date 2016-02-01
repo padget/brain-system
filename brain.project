@@ -105,7 +105,6 @@ C:\users\benjamin\projets\code_lite_w\brain
     </VirtualDirectory>
     <VirtualDirectory Name="meta">
       <File Name="src/meta/core.hpp"/>
-      <File Name="src/meta/string.hpp"/>
       <File Name="src/meta/runtime.hpp"/>
       <File Name="src/meta/meta.hpp"/>
       <File Name="src/meta/iterator.hpp"/>
@@ -116,6 +115,7 @@ C:\users\benjamin\projets\code_lite_w\brain
         <File Name="src/meta/core/logic.hpp"/>
         <File Name="src/meta/core/math.hpp"/>
         <File Name="src/meta/core/functionclass.hpp"/>
+        <File Name="src/meta/string.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="iterator">
         <File Name="src/meta/iterator/forward.hpp"/>
@@ -131,6 +131,11 @@ C:\users\benjamin\projets\code_lite_w\brain
       </VirtualDirectory>
       <File Name="src/meta/unitary.hpp"/>
       <File Name="src/meta/sequence.hpp"/>
+      <VirtualDirectory Name="calculation">
+        <File Name="src/meta/calculation/functions.hpp"/>
+        <File Name="src/meta/calculation/matrix.hpp"/>
+      </VirtualDirectory>
+      <File Name="src/meta/calculation.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Executable">

@@ -12,12 +12,13 @@
 #include <iostream>
 //#include "test/utest/utest.hpp"
 
-using namespace std;
+//using namespace std;
 using namespace meta;
 
 /// Main function for
 /// C++ compiler.
 int main()
 {
+    std::cout << typeid(pow_<fraction<int_<32>, int_<2>>, int_<2>>).name() << std::endl;
     return 0;
 }

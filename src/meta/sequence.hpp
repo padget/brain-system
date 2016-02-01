@@ -4,5 +4,6 @@
 # include "sequence/sequence.hpp"
 # include "sequence/view.hpp"
 # include "sequence/algorithm.hpp"
+# include "sequence/map.hpp"
 
 #endif

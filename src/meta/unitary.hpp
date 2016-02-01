@@ -379,6 +379,9 @@ namespace meta
 
     namespace test_map
     {
+        using a_map = map<pair<int_<0>, int>, pair<int_<1>, double>>;
+        static_assert(v_<defined_<a_map, int_<1>>>, "");
+        static_assert(v_<is_same_<value_of_<a_map, int_<0>>, int> >, "");
     }
 }
 

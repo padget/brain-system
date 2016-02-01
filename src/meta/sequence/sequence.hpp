@@ -99,14 +99,43 @@ namespace meta
         item_<last_valid_<begin_<sequence_t>>>;
 
 
-    /// Unitary test of
-    /// front_ and back_
-    namespace test_front_back
+    namespace lazy
     {
-        using seq_t = forward_list<int, short>;
+        /// Lazy signature
+        /// of begin_
+        template<typename type_t>
+        struct begin_ :
+            meta::function_<meta::begin_, type_t>{};
 
-        static_assert(v_<is_same_<int, front_<seq_t>>>, "");
-        static_assert(v_<is_same_<short, back_<seq_t>>>, "");
+
+
+         /// Lazy signature
+        /// of end_
+        template<typename type_t>
+        struct end_ :
+            meta::function_<meta::end_, type_t>{};
+
+
+        /// Lazy signature
+        /// of clone_
+        template < typename sequence_t,
+                 typename pack_t >
+        struct clone_ :
+            meta::function_<meta::clone_, sequence_t, pack_t>{};
+
+
+         /// Lazy signature
+        /// of front_
+        template<typename sequence_t>
+        struct front_ :
+           meta::function_<meta::front_, sequence_t>{};
+
+
+        /// Lazy signature
+        /// of back_
+        template<typename sequence_t>
+        struct back_ :
+           meta::function_<meta::back_, sequence_t>{};
     }
 }
 

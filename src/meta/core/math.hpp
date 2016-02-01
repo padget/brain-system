@@ -84,6 +84,12 @@ namespace meta
     template<std::size_t _s>
     using size_t_ =
         igral_<std::size_t, _s>;
+        
+        
+    /// 
+    template<typename igral_t>
+    using to_bool_ = 
+        bool_<v_<igral_t>>;
 
 
 

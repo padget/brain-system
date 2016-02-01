@@ -7,6 +7,7 @@
 
 namespace meta
 {
+    /// TODO DOC
 
     template < typename begin_t,
              typename nb_steps_t >
@@ -27,18 +28,17 @@ namespace meta
              typename end_t,
              typename pred_r >
     using find_if_ =
-        fold_ <
-        begin_t,
-        end_t,
-        end_t,
-        lazy::if_ <
-        bind_<pred_r, _0_>,
-        _0_,
-        lazy::if_ <
-        bind_<pred_r, _1_>,
-        _1_,
-        _0_
-        >>>;
+        at_<
+            fold_ <
+                begin_t,
+                end_t,
+                pack<>,
+                lazy::if_ <
+                    bind_<pred_r, _1_>,
+                    lazy::push_back_<___, ___>,
+                    _0_> >, 
+            int_<0>>;
+
 
     template < typename begin_t,
              typename end_t,
@@ -220,6 +220,7 @@ namespace meta
                  typename deleted_t >
         struct remove_ :
                 meta::function_<meta::transform_, begin_t, end_t, deleted_t> {};
+
 
         template < typename begin_t,
              typename end_t >
