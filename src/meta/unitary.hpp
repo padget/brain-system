@@ -191,7 +191,7 @@ namespace meta
     /// of forward.hpp
     namespace test_forward
     {
-        using begin_t = forward_iterator_builder_<pack<int, double, float>>;
+        using begin_t = forward_iterator_builder_<int, double, float>;
 
         using next1_t = next_<begin_t>;
         using next2_t = next_<next1_t>;
@@ -246,7 +246,7 @@ namespace meta
     /// of bidirectionnal.hpp
     namespace test_bidirectionnal
     {
-        using begin_t = bidirectional_iterator_builder_<pack<int, double, float>>;
+        using begin_t = bidirectional_iterator_builder_<int, double, float>;
         using next1_t = next_<begin_t>;
         using next2_t = next_<next1_t>;
         using end_t = next_<next2_t>;
@@ -256,7 +256,7 @@ namespace meta
         using prev1_t = prev_<prev2_t>;
         using prev0_t = prev_<prev1_t>;
 
-        using begin2_t = bidirectional_iterator_builder_<pack<int, short, double, float>>;
+        using begin2_t = bidirectional_iterator_builder_<int, short, double, float>;
         using a_range = clone_bidirectional_<next_<begin2_t>, next_<last_valid_<begin2_t>>>;
 
         /// Effective test
@@ -309,13 +309,13 @@ namespace meta
     /// of algorithm.hpp
     namespace test_algorithm
     {
-        using begin_t = forward_iterator_builder_<pack<int, double, short>>;
+        using begin_t = bidirectional_iterator_builder_<int, double, short>;
 
         using next1_t = next_<begin_t>; /// double
         using next2_t = next_<next1_t>; /// short
         using end_t = next_<next2_t>; /// nil
 
-        using begin2_t = forward_iterator_builder_<pack<int, int, short>>;
+        using begin2_t = forward_iterator_builder_<int, int, short>;
 
         /// Effective test
         static_assert(v_<is_same_<begin_t, advance_<begin_t, long_<0>>>>, "");
@@ -341,6 +341,44 @@ namespace meta
         static_assert(v_<is_same_<replace_<begin_t, end_t, int, short>, pack<short, double, short>>>, "");
         static_assert(v_<is_same_<remove_if_<begin_t, end_t, pred_r>, pack<int, double>>>, "");
         static_assert(v_<is_same_<remove_<begin_t, end_t, short>, pack<int, double>>>, "");
+        static_assert(v_<is_same_<reverse_<begin_t, end_t>, pack<short, double, int>>>, "");
+    }
+
+
+    /// Unitary test
+    /// for sequence.hpp
+    namespace test_sequence
+    {
+    }
+
+
+    /// Unitary test
+    /// for view.hpp
+    namespace test_view
+    {
+    }
+
+    namespace test_algorithm_sequence
+    {
+        using sequence_t = list<int, double, short>;
+        using begin_t = begin_<sequence_t>;
+
+        using next1_t = next_<begin_t>; /// double
+        using next2_t = next_<next1_t>; /// short
+        using end_t = next_<next2_t>; /// nil
+
+        using func_r = lambda<lazy::if_<true_, short, _0_>>;
+        using pred_r = lambda<lazy::is_same_<short, _0_>>;
+
+        static_assert(v_<is_same_<seq::transform_<sequence_t, func_r>, list<short, short, short>>>, "");
+        static_assert(v_<is_same_<seq::replace_if_<sequence_t, int, pred_r>, list<int, double, int>>>, "");
+        static_assert(v_<is_same_<seq::replace_<sequence_t, int, short>, list<short, double, short>>>, "");
+        static_assert(v_<is_same_<seq::remove_if_<sequence_t, pred_r>, list<int, double>>>, "");
+        static_assert(v_<is_same_<seq::remove_<sequence_t, short>, list<int, double>>>, "");
+    }
+
+    namespace test_map
+    {
     }
 }
 

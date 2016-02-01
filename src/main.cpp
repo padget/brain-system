@@ -18,6 +18,6 @@ using namespace meta;
 /// Main function for
 /// C++ compiler.
 int main()
-{                       
+{
     return 0;
 }

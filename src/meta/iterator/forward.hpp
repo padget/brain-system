@@ -135,7 +135,7 @@ namespace meta
         /// to the next
         /// iterator
         using next =
-            type_<next_builder_t>;
+            type_<next_builder_t>;        
     };
 
 
@@ -192,9 +192,9 @@ namespace meta
     }
 
 
-    template<typename pack_t>
+    template<typename ... types_t>
     using forward_iterator_builder_ =
-        type_<impl::forward_iterator_builder_<pack_t>>;
+        type_<impl::forward_iterator_builder_<pack<types_t...>>>;
 
 
     template<typename iterator_t>

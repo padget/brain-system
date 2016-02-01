@@ -126,6 +126,8 @@ C:\users\benjamin\projets\code_lite_w\brain
       <VirtualDirectory Name="sequence">
         <File Name="src/meta/sequence/sequence.hpp"/>
         <File Name="src/meta/sequence/view.hpp"/>
+        <File Name="src/meta/sequence/algorithm.hpp"/>
+        <File Name="src/meta/sequence/map.hpp"/>
       </VirtualDirectory>
       <File Name="src/meta/unitary.hpp"/>
       <File Name="src/meta/sequence.hpp"/>

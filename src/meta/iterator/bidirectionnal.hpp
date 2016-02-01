@@ -142,9 +142,9 @@ namespace meta
 
     }
 
-    template<typename pack_t>
+    template<typename ... types_t>
     using bidirectional_iterator_builder_ =
-        type_<impl::bidirectional_iterator_builder_<pack_t>>;
+        type_<impl::bidirectional_iterator_builder_<pack<types_t...>>>;
 
 
 

@@ -206,6 +206,25 @@ namespace meta
         type_<impl::clear_<pack_t>>;
 
 
+    namespace impl
+    {
+        template < template<typename ...> typename target_t,
+                 typename pack_t >
+        struct unpack;
+
+        template < template<typename ...> typename target_t,
+                 template<typename ...> typename pack_t,
+                 typename... types_t >
+        struct unpack<target_t, pack_t<types_t...>>
+        {
+            using type = target_t<types_t...>;
+        };
+    }
+
+    template < template<typename ...> typename target_t,
+             typename pack_t >
+    using unpack =
+        meta::type_<impl::unpack<target_t, pack_t>>;
 
 
 

@@ -38,13 +38,14 @@ namespace meta
     using fold_ =
         meta::type_<impl::fold_<begin_t, end_t, state_t, accum_r>>;
 
+
     namespace impl
     {
         template < typename begin_t,
                  typename end_t,
                  typename state_t,
                  typename accum_r >
-        struct rfold_ /// TODO To TEST !!!!!!!!!!!!!!!!!!!!
+        struct rfold_
         {
             using _tmp =
                 meta::return_<accum_r, state_t, prev_<end_t>>;
@@ -59,7 +60,7 @@ namespace meta
         struct rfold_<begin_t, begin_t, state_t, accum_r>
         {
             using type =
-                meta::return_<accum_r, state_t, begin_t>;
+                state_t;
         };
     }
 
@@ -69,7 +70,6 @@ namespace meta
              typename accum_r >
     using rfold_ =
         meta::type_<impl::rfold_<begin_t, end_t, state_t, accum_r>>;
-
 }
 
 #endif
