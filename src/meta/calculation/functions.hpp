@@ -20,7 +20,7 @@ namespace meta
         using type =
             fraction;
 
-        static decltype(v_<meta::divides_<num, denom>>) value = v_<meta::divides_<num, denom>>;
+        static constexpr decltype(v_<meta::divides_<num, denom>>) value = v_<meta::divides_<num, denom>>;
     };
 
 
@@ -97,30 +97,49 @@ namespace meta
     template<typename frac_t>
     using is_fraction_ =
         meta::and_ <
-        has_num_member<frac_t>,
-        has_denom_member<frac_t> >;
+        meta::has_num_member<frac_t>,
+        meta::has_denom_member<frac_t> >;
 
 
     namespace impl
     {
         template < typename igral_t,
+                 typename exponent_t,
+                 typename is_fraction_t = meta::is_fraction_<igral_t >>
+        struct pow_;
+
+        template < typename igral_t,
                  typename exponent_t >
-        struct pow_
+        struct pow_<igral_t, exponent_t, meta::true_>
         {
             using type =
-                meta::eval_if_ < 
-                    meta::is_fraction_<igral_t>,
-                    meta::fraction<
-                        pow_<meta::num_<igral_t>, exponent_t>, 
-                        pow_<meta::denom_<igral_t>, exponent_t>>,
-                    meta::multiplies_<igral_t, meta::type_<pow_<igral_t, meta::dec_<exponent_t>>> >>;
+                meta::fraction <
+                meta::type_<pow_<meta::num_<igral_t>, exponent_t>>,
+                meta::type_<pow_<meta::denom_<igral_t>, exponent_t>> > ;
+        };
+
+
+        template < typename igral_t,
+                 typename exponent_t >
+        struct pow_<igral_t, exponent_t, meta::false_>
+        {
+            using type =
+                meta::multiplies_<igral_t, meta::type_<pow_<igral_t, meta::dec_<exponent_t>>>>;
         };
 
 
         template < typename igral_t,
                  typename integral_t,
-                 template <typename integral_t, integral_t> typename type_t >
-        struct pow_<igral_t, type_t<integral_t, 1>>
+                 template <typename integral_t, integral_t> typename type_t>
+        struct pow_<igral_t, type_t<integral_t, 1>, meta::false_>
+        {
+            using type = igral_t;
+        };
+        
+        template < typename igral_t,
+                 typename integral_t,
+                 template <typename integral_t, integral_t> typename type_t>
+        struct pow_<igral_t, type_t<integral_t, 1>, meta::true_>
         {
             using type = igral_t;
         };
@@ -128,8 +147,9 @@ namespace meta
 
         template < typename igral_t,
                  typename integral_t,
-                 template<typename integral_t, integral_t> typename type_t >
-        struct pow_<igral_t, type_t<integral_t, 0>>
+                 template<typename integral_t, integral_t> typename type_t , 
+                 typename is_fraction_t>
+        struct pow_<igral_t, type_t<integral_t, 0>, is_fraction_t>
         {
             using type = type_t<integral_t, 1>;
         };

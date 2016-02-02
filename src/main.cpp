@@ -19,6 +19,7 @@ using namespace meta;
 /// C++ compiler.
 int main()
 {
-    std::cout << typeid(pow_<fraction<int_<32>, int_<2>>, int_<2>>).name() << std::endl;
+    std::cout << v_<is_fraction_<int_<32>>> << std::endl;
+        std::cout << v_<pow_<fraction<int_<31>, int_<2>>, int_<2>>> << std::endl;
     return 0;
 }
