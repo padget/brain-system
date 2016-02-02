@@ -6,6 +6,7 @@
 
 namespace meta
 {
+    /// Accessor
     template<typename type_t>
     using prev_ =
         typename type_t::prev;

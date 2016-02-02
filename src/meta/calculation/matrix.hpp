@@ -3,6 +3,8 @@
 
 namespace meta
 {
+    template<typename ... data_t>
+    struct matrix{};
 }
 
 #endif

@@ -8,11 +8,6 @@ namespace brain
 {
     namespace meta
     {
-        /// /////////////////// ///
-        /// Compile time string ///
-        /// /////////////////// ///
-
-
         /// Compile time string
         /// definition
         template<typename char_t>

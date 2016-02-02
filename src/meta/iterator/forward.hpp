@@ -135,7 +135,7 @@ namespace meta
         /// to the next
         /// iterator
         using next =
-            type_<next_builder_t>;        
+            type_<next_builder_t>;
     };
 
 
@@ -348,49 +348,77 @@ namespace meta
 
     namespace lazy
     {
+        /// Lazy signature
+        /// of item_
         template<typename type_t>
         struct item_ :
-            meta::function_<meta::item_, type_t> {};
+                meta::function_<meta::item_, type_t> {};
 
+
+        /// Lazy signature
+        /// of next_
         template<typename type_t>
         struct next_ :
-            meta::function_<meta::next_, type_t> {};
+                meta::function_<meta::next_, type_t> {};
 
+
+        /// Lazy signature
+        /// of index_
         template<typename type_t>
         struct index_ :
-            meta::function_<meta::index_, type_t> {};
+                meta::function_<meta::index_, type_t> {};
 
+
+        /// Lazy signature
+        /// of is_forward_iterator_
         template<typename type_t>
         struct is_forward_iterator_ :
                 meta::function_<meta::is_forward_iterator_, type_t> {};
 
+
+        /// Lazy signature
+        /// of forward_iterator_builder_
         template<typename pack_t>
         struct forward_iterator_builder_ :
                 meta::function_<meta::forward_iterator_builder_, pack_t> {};
 
+
+        /// Lazy signature
+        /// of has_next_
         template<typename iterator_t>
         struct has_next_ :
                 meta::function_<meta::has_next_, iterator_t> {};
 
+
+        /// Lazy signature
+        /// of is_valid_direction_
         template < template<typename> typename direction_,
                  typename iterator_t >
         struct is_valid_direction_ :
                 impl::is_valid_direction_<direction_, iterator_t> {};
 
+
+        /// Lazy signature
+        /// of last_valid_
         template<typename iterator_t>
         struct last_valid_ :
                 meta::function_<meta::last_valid_, iterator_t> {};
 
+
+        /// Lazy signature
+        /// of distance_
         template < typename begin_t,
                  typename end_t >
         struct distance_ :
                 meta::function_<meta::distance_, begin_t, end_t> {};
 
+
+        /// Lazy signature
+        /// of clone_forward_
         template < typename begin_t,
                  typename end_t >
         struct clone_forward_ :
                 meta::function_<meta::clone_forward_, begin_t, end_t> {};
-
     }
 }
 #endif

@@ -8,6 +8,8 @@ namespace meta
 {
     namespace seq
     {
+        /// Sequence version
+        /// of find_if_
         template < typename sequence_t,
                  typename pred_r >
         using find_if_ =
@@ -17,6 +19,8 @@ namespace meta
             pred_r >;
 
 
+        /// Sequence version
+        /// of find_
         template < typename sequence_t,
                  typename target_t >
         using find_ =
@@ -25,7 +29,9 @@ namespace meta
             meta::end_<sequence_t>,
             target_t >;
 
-
+                
+        /// Sequence version
+        /// of count_if_
         template < typename sequence_t,
                  typename pred_r >
         using count_if_ =
@@ -34,7 +40,9 @@ namespace meta
             meta::end_<sequence_t>,
             pred_r >;
 
-
+               
+        /// Sequence version
+        /// of count_
         template < typename sequence_t,
                  typename target_t >
         using count_ =
@@ -42,7 +50,10 @@ namespace meta
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             target_t >;
-
+               
+               
+        /// Sequence version
+        /// of contains_
         template < typename sequence_t,
                  typename target_t >
         using contains_ =
@@ -50,7 +61,10 @@ namespace meta
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             target_t >;
-
+                
+   
+        /// Sequence version
+        /// of transform_
         template < typename sequence_t,
                  typename func_r >
         using transform_ =
@@ -59,7 +73,10 @@ namespace meta
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             func_r >>;
-
+                
+   
+        /// Sequence version
+        /// of replace_if_
         template < typename sequence_t,
                  typename new_t,
                  typename pred_r >
@@ -70,7 +87,10 @@ namespace meta
             meta::end_<sequence_t>,
             new_t,
             pred_r >>;
-
+                 
+                 
+        /// Sequence version
+        /// of replace_
         template < typename sequence_t,
                  typename old_t,
                  typename new_t >
@@ -81,7 +101,10 @@ namespace meta
             meta::end_<sequence_t>,
             old_t,
             new_t >>;
-
+               
+  
+        /// Sequence version
+        /// of remove_if_
         template < typename sequence_t,
                  typename pred_r >
         using remove_if_ =
@@ -90,7 +113,10 @@ namespace meta
             meta::begin_<sequence_t>,
             meta::end_<sequence_t>,
             pred_r >>;
-
+                
+    
+        /// Sequence version
+        /// of remove_
         template < typename sequence_t,
                  typename deleted_t >
         using remove_ =
@@ -100,7 +126,9 @@ namespace meta
             meta::end_<sequence_t>,
             deleted_t >>;
 
-
+                   
+        /// Sequence version
+        /// of reverse_
         template<typename sequence_t>
         using reverse_ =
             meta::clone_ < sequence_t,

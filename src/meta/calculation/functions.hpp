@@ -1,6 +1,8 @@
 #ifndef __BRAIN_META_CALCULATION_FUNCTION_HPP__
 # define  __BRAIN_META_CALCULATION_FUNCTION_HPP__
 
+# include "../core.hpp"
+
 namespace meta
 {
     /// Mathematical object
@@ -87,18 +89,23 @@ namespace meta
         type_<impl::has_denom_member<frac_t>>;
 
 
-    /// Accessor to
-    /// res member
-    template<typename fraction_t>
-    using res_ =
-        typename fraction_t::res;
-
-
     template<typename frac_t>
     using is_fraction_ =
         meta::and_ <
         meta::has_num_member<frac_t>,
         meta::has_denom_member<frac_t> >;
+
+
+    namespace lazy
+    {
+        template<typename fraction_t>
+        struct num_ :
+                meta::function_<meta::num_, fraction_t> {};
+
+        template<typename fraction_t>
+        struct denom_ :
+                meta::function_<meta::denom_, fraction_t> {};
+    }
 
 
     namespace impl
@@ -130,15 +137,16 @@ namespace meta
 
         template < typename igral_t,
                  typename integral_t,
-                 template <typename integral_t, integral_t> typename type_t>
+                 template <typename integral_t, integral_t> typename type_t >
         struct pow_<igral_t, type_t<integral_t, 1>, meta::false_>
         {
             using type = igral_t;
         };
-        
+
+
         template < typename igral_t,
                  typename integral_t,
-                 template <typename integral_t, integral_t> typename type_t>
+                 template <typename integral_t, integral_t> typename type_t >
         struct pow_<igral_t, type_t<integral_t, 1>, meta::true_>
         {
             using type = igral_t;
@@ -147,9 +155,17 @@ namespace meta
 
         template < typename igral_t,
                  typename integral_t,
-                 template<typename integral_t, integral_t> typename type_t , 
-                 typename is_fraction_t>
-        struct pow_<igral_t, type_t<integral_t, 0>, is_fraction_t>
+                 template<typename integral_t, integral_t> typename type_t >
+        struct pow_<igral_t, type_t<integral_t, 0>, meta::true_>
+        {
+            using type = type_t<integral_t, 1>;
+        };
+
+
+        template < typename igral_t,
+                 typename integral_t,
+                 template<typename integral_t, integral_t> typename type_t >
+        struct pow_<igral_t, type_t<integral_t, 0>, meta::false_>
         {
             using type = type_t<integral_t, 1>;
         };

@@ -2,22 +2,10 @@
 # define  __BRAIN_META_CORE_BASE_HPP__
 
 
-/// Macro defining the
-/// way to dermine if
-/// a class has name
-/// inner its definition
+
 
 namespace meta
 {
-    /// ////////////// ///
-    /// Basic Features ///
-    /// ////////////// ///
-    ///
-    /// Tools, alias or
-    /// type used everywhere
-    /// in this library
-
-
     /// Meta function
     /// representation
     template < template<typename ...> typename func_t,
@@ -83,6 +71,9 @@ namespace meta
 
     namespace impl
     {
+        /// Returns true_ if
+        /// type_t has type
+        /// member
         template < typename type_t,
                  typename =  void >
         struct has_type_member
@@ -91,6 +82,10 @@ namespace meta
                 meta::false_ ;
         };
 
+
+        /// Returns true_ if
+        /// type_t has type
+        /// member
         template <typename type_t>
         struct has_type_member<type_t, void_<typename type_t::type>>
         {
@@ -100,6 +95,8 @@ namespace meta
     }
 
 
+    /// type_ shortcut
+    /// for type_
     template<typename type_t>
     using has_type_member =
         type_<impl::has_type_member<type_t>>;
@@ -128,9 +125,13 @@ namespace meta
         struct type_ :
                 meta::function_<meta::type_, type_t> {};
 
+        
+        /// Lazy signature
+        /// of has_type_member
         template<typename type_t>
         struct has_type_member:
                 meta::function_<meta::has_type_member, type_t> {};
+
 
         /// Lazy signature
         /// of idem_
@@ -138,20 +139,15 @@ namespace meta
         struct idem_ :
                 meta::function_<meta::idem_, type_t> {};
 
-        /// Lazy signature of
+
+        /// Lazy signature
+        /// of is_same_
         template < typename type_t,
                  typename other_t >
         struct is_same_ :
                 meta::function_<meta::is_same_, type_t, other_t> {};
 
     }
-
-
-
-
-
-
-
 }
 
 #endif

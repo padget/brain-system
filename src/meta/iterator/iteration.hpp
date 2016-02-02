@@ -9,6 +9,11 @@ namespace meta
 {
     namespace impl
     {
+        /// Iterates the accum_r
+        /// from begin_t to end_t
+        /// and returns the final
+        /// state_t resulting of
+        /// all iterations.
         template < typename begin_t,
                  typename end_t,
                  typename state_t,
@@ -22,6 +27,14 @@ namespace meta
                 type_<fold_<next_<begin_t>, end_t, _tmp, accum_r>>;
         };
 
+
+        /// Specialization for
+        /// the finals case of
+        /// iteration when the 
+        /// begin_t is end_t. 
+        /// Returns the state_t
+        /// itself without end_t
+        /// taking.
         template < typename end_t,
                  typename state_t,
                  typename accum_r >
@@ -31,6 +44,9 @@ namespace meta
         };
     }
 
+    
+    /// type_ shorcut 
+    /// of fold_
     template < typename begin_t,
              typename end_t,
              typename state_t,
@@ -41,6 +57,9 @@ namespace meta
 
     namespace impl
     {
+        /// Like fold_ but 
+        /// from end_t to 
+        /// begin_t
         template < typename begin_t,
                  typename end_t,
                  typename state_t,
@@ -54,6 +73,9 @@ namespace meta
                 type_<rfold_<begin_t, prev_<end_t>, _tmp, accum_r>>;
         };
 
+
+        /// Like fold_ but when
+        /// end_t is begin_t
         template < typename begin_t,
                  typename state_t,
                  typename accum_r >
@@ -64,6 +86,9 @@ namespace meta
         };
     }
 
+
+    /// type_ shorcut
+    /// of rfold_
     template < typename begin_t,
              typename end_t,
              typename state_t,

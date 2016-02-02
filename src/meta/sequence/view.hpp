@@ -5,11 +5,6 @@
 
 namespace meta
 {
-    /// ///////////////////////////////////// ///
-    /// View : arbitrary begin_ end_ sequence ///
-    /// ///////////////////////////////////// ///
-
-
     /// View is the base
     /// class of the view
     /// library. It takes

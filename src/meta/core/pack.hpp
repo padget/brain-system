@@ -15,6 +15,36 @@ namespace meta
 
     namespace impl
     {
+        /// Unpack the pack_t
+        /// into the target_t
+        template < template<typename ...> typename target_t,
+                 typename pack_t >
+        struct unpack;
+
+
+        /// Specialization that
+        /// distingues each item
+        /// of pack_t
+        template < template<typename ...> typename target_t,
+                 template<typename ...> typename pack_t,
+                 typename... types_t >
+        struct unpack<target_t, pack_t<types_t...>>
+        {
+            using type = target_t<types_t...>;
+        };
+    }
+
+
+    /// type_ shortcut
+    /// of unpack
+    template < template<typename ...> typename target_t,
+             typename pack_t >
+    using unpack =
+        meta::type_<impl::unpack<target_t, pack_t>>;
+
+
+    namespace impl
+    {
         /// Returns the size
         /// of a parameters pack
         template<typename pack_t>
@@ -171,6 +201,8 @@ namespace meta
     }
 
 
+    /// type_ shortcut
+    /// of at_
     template < typename pack_t,
              typename index_t >
     using at_ =
@@ -206,27 +238,6 @@ namespace meta
         type_<impl::clear_<pack_t>>;
 
 
-    namespace impl
-    {
-        template < template<typename ...> typename target_t,
-                 typename pack_t >
-        struct unpack;
-
-        template < template<typename ...> typename target_t,
-                 template<typename ...> typename pack_t,
-                 typename... types_t >
-        struct unpack<target_t, pack_t<types_t...>>
-        {
-            using type = target_t<types_t...>;
-        };
-    }
-
-    template < template<typename ...> typename target_t,
-             typename pack_t >
-    using unpack =
-        meta::type_<impl::unpack<target_t, pack_t>>;
-
-
 
     namespace lazy
     {
@@ -238,20 +249,20 @@ namespace meta
 
 
         /// Lasy signature
-        /// of size_
+        /// of empty_
         template<typename pack_t>
         struct empty_ :
                 meta::function_<meta::empty_, pack_t> {};
 
         /// Lasy signature
-        /// of size_
+        /// of cat_
         template<typename ... packs_t>
         struct cat_ :
                 meta::function_<meta::cat_, packs_t...> {};
 
 
         /// Lasy signature
-        /// of size_
+        /// of push_back_
         template < typename pack_t,
                  typename type_t >
         struct push_back_ :
@@ -259,7 +270,7 @@ namespace meta
 
 
         /// Lasy signature
-        /// of size_
+        /// of push_front_
         template < typename pack_t,
                  typename type_t >
         struct push_front_ :
@@ -267,7 +278,7 @@ namespace meta
 
 
         /// Lasy signature
-        /// of size_
+        /// of at_
         template < typename pack_t,
                  typename index_t >
         struct at_ :
@@ -275,7 +286,7 @@ namespace meta
 
 
         /// Lasy signature
-        /// of size_
+        /// of clear_
         template<typename pack_t>
         struct clear_ :
                 meta::function_<meta::clear_, pack_t> {};

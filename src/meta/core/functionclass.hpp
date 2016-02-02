@@ -52,6 +52,8 @@ namespace meta
     struct placeholder:
             int_<index_t>
     {
+        /// Returns the type
+        /// at the index_t
         template<typename ... args_t>
         using return_ =
             at_<pack<args_t...>, int_<index_t>>;
@@ -60,7 +62,7 @@ namespace meta
 
     /// Predefined placeholders
     /// from 1 to 15
-    using ___ = placeholder < -1 >; 
+    using ___ = placeholder < -1 >;
     using _0_ = placeholder<0>;
     using _1_ = placeholder<1>;
     using _2_ = placeholder<2>;
@@ -81,6 +83,10 @@ namespace meta
 
     namespace impl
     {
+        /// Returns true_ if
+        /// type_t is identified
+        /// as a placeholder
+        /// expression
         template<typename type_t>
         struct is_placeholder_expression_
         {
@@ -89,6 +95,10 @@ namespace meta
         };
 
 
+        /// Returns true_ if
+        /// type_t is identified
+        /// as a placeholder
+        /// expression
         template < template<typename ...> typename type_t,
                  typename ... args_t >
         struct is_placeholder_expression_<type_t<args_t...>>
@@ -98,6 +108,10 @@ namespace meta
         };
 
 
+        /// Returns true_ if
+        /// type_t is identified
+        /// as a placeholder
+        /// expression
         template < template<int> typename holder_t,
                  int  _rank >
         struct is_placeholder_expression_<holder_t<_rank>>
@@ -108,11 +122,16 @@ namespace meta
     }
 
 
+    /// type_ shortcut of
+    /// is_placeholder_expression_
     template<typename type_t>
     using is_placeholder_expression_ =
         type_<impl::is_placeholder_expression_<type_t>>;
 
 
+
+    /// Returns true_ if
+    /// type_t is ___
     template<typename type_t>
     using is_neutral_placeholder_ =
         is_same_<___, type_t>;
@@ -130,6 +149,10 @@ namespace meta
         struct bind_;
 
 
+        /// Returns the
+        /// results of the
+        /// func_r call
+        /// with args_t
         template < typename func_r,
                  typename is_placed_t,
                  typename ... args_t >
@@ -149,7 +172,9 @@ namespace meta
         };
 
 
-
+        /// Specialization for
+        /// func_t is a holder
+        /// expression
         template < template<typename ...> typename func_t,
                  typename ... holders_t,
                  typename ... args_t >
@@ -162,6 +187,9 @@ namespace meta
         };
 
 
+        /// Specialization for
+        /// func_t is a holder
+        /// expression
         template < int index_t,
                  typename ... args_t >
         struct  return_<meta::placeholder<index_t>, meta::true_, args_t...>
@@ -171,6 +199,9 @@ namespace meta
         };
 
 
+        /// Specialization for
+        /// func_t is a holder
+        /// expression
         template < typename func_r,
                  typename ... bind_args_t,
                  std::size_t... indexes_t,
@@ -182,8 +213,8 @@ namespace meta
         };
     }
 
-    /// Access to return_
-    /// member of type_t
+    /// type_ shortcut
+    /// for return_
     template < typename type_r,
              typename ... args_t >
     using return_ =
@@ -192,6 +223,14 @@ namespace meta
 
     namespace impl
     {
+        /// Binds func_r with
+        /// holders_t. If holders_t
+        /// is not a placeholder
+        /// it directly used by
+        /// the call, otherwise,
+        /// this is the replaced
+        /// type that is used by
+        /// the effective call
         template < typename func_r,
                  typename ... holders_t,
                  std::size_t ... indexes_t >
@@ -208,16 +247,18 @@ namespace meta
                 typename func_r::
                 template return_ <
                 meta::eval_if_ <
-                    meta::is_placeholder_expression_<holders_t> ,
-                    lazy::eval_if_<
-                        meta::is_neutral_placeholder_<holders_t>, 
-                        return_<placeholder<indexes_t>, true_, reals_t...>,
-                        return_<holders_t, meta::is_placeholder_expression_<holders_t>, reals_t...>>,
-                    meta::function_<idem_, holders_t >> ... >;
+                meta::is_placeholder_expression_<holders_t> ,
+                lazy::eval_if_ <
+                meta::is_neutral_placeholder_<holders_t>,
+                return_<placeholder<indexes_t>, true_, reals_t...>,
+                return_<holders_t, meta::is_placeholder_expression_<holders_t>, reals_t... >> ,
+                meta::function_<idem_, holders_t >> ... >;
         };
     }
 
 
+    /// type_ shortcut
+    /// for bind_
     template < typename func_r,
              typename ... holders_t >
     using bind_ =
@@ -226,14 +267,24 @@ namespace meta
 
     namespace impl
     {
+        /// Declaration of
+        /// lambda
         template<typename func_t>
         struct lambda;
 
+
+        /// Returns a metafunction class
+        /// that corresponds to the meta
+        /// function class after binding
+        /// the placeholders expressions
         template < template<typename ...> typename func_t,
                  typename ... holders_t >
         struct lambda <func_t<holders_t...>>
         {
-            using type = bind_<function_class_<func_t>, pack<holders_t...>, std::make_index_sequence<sizeof...(holders_t)>>;
+            using type =
+                bind_ < function_class_<func_t>,
+                pack<holders_t...>,
+                std::make_index_sequence<sizeof...(holders_t) >>;
 
             template<typename ... reals_t>
             using return_ =
@@ -242,6 +293,9 @@ namespace meta
         };
     }
 
+
+    /// type_ shortcut
+    /// of lambda
     template<typename lfunc_t>
     using lambda =
         type_<impl::lambda<lfunc_t>>;
@@ -249,16 +303,25 @@ namespace meta
 
     namespace lazy
     {
+        /// Lazy signature
+        /// of lambda
         template<typename lfunc_t>
         struct lambda:
                 meta::function_<meta::lambda, lfunc_t> {};
+
+
+        /// Lazy signature
+        /// of return_
+        template<typename func_r, typename ... args_t>
+        struct return_:
+                meta::function_<meta::return_, func_r, args_t...> {};
     }
 
 
 
-    /*   /// //////////////////////////// ///
-       /// Composition of metafunctions ///
-       /// //////////////////////////// ///
+    /*   /// ////////////////////////////////// ///
+       /// Composition of metafunctions class ///
+       /// ////////////////////////////////// ///
 
 
        namespace impl

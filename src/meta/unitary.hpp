@@ -334,7 +334,7 @@ namespace meta
         static_assert(v_<contains_<begin2_t, next_<last_valid_<begin2_t>>, int>>, "");
 
         using func_r = lambda<lazy::if_<true_, short, _0_>>;
-        using pred_r = lambda<lazy::is_same_<short, _0_>>;
+        using pred_r = lambda<lazy::is_same_<short, lazy::item_<_0_>>>;
 
         static_assert(v_<is_same_<transform_<begin_t, end_t, func_r>, pack<short, short, short>>>, "");
         static_assert(v_<is_same_<replace_if_<begin_t, end_t, int, pred_r>, pack<int, double, int>>>, "");
@@ -342,6 +342,12 @@ namespace meta
         static_assert(v_<is_same_<remove_if_<begin_t, end_t, pred_r>, pack<int, double>>>, "");
         static_assert(v_<is_same_<remove_<begin_t, end_t, short>, pack<int, double>>>, "");
         static_assert(v_<is_same_<reverse_<begin_t, end_t>, pack<short, double, int>>>, "");
+
+
+        using a_list = list<int, int, short, double, short, double, int>;
+        using begin3_t = begin_<a_list>;
+        using end3_t = end_<a_list>;
+         static_assert(v_<is_same_<pack<int, short, double>, unique_<begin_t, end_t>>>);
     }
 
 
