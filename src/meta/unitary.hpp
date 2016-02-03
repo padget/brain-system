@@ -207,11 +207,6 @@ namespace meta
         static_assert(v_<is_same_<item_<next2_t>, float>>, "");
         static_assert(v_<is_same_<item_<end_t>, nil>>, "");
 
-        static_assert(v_<equal_to_<index_<begin_t>, begin_iterator_index>>, "");
-        static_assert(v_<equal_to_<index_<next1_t>, unsigned_<1>>>, "");
-        static_assert(v_<equal_to_<index_<next2_t>, unsigned_<2>>>, "");
-        static_assert(v_<equal_to_<index_<end_t>, end_iterator_index>>, "");
-
         static_assert(v_<has_next_<begin_t>>, "");
         static_assert(v_<has_next_<next1_t>>, "");
         static_assert(v_<has_next_<next2_t>>, "");
@@ -234,12 +229,6 @@ namespace meta
 
         static_assert(v_<is_same_<item_<a_range>, double>>, "");
         static_assert(v_<is_same_<item_<last_valid_<a_range>>, float>>, "");
-
-        static_assert(v_<is_same_<index_<a_range>, long_<0>>>, "");
-        static_assert(v_<is_same_<index_<next_<a_range>>, long_<1>>>, "");
-
-        static_assert(v_ < is_same_ < index_<next_<next_<a_range>>>, long_ < -1 >>> , "");
-        static_assert(v_<is_same_<index_<next_<next_<next_<a_range>>>>, end_iterator_index>>, "");
     }
 
     /// Unitary test
@@ -269,15 +258,6 @@ namespace meta
         static_assert(v_<is_same_<item_<prev1_t>, double>>, "");
         static_assert(v_<is_same_<item_<prev0_t>, int>>, "");
 
-        static_assert(v_<equal_to_<index_<begin_t>, begin_iterator_index>>, "");
-        static_assert(v_<equal_to_<index_<next1_t>, unsigned_<1>>>, "");
-        static_assert(v_<equal_to_<index_<next2_t>, unsigned_<2>>>, "");
-        static_assert(v_<equal_to_<index_<end_t>, end_iterator_index>>, "");
-
-        static_assert(v_<equal_to_<index_<prev2_t>, unsigned_<2>>>, "");
-        static_assert(v_<equal_to_<index_<prev1_t>, unsigned_<1>>>, "");
-        static_assert(v_<equal_to_<index_<prev0_t>, begin_iterator_index>>, "");
-
         static_assert(v_<has_next_<begin_t>>, "");
         static_assert(v_<has_next_<next1_t>>, "");
         static_assert(v_<has_next_<next2_t>>, "");
@@ -294,12 +274,6 @@ namespace meta
 
         static_assert(v_<is_same_<item_<prev_<next_<a_range>>>, short>>, "");
         static_assert(v_<is_same_<item_<prev_<next_<last_valid_<a_range>>>>, float>>, "");
-
-        static_assert(v_<is_same_<index_<a_range>, long_<0>>>, "");
-        static_assert(v_<is_same_<index_<next_<a_range>>, long_<1>>>, "");
-
-        static_assert(v_<is_same_<index_<next_<next_<a_range>>>, long_<2>>>, "");
-        static_assert(v_<is_same_<index_<next_<next_<next_<a_range>>>>, end_iterator_index>>, "");
 
         static_assert(v_<is_same_<begin_t, first_valid_<next2_t>>>, "");
     }

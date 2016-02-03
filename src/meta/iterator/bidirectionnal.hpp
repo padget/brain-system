@@ -6,13 +6,18 @@
 
 namespace meta
 {
-    /// Accessor
+    /// Accessor for 
+    /// prev member
     template<typename type_t>
     using prev_ =
         typename type_t::prev;
 
+
     namespace impl
     {
+        /// Returns true_ if
+        /// type_t has prev
+        /// member
         template < typename type_t,
                  typename =  void >
         struct has_prev_member
@@ -21,6 +26,10 @@ namespace meta
                 meta::false_ ;
         };
 
+
+        /// Returns true_ if
+        /// type_t has prev
+        /// member
         template <typename type_t>
         struct has_prev_member<type_t, void_<typename type_t::prev>>
         {
@@ -30,6 +39,8 @@ namespace meta
     }
 
 
+    /// type_ shortcut
+    /// of has_prev_member
     template<typename type_t>
     using has_prev_member =
         type_<impl::has_prev_member<type_t>>;
@@ -41,8 +52,7 @@ namespace meta
     using is_backward_iterator_ =
         and_ <
         has_item_member<type_t>,
-        has_prev_member<type_t>,
-        has_index_member<type_t >>;
+        has_prev_member<type_t>>;
 
 
     /// Determines if type_t
@@ -55,97 +65,75 @@ namespace meta
         is_backward_iterator_<type_t >>;
 
 
-
-
-    template < typename index_t,
-             typename item_t,
-             typename next_t,
-             typename prev_builder_t >
-    struct bidirectional_iterator:
-            forward_iterator<index_t, item_t, next_t>
-    {
-        using prev =
-            type_<prev_builder_t>;
-    };
-
-
-    template < typename item_t,
-             typename next_t >
-    struct bidirectional_iterator_begin:
-            forward_iterator<begin_iterator_index, item_t, next_t>
-    {
-        using prev =
-            bidirectional_iterator_begin;
-    };
-
-
-    template<typename prev_builder_t>
+    /// Bidirectional 
+    /// end iterator
+    template<typename prev_t>
     struct bidirectional_iterator_end
     {
-        using index =
-            end_iterator_index;
-
-        using item =
-            nil;
-
-        using next =
-            bidirectional_iterator_end;
-
-        using prev =
-            type_<prev_builder_t>;
+        using item = nil;
+        using next = bidirectional_iterator_end;
+        using prev = prev_t;
     };
 
 
     namespace impl
     {
         template < typename pack_t,
-                 typename prev_builder_t = void,
-                 typename index_t = begin_iterator_index >
-        struct bidirectional_iterator_builder_;
+                 typename initial_prev_t >
+        struct bi_builder_;
 
 
-        template < typename item_t,
-                 typename ... items_t,
-                 typename prev_builder_t >
-        struct bidirectional_iterator_builder_ <
-                meta::pack<item_t, items_t...>,
-                prev_builder_t,
-                begin_iterator_index >
+        template < template<typename...> typename pack_t,
+                 typename item_t,
+                 typename ... items_t >
+        struct bi_builder_<pack_t<item_t, items_t...>, nil>
         {
-            using type =
-                bidirectional_iterator_begin <
-                item_t,
-                type_<bidirectional_iterator_builder_<meta::pack<items_t...>, bidirectional_iterator_builder_, meta::inc_<begin_iterator_index>>>>;
+            struct bidirectional_iterator
+            {
+                using item = item_t;
+                using next = type_<bi_builder_<pack_t<items_t...>, bidirectional_iterator>>;
+                using prev = bidirectional_iterator;
+            };
+
+            using type = bidirectional_iterator;
         };
 
 
-        template < typename item_t,
-                 typename ... items_t,
-                 typename prev_builder_t,
-                 typename index_t >
-        struct bidirectional_iterator_builder_<meta::pack<item_t, items_t...>, prev_builder_t, index_t>
+        template < template<typename...> typename pack_t,
+                 typename item_t,
+                 typename ... items_t ,
+                 typename prev_t >
+        struct bi_builder_<pack_t<item_t, items_t...>, prev_t>
         {
-            using type =
-                bidirectional_iterator <
-                index_t,
-                item_t,
-                type_<bidirectional_iterator_builder_<meta::pack<items_t...>, bidirectional_iterator_builder_, meta::inc_<index_t>>>,
-                prev_builder_t >;
+            struct bidirectional_iterator
+            {
+                using item = item_t;
+                using next = type_<bi_builder_<pack_t<items_t...>, bidirectional_iterator>>;
+                using prev = prev_t;
+            };
+
+            using type = bidirectional_iterator;
         };
 
-
-        template < typename prev_builder_t,
-                 typename index_t >
-        struct bidirectional_iterator_builder_<meta::pack<>, prev_builder_t, index_t>
+        template < template<typename...> typename pack_t,
+                 typename item_t,
+                 typename prev_t >
+        struct bi_builder_<pack_t<item_t>, prev_t>
         {
-            using type = bidirectional_iterator_end<prev_builder_t>;
-        };
+            struct bidirectional_iterator
+            {
+                using item = item_t;
+                using next = bidirectional_iterator_end<bidirectional_iterator>;
+                using prev = prev_t;
+            };
 
+            using type = bidirectional_iterator;
+        };
     }
 
     template<typename ... types_t>
     using bidirectional_iterator_builder_ =
-        type_<impl::bidirectional_iterator_builder_<pack<types_t...>>>;
+        type_<impl::bi_builder_<pack<types_t...>, nil>>;
 
 
 
@@ -167,7 +155,9 @@ namespace meta
 
     namespace impl
     {
-        ///
+        /// Returns the last
+        /// iterator before the end
+        /// iterator
         template < typename iterator_t,
                  typename is_next_valid_t =
                  has_prev_<prev_<iterator_t> >>
@@ -186,6 +176,9 @@ namespace meta
         };
 
 
+        /// Returns the last
+        /// iterator before the end
+        /// iterator
         template<typename iterator_t>
         struct first_valid_ <
                 iterator_t,
@@ -195,6 +188,7 @@ namespace meta
                 prev_<iterator_t>;
         };
     }
+
 
     /// type_ shortcut for
     /// last_valid_t_
@@ -208,72 +202,51 @@ namespace meta
     {
         template < typename begin_t,
                  typename end_t,
-                 typename prev_t,
-                 typename index_t,
-                 typename can_continue_t = meta::is_valid_direction_<next_, begin_t >>
-        struct clone_bidirectional_;
-
-
-        template < typename begin_t,
-                 typename end_t,
                  typename prev_t >
-        struct clone_bidirectional_<begin_t, end_t, prev_t, meta::begin_iterator_index, meta::true_>
+        struct clone_bi_
         {
-            using type =
-                meta::bidirectional_iterator_begin <
-                meta::item_<begin_t>,
-                type_<clone_bidirectional_ <
-                meta::next_<begin_t>,
-                end_t,
-                clone_bidirectional_,
-                meta::inc_<meta::begin_iterator_index >>>>;
-        };
+            struct bidirectional_iterator
+            {
+                using item = item_<begin_t>;
+                using next = type_<clone_bi_<next_<begin_t>, end_t, bidirectional_iterator>>;
+                using prev = prev_t;
+            };
 
+
+            using type = bidirectional_iterator;
+        };
 
         template < typename begin_t,
-                 typename end_t,
-                 typename prev_t,
-                 typename index_t >
-        struct clone_bidirectional_<begin_t, end_t, prev_t, index_t, meta::true_>
+                 typename end_t >
+        struct clone_bi_<begin_t, end_t, meta::nil>
         {
-            using type =
-                meta::bidirectional_iterator <
-                index_t,
-                meta::item_<begin_t>,
-                type_<clone_bidirectional_ <
-                meta::next_<begin_t>,
-                end_t,
-                clone_bidirectional_,
-                meta::inc_<index_t> >> ,
-                prev_t >;
+            struct bidirectional_iterator
+            {
+                using item = item_<begin_t>;
+                using next = type_<clone_bi_<next_<begin_t>, end_t, bidirectional_iterator>>;
+                using prev = bidirectional_iterator;
+            };
+
+
+            using type = bidirectional_iterator;
         };
 
 
         template < typename end_t,
-                 typename prev_t,
-                 typename index_t >
-        struct clone_bidirectional_<end_t, end_t, prev_t, index_t, meta::true_>
+                 typename prev_t >
+        struct clone_bi_<end_t, end_t, prev_t>
         {
-            using type =
-                meta::bidirectional_iterator_end<prev_t>;
-        };
-
-
-        template < typename end_t,
-                 typename prev_t,
-                 typename index_t >
-        struct clone_bidirectional_<end_t, end_t, prev_t, index_t, meta::false_>
-        {
-            using type =
-                meta::bidirectional_iterator_end<prev_t>;
+            using type = bidirectional_iterator_end<prev_t>;
         };
     }
 
 
+    /// type_ shortcut
+    /// of clone_bidirectional_
     template < typename begin_t,
              typename end_t >
     using clone_bidirectional_ =
-        type_<impl::clone_bidirectional_<begin_t, end_t, nil, begin_iterator_index>>;
+        type_<impl::clone_bi_<begin_t, end_t, nil>>;
 
 
     namespace lazy
@@ -284,11 +257,13 @@ namespace meta
         struct prev_ :
                 meta::function_<meta::prev_, type_t> {};
 
+
         /// Lazy signature
         /// of has_prev_member
         template<typename type_t>
         struct has_prev_member :
                 meta::function_<meta::has_prev_member, type_t> {};
+
 
         /// Lazy signature
         /// of is_backward_iterator_
@@ -332,6 +307,7 @@ namespace meta
         struct clone_bidirectional_ :
                 meta::function_<meta::clone_bidirectional_, begin_t, end_t> {};
     }
+
 }
 
 #endif

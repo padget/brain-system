@@ -6,20 +6,25 @@
 
 namespace meta
 {
+    /// Accessor for
+    /// item member
     template<typename type_t>
     using item_ =
         typename type_t::item;
 
+
+    /// Accessor for
+    /// next member
     template<typename type_t>
     using next_ =
         typename type_t::next;
 
-    template<typename type_t>
-    using index_ =
-        typename type_t::index;
 
     namespace impl
     {
+        /// Returns true_ if
+        /// type_t has type
+        /// member
         template < typename type_t,
                  typename =  void >
         struct has_item_member
@@ -28,6 +33,10 @@ namespace meta
                 meta::false_ ;
         };
 
+
+        /// Returns true_ if
+        /// type_t has type
+        /// member
         template <typename type_t>
         struct has_item_member<type_t, void_<typename type_t::item>>
         {
@@ -37,12 +46,18 @@ namespace meta
     }
 
 
+    /// type_ shortcut
+    /// of has_item_member
     template<typename type_t>
     using has_item_member =
         type_<impl::has_item_member<type_t>>;
 
+
     namespace impl
     {
+        /// Returns true_ if
+        /// type_t has next
+        /// member
         template < typename type_t,
                  typename =  void >
         struct has_next_member
@@ -51,6 +66,10 @@ namespace meta
                 meta::false_ ;
         };
 
+
+        /// Returns true_ if
+        /// type_t has next
+        /// member
         template <typename type_t>
         struct has_next_member<type_t, void_<typename type_t::next>>
         {
@@ -58,34 +77,13 @@ namespace meta
                 meta::true_;
         };
     }
-
-
+    
+    
+    /// type_ shortcut
+    /// of has_next_member
     template<typename type_t>
     using has_next_member =
         type_<impl::has_next_member<type_t>>;
-
-    namespace impl
-    {
-        template < typename type_t,
-                 typename =  void >
-        struct has_index_member
-        {
-            using type =
-                meta::false_ ;
-        };
-
-        template <typename type_t>
-        struct has_index_member<type_t, void_<typename type_t::index>>
-        {
-            using type =
-                meta::true_;
-        };
-    }
-
-
-    template<typename type_t>
-    using has_index_member =
-        type_<impl::has_index_member<type_t>>;
 
 
     /// Determines if type_t
@@ -94,8 +92,7 @@ namespace meta
     using is_forward_iterator_ =
         meta::and_ <
         has_item_member<type_t>,
-        has_next_member<type_t>,
-        has_index_member<type_t >>;
+        has_next_member<type_t>>;
 
 
     /// Minimal index of
@@ -104,97 +101,56 @@ namespace meta
         long_ <0>;
 
 
-
     /// Index of ended
     /// iterator
     using end_iterator_index =
         long_ < -1 >;
 
-
-    template < typename index_t,
-             typename item_t,
-             typename next_t >
-    struct forward_iterator
-    {
-        /// Is a constant
-        /// index that indicates
-        /// the rank of the
-        /// iterator in the
-        /// sequence
-        using index =
-            index_t;
-
-
-        /// The embedded
-        /// type element
-        using item =
-            item_t;
-
-
-        /// A reference
-        /// to the next
-        /// iterator
-        using next =
-            next_t;
-    };
-
-
+    
+    /// Forward end iterator
     struct forward_iterator_end
     {
-        using index =
-            end_iterator_index;
-
-
-        /// The final element
-        /// is arbitrary nil
-        using item =
-            nil;
-
-
-        /// Infinite next
-        /// call to the
-        /// end element
-        using next =
-            forward_iterator_end;
+        using item = nil;
+        using next = forward_iterator_end;
     };
-
+    
 
     namespace impl
     {
-        /// Forward iterator
-        /// builder. Based on
-        /// a pack of list, and
-        /// by default the first
-        /// index is equals to
-        /// begin_iterator_index_t
-        template < typename pack_t,
-                 typename index_t =
-                 begin_iterator_index >
-        struct forward_iterator_builder_;
+        template<typename pack_t>
+        struct forward_builder_;
 
-
-        template < typename item_t,
-                 typename ... items_t,
-                 typename index_t >
-        struct forward_iterator_builder_<meta::pack<item_t, items_t...>, index_t>
+        template < template <typename...> typename pack_t,
+                 typename item_t,
+                 typename ... items_t >
+        struct forward_builder_<pack_t<item_t, items_t...>>
         {
-            using type =
-                forward_iterator < index_t, item_t,
-                meta::type_<forward_iterator_builder_<meta::pack<items_t...>, meta::inc_<index_t> >> >;
+            struct forward_iterator
+            {
+                using item = item_t;
+                using next = type_<forward_builder_<pack_t<items_t...> > >;
+            };
+
+            using type = forward_iterator;
         };
 
-        template<typename index_t>
-        struct forward_iterator_builder_<pack<>, index_t>
+        template < template <typename...> typename pack_t,
+                 typename item_t >
+        struct forward_builder_<pack_t<item_t>>
         {
-            using type =
-                forward_iterator_end;
+            struct forward_iterator
+            {
+                using item = item_t;
+                using next = forward_iterator_end;
+            };
+
+            using type = forward_iterator;
         };
     }
 
-
-    template<typename ... types_t>
+    template<typename ... items_t>
     using forward_iterator_builder_ =
-        type_<impl::forward_iterator_builder_<pack<types_t...>>>;
+        type_<impl::forward_builder_<pack<items_t...>>>;
 
 
     template<typename iterator_t>
@@ -263,79 +219,28 @@ namespace meta
 
     namespace impl
     {
-        /// Computes the
-        /// distance between
-        /// two iterators
         template < typename begin_t,
                  typename end_t >
-        struct distance_
+        struct clone_forward_
         {
-            using type =
-                meta::minus_ <
-                meta::index_<end_t>,
-                meta::index_<begin_t> >;
+            struct forward_iterator
+            {
+                using item =
+                    item_<begin_t>;
+
+                using next =
+                    type_<clone_forward_<next_<begin_t>, end_t>>;
+            };
+
+
+            using type = forward_iterator;
         };
 
-
-        /// Specialization for
-        /// end iterator that
-        /// returns the distance
-        /// between the begin_t
-        /// and prev_<end_t>
-        template <typename begin_t>
-        struct distance_<begin_t, next_<meta::last_valid_<begin_t>>>
-        {
-            using type =
-                meta::if_ < meta::is_same_<begin_t, next_<meta::last_valid_<begin_t>>>,
-                meta::unsigned_<0>,
-                meta::inc_<minus_<meta::index_<meta::last_valid_<begin_t>>, meta::index_<begin_t>>> >;
-        };
-    }
-
-
-    /// type_ shortcut for
-    /// distance_t_
-    template < typename begin_t,
-             typename end_t >
-    using distance_ =
-        type_<impl::distance_<begin_t, end_t>>;
-
-
-    namespace impl
-    {
-        template < typename begin_t,
-                 typename end_t,
-                 typename index_t,
-                 typename can_continue_t =
-                 meta::is_valid_direction_<next_, begin_t >>
-        struct clone_forward_;
-
-        template < typename begin_t,
-                 typename end_t,
-                 typename index_t >
-        struct clone_forward_<begin_t, end_t, index_t, true_>
-        {
-            using type = meta::forward_iterator <
-                         index_t,
-                         meta::item_<begin_t>,
-                         type_<clone_forward_<meta::next_<begin_t>, end_t, meta::inc_<index_t>> >>;
-        };
-
-        template < typename end_t,
-                 typename index_t >
-        struct clone_forward_<end_t, end_t, index_t, meta::true_>
+        template < typename end_t >
+        struct clone_forward_<end_t, end_t>
         {
             using type =
                 meta::forward_iterator_end;
-        };
-
-
-        template < typename begin_t,
-                 typename end_t,
-                 typename index_t >
-        struct clone_forward_<begin_t, end_t, index_t, meta::false_>
-        {
-            using type = meta::forward_iterator_end;
         };
     }
 
@@ -343,7 +248,7 @@ namespace meta
     template < typename begin_t,
              typename end_t >
     using clone_forward_ =
-        type_<impl::clone_forward_<begin_t, end_t, begin_iterator_index>>;
+        type_<impl::clone_forward_<begin_t, end_t>>;
 
 
     namespace lazy
@@ -360,13 +265,6 @@ namespace meta
         template<typename type_t>
         struct next_ :
                 meta::function_<meta::next_, type_t> {};
-
-
-        /// Lazy signature
-        /// of index_
-        template<typename type_t>
-        struct index_ :
-                meta::function_<meta::index_, type_t> {};
 
 
         /// Lazy signature
@@ -406,19 +304,15 @@ namespace meta
 
 
         /// Lazy signature
-        /// of distance_
-        template < typename begin_t,
-                 typename end_t >
-        struct distance_ :
-                meta::function_<meta::distance_, begin_t, end_t> {};
-
-
-        /// Lazy signature
         /// of clone_forward_
         template < typename begin_t,
                  typename end_t >
         struct clone_forward_ :
                 meta::function_<meta::clone_forward_, begin_t, end_t> {};
     }
+
+
+
+
 }
 #endif

@@ -7,7 +7,28 @@
 
 namespace meta
 {
-    /// TODO DOC
+
+    /// type_ shortcut for
+    /// distance_t_
+    template < typename begin_t,
+             typename end_t >
+    using distance_ =
+        fold_ <
+        begin_t,
+        end_t,
+        int_<0>,
+        lazy::inc_<_0_ >>;
+
+
+    namespace lazy
+    {
+        /// Lazy signature
+        /// of distance_
+        template < typename begin_t,
+                 typename end_t >
+        struct distance_ :
+                meta::function_<meta::distance_, begin_t, end_t> {};
+    }
 
     /// Advance the iterator
     /// from begin the next
@@ -114,7 +135,7 @@ namespace meta
         begin_t,
         end_t,
         pack<>,
-        lazy::push_back_<_0_, bind_<func_r, _1_>>>;
+        lazy::push_back_<_0_, bind_<func_r, _1_> >>;
 
 
     /// Replace all items
@@ -285,7 +306,7 @@ namespace meta
         remove_if_ <
         begin_t,
         end_t,
-        lambda<lazy::greater_<lazy::count_<begin_t, lazy::next_<_0_>, lazy::item_<_0_>>, int_<1>>>>;
+        lambda<lazy::greater_<lazy::count_<begin_t, lazy::next_<_0_>, lazy::item_<_0_>>, int_<1>> >>;
 
 
     /// Reverses the
@@ -303,9 +324,9 @@ namespace meta
         template < typename begin_t,
                  typename end_t >
         struct unique_ :
-            meta::function_<meta::unique_, begin_t, end_t>{};
-        
-        
+                meta::function_<meta::unique_, begin_t, end_t> {};
+
+
         /// Lazy signature
         /// of reverse_
         template < typename begin_t,
