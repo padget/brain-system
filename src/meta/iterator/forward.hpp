@@ -117,9 +117,16 @@ namespace meta
 
     namespace impl
     {
+        /// Build a forward 
+        /// iterator given
+        /// that the pack_t
         template<typename pack_t>
         struct forward_builder_;
 
+        
+        /// Specialization that
+        /// distingues first and
+        /// next types from pack_t
         template < template <typename...> typename pack_t,
                  typename item_t,
                  typename ... items_t >
@@ -134,6 +141,10 @@ namespace meta
             using type = forward_iterator;
         };
 
+        
+        /// Specialization for
+        /// the last type from
+        /// pack_t types
         template < template <typename...> typename pack_t,
                  typename item_t >
         struct forward_builder_<pack_t<item_t>>
@@ -148,11 +159,15 @@ namespace meta
         };
     }
 
+    
+    /// type_ shortcut
+    /// of forward_builder_
     template<typename ... items_t>
     using forward_iterator_builder_ =
         type_<impl::forward_builder_<pack<items_t...>>>;
 
 
+    /// 
     template<typename iterator_t>
     using has_next_ =
         not_<is_same_<iterator_t, next_<iterator_t>>>;
