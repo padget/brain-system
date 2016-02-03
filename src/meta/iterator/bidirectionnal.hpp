@@ -59,10 +59,10 @@ namespace meta
 
     template < typename index_t,
              typename item_t,
-             typename next_builder_t,
+             typename next_t,
              typename prev_builder_t >
     struct bidirectional_iterator:
-            forward_iterator<index_t, item_t, next_builder_t>
+            forward_iterator<index_t, item_t, next_t>
     {
         using prev =
             type_<prev_builder_t>;
@@ -70,9 +70,9 @@ namespace meta
 
 
     template < typename item_t,
-             typename next_builder_t >
+             typename next_t >
     struct bidirectional_iterator_begin:
-            forward_iterator<begin_iterator_index, item_t, next_builder_t>
+            forward_iterator<begin_iterator_index, item_t, next_t>
     {
         using prev =
             bidirectional_iterator_begin;
@@ -115,7 +115,7 @@ namespace meta
             using type =
                 bidirectional_iterator_begin <
                 item_t,
-                bidirectional_iterator_builder_<meta::pack<items_t...>, bidirectional_iterator_builder_, meta::inc_<begin_iterator_index>> >;
+                type_<bidirectional_iterator_builder_<meta::pack<items_t...>, bidirectional_iterator_builder_, meta::inc_<begin_iterator_index>>>>;
         };
 
 
@@ -129,7 +129,7 @@ namespace meta
                 bidirectional_iterator <
                 index_t,
                 item_t,
-                bidirectional_iterator_builder_<meta::pack<items_t...>, bidirectional_iterator_builder_, meta::inc_<index_t>>,
+                type_<bidirectional_iterator_builder_<meta::pack<items_t...>, bidirectional_iterator_builder_, meta::inc_<index_t>>>,
                 prev_builder_t >;
         };
 
@@ -222,11 +222,11 @@ namespace meta
             using type =
                 meta::bidirectional_iterator_begin <
                 meta::item_<begin_t>,
-                clone_bidirectional_ <
+                type_<clone_bidirectional_ <
                 meta::next_<begin_t>,
                 end_t,
                 clone_bidirectional_,
-                meta::inc_<meta::begin_iterator_index >>>;
+                meta::inc_<meta::begin_iterator_index >>>>;
         };
 
 
@@ -240,11 +240,11 @@ namespace meta
                 meta::bidirectional_iterator <
                 index_t,
                 meta::item_<begin_t>,
-                clone_bidirectional_ <
+                type_<clone_bidirectional_ <
                 meta::next_<begin_t>,
                 end_t,
                 clone_bidirectional_,
-                meta::inc_<index_t> > ,
+                meta::inc_<index_t> >> ,
                 prev_t >;
         };
 

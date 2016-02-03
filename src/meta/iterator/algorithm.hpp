@@ -72,7 +72,7 @@ namespace meta
         fold_ <
         begin_t,
         end_t,
-        unsigned_<0>,
+        int_<0>,
         lazy::if_ <
         bind_<pred_r, _1_>,
         lazy::inc_<_0_>,
@@ -114,7 +114,7 @@ namespace meta
         begin_t,
         end_t,
         pack<>,
-        lazy::push_back_<_0_, bind_<func_r, lazy::item_<_1_>> >>;
+        lazy::push_back_<_0_, bind_<func_r, _1_>>>;
 
 
     /// Replace all items
@@ -129,7 +129,7 @@ namespace meta
         transform_ <
         begin_t,
         end_t,
-        lambda<lazy::if_<bind_<pred_r, _0_>, new_t, _0_> >>;
+        lambda<lazy::if_<bind_<pred_r, _0_>, new_t, lazy::item_<_0_>> >>;
 
 
     /// Replace all old_t
@@ -143,7 +143,7 @@ namespace meta
         begin_t,
         end_t,
         new_t,
-        lambda<lazy::is_same_<old_t, _0_> >>;
+        lambda<lazy::is_same_<old_t, lazy::item_<_0_>> >>;
 
 
     /// Remove all types
@@ -285,7 +285,7 @@ namespace meta
         remove_if_ <
         begin_t,
         end_t,
-        lambda<lazy::and_<lazy::greater_<lazy::count_<begin_t, _0_, lazy::item_<_0_>>, int_<1>>> >>;
+        lambda<lazy::greater_<lazy::count_<begin_t, lazy::next_<_0_>, lazy::item_<_0_>>, int_<1>>>>;
 
 
     /// Reverses the
@@ -298,6 +298,14 @@ namespace meta
 
     namespace lazy
     {
+        /// Lazy signature
+        /// of unique_
+        template < typename begin_t,
+                 typename end_t >
+        struct unique_ :
+            meta::function_<meta::unique_, begin_t, end_t>{};
+        
+        
         /// Lazy signature
         /// of reverse_
         template < typename begin_t,

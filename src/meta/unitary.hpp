@@ -333,7 +333,7 @@ namespace meta
         static_assert(v_<equal_to_<count_<begin2_t, next_<last_valid_<begin2_t>>, int> , unsigned_<2>>> , "");
         static_assert(v_<contains_<begin2_t, next_<last_valid_<begin2_t>>, int>>, "");
 
-        using func_r = lambda<lazy::if_<true_, short, _0_>>;
+        using func_r = lambda<lazy::if_<true_, short, lazy::item_<_0_>>>;
         using pred_r = lambda<lazy::is_same_<short, lazy::item_<_0_>>>;
 
         static_assert(v_<is_same_<transform_<begin_t, end_t, func_r>, pack<short, short, short>>>, "");
@@ -347,7 +347,7 @@ namespace meta
         using a_list = list<int, int, short, double, short, double, int>;
         using begin3_t = begin_<a_list>;
         using end3_t = end_<a_list>;
-         static_assert(v_<is_same_<pack<int, short, double>, unique_<begin_t, end_t>>>);
+        static_assert(v_<is_same_<pack<int, short, double>, unique_<begin3_t, end3_t>>>, "");
     }
 
 
@@ -373,8 +373,8 @@ namespace meta
         using next2_t = next_<next1_t>; /// short
         using end_t = next_<next2_t>; /// nil
 
-        using func_r = lambda<lazy::if_<true_, short, _0_>>;
-        using pred_r = lambda<lazy::is_same_<short, _0_>>;
+        using func_r = lambda<lazy::if_<true_, short, lazy::item_<_0_>>>;
+        using pred_r = lambda<lazy::is_same_<short, lazy::item_<_0_>>>;
 
         static_assert(v_<is_same_<seq::transform_<sequence_t, func_r>, list<short, short, short>>>, "");
         static_assert(v_<is_same_<seq::replace_if_<sequence_t, int, pred_r>, list<int, double, int>>>, "");
@@ -387,7 +387,7 @@ namespace meta
     {
         using a_map = map<pair<int_<0>, int>, pair<int_<1>, double>>;
         static_assert(v_<defined_<a_map, int_<1>>>, "");
-        static_assert(v_<is_same_<value_of_<a_map, int_<0>>, int> >, "");
+        static_assert(v_<is_same_<value_of_<a_map, int_<0>>, int>>, "");
     }
 }
 

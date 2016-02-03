@@ -113,7 +113,7 @@ namespace meta
 
     template < typename index_t,
              typename item_t,
-             typename next_builder_t >
+             typename next_t >
     struct forward_iterator
     {
         /// Is a constant
@@ -135,7 +135,7 @@ namespace meta
         /// to the next
         /// iterator
         using next =
-            type_<next_builder_t>;
+            next_t;
     };
 
 
@@ -180,7 +180,7 @@ namespace meta
         {
             using type =
                 forward_iterator < index_t, item_t,
-                forward_iterator_builder_<meta::pack<items_t...>, meta::inc_<index_t>> >;
+                meta::type_<forward_iterator_builder_<meta::pack<items_t...>, meta::inc_<index_t> >> >;
         };
 
         template<typename index_t>
@@ -318,7 +318,7 @@ namespace meta
             using type = meta::forward_iterator <
                          index_t,
                          meta::item_<begin_t>,
-                         clone_forward_<meta::next_<begin_t>, end_t, meta::inc_<index_t> >>;
+                         type_<clone_forward_<meta::next_<begin_t>, end_t, meta::inc_<index_t>> >>;
         };
 
         template < typename end_t,

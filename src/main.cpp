@@ -19,13 +19,5 @@ using namespace meta;
 /// C++ compiler.
 int main()
 {
-    using formula = 
-        fraction<
-            fraction<
-                int_<4>, 
-                int_<2>>, 
-            int_<2>>;
-            
-    std::cout << v_<pow_<formula, int_<2>>> << std::endl;
     return 0;
 }
