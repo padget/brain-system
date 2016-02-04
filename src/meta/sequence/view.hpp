@@ -50,7 +50,7 @@ namespace meta
     template < typename begin_t,
              typename end_t >
     struct bidirectional_view :
-            view<clone_bidirectional_, begin_t, end_t>
+            view<clone_bi_, begin_t, end_t>
     {
     };
 

@@ -246,7 +246,7 @@ namespace meta
         using prev0_t = prev_<prev1_t>;
 
         using begin2_t = bidirectional_iterator_builder_<int, short, double, float>;
-        using a_range = clone_bidirectional_<next_<begin2_t>, next_<last_valid_<begin2_t>>>;
+        using a_range = clone_bi_<next_<begin2_t>, next_<last_valid_<begin2_t>>>;
 
         /// Effective test
         static_assert(v_<is_same_<item_<begin_t>, int>>, "");

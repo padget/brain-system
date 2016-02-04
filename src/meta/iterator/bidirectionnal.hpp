@@ -6,7 +6,7 @@
 
 namespace meta
 {
-    /// Accessor for 
+    /// Accessor for
     /// prev member
     template<typename type_t>
     using prev_ =
@@ -52,7 +52,7 @@ namespace meta
     using is_backward_iterator_ =
         and_ <
         has_item_member<type_t>,
-        has_prev_member<type_t>>;
+        has_prev_member<type_t >>;
 
 
     /// Determines if type_t
@@ -65,7 +65,7 @@ namespace meta
         is_backward_iterator_<type_t >>;
 
 
-    /// Bidirectional 
+    /// Bidirectional
     /// end iterator
     template<typename prev_t>
     struct bidirectional_iterator_end
@@ -78,11 +78,15 @@ namespace meta
 
     namespace impl
     {
+        /// Builds bidirectionnal
+        /// iterator from pack_t
         template < typename pack_t,
                  typename initial_prev_t >
         struct bi_builder_;
 
 
+        /// Builds bidirectionnal
+        /// iterator from pack_t
         template < template<typename...> typename pack_t,
                  typename item_t,
                  typename ... items_t >
@@ -99,6 +103,8 @@ namespace meta
         };
 
 
+        /// Builds bidirectionnal
+        /// iterator from pack_t
         template < template<typename...> typename pack_t,
                  typename item_t,
                  typename ... items_t ,
@@ -115,6 +121,9 @@ namespace meta
             using type = bidirectional_iterator;
         };
 
+
+        /// Builds bidirectionnal
+        /// iterator from pack_t
         template < template<typename...> typename pack_t,
                  typename item_t,
                  typename prev_t >
@@ -131,15 +140,21 @@ namespace meta
         };
     }
 
+
+    /// type_ shortcut
+    /// of bi_builder_
     template<typename ... types_t>
     using bidirectional_iterator_builder_ =
         type_<impl::bi_builder_<pack<types_t...>, nil>>;
 
 
-
+    /// Returns true_ if
+    /// iterator_t has prev
+    /// member
     template<typename iterator_t>
     using has_prev_ =
         not_<is_same_<iterator_t, prev_<iterator_t>>>;
+
 
     namespace impl
     {
@@ -200,6 +215,9 @@ namespace meta
 
     namespace impl
     {
+        /// Clones bidirectional
+        /// sequence from begin_t
+        /// and end_t iterators
         template < typename begin_t,
                  typename end_t,
                  typename prev_t >
@@ -216,6 +234,10 @@ namespace meta
             using type = bidirectional_iterator;
         };
 
+
+        /// Clones bidirectional
+        /// sequence from begin_t
+        /// and end_t iterators
         template < typename begin_t,
                  typename end_t >
         struct clone_bi_<begin_t, end_t, meta::nil>
@@ -232,6 +254,9 @@ namespace meta
         };
 
 
+        /// Clones bidirectional
+        /// sequence from begin_t
+        /// and end_t iterators
         template < typename end_t,
                  typename prev_t >
         struct clone_bi_<end_t, end_t, prev_t>
@@ -245,7 +270,7 @@ namespace meta
     /// of clone_bidirectional_
     template < typename begin_t,
              typename end_t >
-    using clone_bidirectional_ =
+    using clone_bi_ =
         type_<impl::clone_bi_<begin_t, end_t, nil>>;
 
 
@@ -305,7 +330,7 @@ namespace meta
         template < typename begin_t,
                  typename end_t >
         struct clone_bidirectional_ :
-                meta::function_<meta::clone_bidirectional_, begin_t, end_t> {};
+                meta::function_<meta::clone_bi_, begin_t, end_t> {};
     }
 
 }
