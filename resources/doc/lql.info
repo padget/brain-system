@@ -1,0 +1,25 @@
+#############################
+###                       ###
+### Lambda Query Language ###
+###                       ###
+#############################
+
+#############
+#
+# Preface
+#
+#############
+
+
+En mathématique et plus encore dans de nombreux
+autres domaines, il est important de bien modéliser
+les phénomènes et les fonctionnalités dont les gens
+se servent pour faire leurs métiers. Cependant il
+n'existe pas de langage permettant de tous modéliser.
+Les lambdas en mathématique permettent de modéliser
+l'ensemble des outils et primitives mathématiques
+existants à l'heure actuelle. De fait, les lambdas
+semblent être le bon candidat pour être la base de
+d'un langage de modélisation universel.
+
+
