@@ -26,7 +26,7 @@ namespace meta
         /// type_t has type
         /// member
         template < typename type_t,
-                 typename =  void >
+                   typename =  void >
         struct has_item_member
         {
             using type =
@@ -59,7 +59,7 @@ namespace meta
         /// type_t has next
         /// member
         template < typename type_t,
-                 typename =  void >
+                   typename =  void >
         struct has_next_member
         {
             using type =
@@ -128,8 +128,8 @@ namespace meta
         /// distingues first and
         /// next types from pack_t
         template < template <typename...> typename pack_t,
-                 typename item_t,
-                 typename ... items_t >
+                   typename item_t,
+                   typename ... items_t >
         struct forward_builder_<pack_t<item_t, items_t...>>
         {
             struct forward_iterator
@@ -146,7 +146,7 @@ namespace meta
         /// the last type from
         /// pack_t types
         template < template <typename...> typename pack_t,
-                 typename item_t >
+                   typename item_t >
         struct forward_builder_<pack_t<item_t>>
         {
             struct forward_iterator
@@ -176,7 +176,7 @@ namespace meta
     namespace impl
     {
         template < template<typename> typename direction_,
-                 typename iterator_t >
+                   typename iterator_t >
         struct is_valid_direction_;
 
 
@@ -189,7 +189,7 @@ namespace meta
     }
 
     template < template<typename> typename direction_,
-             typename iterator_t >
+               typename iterator_t >
     using is_valid_direction_ =
         type_<impl::is_valid_direction_<direction_, iterator_t>>;
 
@@ -198,9 +198,9 @@ namespace meta
     {
         ///
         template < typename iterator_t,
-                 typename is_next_valid_t =
-                 has_next_<next_<iterator_t> >>
-        struct last_valid_;
+                   typename is_next_valid_t =
+                   has_next_<next_<iterator_t> >>
+            struct last_valid_;
 
 
         /// Returns the last
@@ -208,17 +208,17 @@ namespace meta
         /// iterator
         template <typename iterator_t>
         struct last_valid_ <
-                iterator_t,
-                true_ > :
-                last_valid_<next_<iterator_t>>
+            iterator_t,
+            true_ > :
+            last_valid_<next_<iterator_t>>
         {
         };
 
 
         template<typename iterator_t>
         struct last_valid_ <
-                iterator_t,
-                false_ >
+            iterator_t,
+            false_ >
         {
             using type =
                 iterator_t;
@@ -235,7 +235,7 @@ namespace meta
     namespace impl
     {
         template < typename begin_t,
-                 typename end_t >
+                   typename end_t >
         struct clone_forward_
         {
             struct forward_iterator
@@ -261,7 +261,7 @@ namespace meta
 
 
     template < typename begin_t,
-             typename end_t >
+               typename end_t >
     using clone_forward_ =
         type_<impl::clone_forward_<begin_t, end_t>>;
 
@@ -272,58 +272,58 @@ namespace meta
         /// of item_
         template<typename type_t>
         struct item_ :
-                meta::function_<meta::item_, type_t> {};
+            meta::function_<meta::item_, type_t> {};
 
 
         /// Lazy signature
         /// of next_
         template<typename type_t>
         struct next_ :
-                meta::function_<meta::next_, type_t> {};
+            meta::function_<meta::next_, type_t> {};
 
 
         /// Lazy signature
         /// of is_forward_iterator_
         template<typename type_t>
         struct is_forward_iterator_ :
-                meta::function_<meta::is_forward_iterator_, type_t> {};
+            meta::function_<meta::is_forward_iterator_, type_t> {};
 
 
         /// Lazy signature
         /// of forward_iterator_builder_
         template<typename pack_t>
         struct forward_iterator_builder_ :
-                meta::function_<meta::forward_iterator_builder_, pack_t> {};
+            meta::function_<meta::forward_iterator_builder_, pack_t> {};
 
 
         /// Lazy signature
         /// of has_next_
         template<typename iterator_t>
         struct has_next_ :
-                meta::function_<meta::has_next_, iterator_t> {};
+            meta::function_<meta::has_next_, iterator_t> {};
 
 
         /// Lazy signature
         /// of is_valid_direction_
         template < template<typename> typename direction_,
-                 typename iterator_t >
+                   typename iterator_t >
         struct is_valid_direction_ :
-                impl::is_valid_direction_<direction_, iterator_t> {};
+            impl::is_valid_direction_<direction_, iterator_t> {};
 
 
         /// Lazy signature
         /// of last_valid_
         template<typename iterator_t>
         struct last_valid_ :
-                meta::function_<meta::last_valid_, iterator_t> {};
+            meta::function_<meta::last_valid_, iterator_t> {};
 
 
         /// Lazy signature
         /// of clone_forward_
         template < typename begin_t,
-                 typename end_t >
+                   typename end_t >
         struct clone_forward_ :
-                meta::function_<meta::clone_forward_, begin_t, end_t> {};
+            meta::function_<meta::clone_forward_, begin_t, end_t> {};
     }
 
 

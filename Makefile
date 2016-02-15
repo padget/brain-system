@@ -1,8 +1,19 @@
-.PHONY: clean All
+CC=g++
+CFLAGS=-Wall -std=c++1z -O0
+EXEC=brain
 
-All:
-	@echo "----------Building project:[ brain - Debug ]----------"
-	@"$(MAKE)" -f  "brain.mk"
+all: rebuild
+
+exec: build
+	./brain
+
+brain: src/main.cpp
+	$(CC) -o $(EXEC) src/main.cpp $(CFLAGS)
+
 clean:
-	@echo "----------Cleaning project:[ brain - Debug ]----------"
-	@"$(MAKE)" -f  "brain.mk" clean
+	rm -rf *.o
+	rm -f $(EXEC)
+
+build: $(EXEC)
+
+rebuild: clean build
