@@ -23,3 +23,22 @@ semblent être le bon candidat pour être la base de
 d'un langage de modélisation universel.
 
 
+
+###########################
+#
+# Le langage
+#
+###########################
+
+
+Le langage LQL proposera une implémentation
+native des nombress, operationsarithmétique,
+traitement booléens.... Le tout sera présent
+dans un fichier standart.lql qui sera à importé
+pour tout programme voulant en profiter.
+
+Le langage reposera sur plusieur precepte :
+ - La fonction est le centre de tout
+ - On pourra donner un alias à une fonction
+ - On pourra inventer ces propres keyword (il y en a pas puisque tout est fonction).
+ - On devra mettre en place une mécanique de métaprogrammation.

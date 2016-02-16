@@ -21,6 +21,6 @@ using namespace meta;
 /// C++ compiler.
 int main()
 {
-  std::cout << "Brain System Programm" << std::endl;
+  std::cout << "Brain System Program" << std::endl;
   return 0;
 }
