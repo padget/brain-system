@@ -38,7 +38,129 @@ dans un fichier standart.lql qui sera à importé
 pour tout programme voulant en profiter.
 
 Le langage reposera sur plusieur precepte :
- - La fonction est le centre de tout
+�- La fonction est le centre de tout
  - On pourra donner un alias à une fonction
  - On pourra inventer ces propres keyword (il y en a pas puisque tout est fonction).
  - On devra mettre en place une mécanique de métaprogrammation.
+
+########################
+#
+# La fonction
+#
+########################
+
+"La fonction est le centre de tout".
+Cette pensée est au centre detout nos
+concept que nous allons développez cidesssous.
+
+Une fonction au sens strict du terme est objet
+mathématique capable d'appliqué une transformation
+sur un autre objet mat�hmatique pour en retourner
+un tiers résultant decette transformation.
+L'objet d'origine n'étant pa intrésequement
+chabngé mais la traformation ayant généré
+nouvel objet même si celui es une copie conforme
+du premier.
+
+Une fonction ne prend qu'une entrée etne retourne
+qu'une seule sortie (après, rien n'�empeche que l'unique
+sortie soit en réalité un objet composite complexe... !)
+
+
+########################
+#
+# Les alias
+#
+########################
+
+Les alias sont un moyen de donn�er u identifiant
+à une fonction. Dans la couche aliasing, il n'y
+aura pas que les alias mais aussi les familles
+d'alias, les templates d'alias.... On pourrait dire
+qu'il s'agit la de la couche metalangage. De base
+un alias est donc un simple nom répresentant la
+composition de plusieurs fonction qui donc est
+elle meme une fonction
+
+Grace aux alias on va donc pouvoir nommé les
+fonctions et encapsuler ces noms dans des espaces
+de nom ou famille de nom afin de proposer un
+classement par métierde ces fonctionnalités.
+
+#########################
+#
+# Notation polonaise
+#
+#########################
+
+Quand on lit une phrase du genre :
+"Pour obtenir le BENEFICE , je do SOUSTRAIRE
+les DEPENSES  et les RECETTES", on peut
+traduire ca en :
+BENEFICE: SOUSTRAIRE DEPENSES RECETTES
+
+BENEFICE est ici un alias, SOUSTRAIRE
+une fonction et DEPENSES et RECETTES
+sont les arguments de cette fonction.
+Ceci dit, nous avons dit précedemment
+qu'une fonction ne devait prendre qu'un
+seul argument pour n'en retourné qu'un
+seul également. Donc en réalité, d'un
+point de vue fonctionnel, nous avons la
+chose suivante :
+BENEFICE: ((SOUSTRAIRE DEPENSES) RECETTES)
+
+On parle donc de composition ou d'application.
+
+On peut définir soustraire par :
+SOUSTRAIRE : !mn.(n PRED) m
+
+SOUSDEPENSE: SOUSTRAIRE DEPENSES : !�EPENSES n.(n PRED) DEPENSES
+
+SOUSDEPENSE RECETTES: !DEPENSES RECETTE.(RECETTES PRED) DEPENSES
+
+BENEFICE : SOUSDEPENSE RECETTES
+
+########################
+#
+# Metaprogrammation
+#
+########################
+
+ordinal : ord0 ... ordN
+name<ordinal> -> alias
+
+template<alias n, category cat>
+my_suite :
+	 cat::plus
+		n
+		my_suite<cat::pred n, cat>
+
+
+template<alias m, category cat>
+my_suite<0, cat> :
+	    1
+
+equal my_suite<4, math> 10 
+
+
+template<alias ... m>
+my_list : standart::list<0, 1, 2>
+
+
+template<
+	template<alias ...> alias ... test,
+	alias ... m
+	>
+my_generic_list : test<m...>...
+
+
+#############################
+#
+# Category
+#
+#############################
+
+category number:
+	 final name<ord0>: !f!x -> x
+	 final name<ordN>: !f!x -> f((name<ordN - ord1>)x)
