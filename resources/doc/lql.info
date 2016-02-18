@@ -164,3 +164,142 @@ my_generic_list : test<m...>...
 category number:
 	 final name<ord0>: !f!x -> x
 	 final name<ordN>: !f!x -> f((name<ordN - ord1>)x)
+
+########################
+#
+# Récursivité
+#
+########################
+
+Laes fonctions récursive définisse dcas indicé.
+Pour cela on met en place la notion native d'indice.
+les indices fonctionnel de définir lescas d'appel
+de la fonction récursie :
+   - 
+
+
+
+#############################
+#
+# Standart.lql
+#
+#############################
+
+Le fichier standart.lql aura pour objectif de proposer
+une version standart des fonctions communees définissant
+les nombres, les booleans, les listes, map, pair...
+
+Le mot clé "final" nous sera très utile dance ficher.
+En effet, "final" signifie que l'évaluation dela
+lambda expression ne doit plonger dans l'évaluation d'un
+termes dit final !
+
+Par exemple, la modélisation des entirs naturel, il ne sera
+pas necessaire de se lancer dans l'évaluation meme du contenu
+fonctionnel du nombre. Cela ne nous interesse pas!
+
+
+#############################
+#
+# Les génératces
+#
+#############################
+
+Une génératrice est un pan dla maétaprogrammation permettant
+de généré ensemble d'alias d'un seul coup en définissant
+les cas terminaux et le cas générateur.
+
+Par exemple, les nombres entiers sont défnis  de cette manière :
+
+number...
+(
+	final 0   : !fx.x
+	final 1   : !fx.fx
+	final n...: !fx.f(pred n f x)
+)
+
+dans l'exe�mpleprécédent nous voyonun problème :
+comment va faire l'interpréteur pour deviner quel
+est la manièe dont vont êtregénérles suites de
+caractères réprésentant lalias. C'est pourquoi
+dans une génératriceles alias aussi obéissent à
+des lois de génération propraux identifiants d'alias.
+
+Notons aussi que l'opérateur ... est symboeld'une gnénératrice.
+
+number...
+(
+	final 0 : !fx.x
+	final 1 : !fx.fx
+	final "[0-9]+" : !fx.f(pred alias f x )
+)
+
+OK ! mais cpar expression �régulièon determiner quel est l'alias
+gnénéré, malque cela reste une piste à ne pas oublier !
+
+Essayons autre chose : utilisons des expressions mathématiques
+dans les concatén�ations de chaine dcaractères :
+
+Avant cela nous allons définirles ordinaux. Les ordinaux définissnt
+l'ordre d'une fonction ou autrement dit, le nombre de fois qu'une fonction
+s'applique en oignon sur un lambda terme.
+On utilise les ordinaux de la manière suivante :
+
+an_alias : !fx.f^ord4 x
+
+ce qui est qéquivalenà
+
+an_alias : !fx.f(f(f(f(x))))
+
+on d�finit aussi l'ordinal génériquordn qui permet de r�eprésenter l'ordinal
+n et donc il peut être vue comme le joker des ordinaux.
+
+
+On peut donc redefinir les number... :
+
+number...
+(
+	final 0 : !fx.x
+	final 1 : !fx.fx
+	final ordn : !fx.fç^ordn x
+)
+
+OK ! on approche, mais ce n'est pas encore fini. Nous avons encore le
+pb que l'alias généré eordn et pas n.
+Pour cela on reprend les idées des expressions régulières mais po
+extraire une sous chaine d'une chaine.
+
+dans une chaine de caractère ." l'o^pérateur{} vois ce qu'il y
+a l'intérieur comme une iopération arithmétique qu'il faut évaluer
+au moment de la compilation. et le mot alias  permet de faire réféce
+à l'alias courant. 
+
+number...
+(
+	final 0 : !fx.x
+	final 1 : !fx.fx
+	final "[0-9]+" : !fx.f(pred "{alias - 1}" f x)
+)
+
+Dans cet exemple, le mot alias r�eprésente'identifiant généré 
+par l'expression régulièr"e [0�-". 
+Donc si nous devions évaluer l'expression 
+     PLUS 3 4
+
+Nous rechercherions si 3 peut existe parmi les alias, puis parmis les génératrices.
+Pour cela, nous observons laquel lui correspond (la correspondance doit être unique).
+
+Une fois trouvé, nous générons l'abstractioderrière l'alias. 
+
+pUis nous ferions de même avec4 et enfin nous pourrions évalue PLUS 3 4
+
+Mais grâce auxordinaux nous pouvons offrir une définition plus performante
+des nombres :
+
+number...
+{
+	final "[0-9]+" : !fx.f^ord"alias" x
+}
+
+
+A réflechir: est ce que number... est nécéssaire.
