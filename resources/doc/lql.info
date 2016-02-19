@@ -271,8 +271,8 @@ extraire une sous chaine d'une chaine.
 
 dans une chaine de caractÃ¨re ." l'o^pÃ©rateur{} vois ce qu'il y
 a l'intÃ©rieur comme une iopÃ©ration arithmÃ©tique qu'il faut Ã©valuer
-au moment de la compilation. et le mot alias  permet de faire rÃ©fÃ©ce
-Ã  l'alias courant. 
+au moment de la compilation. et le mot alias  permet de faire référence
+à l'alias courant. 
 
 number...
 (
@@ -293,7 +293,7 @@ Une fois trouvÃ©, nous gÃ©nÃ©rons l'abstracn tioderriÃ¨re l'alias.
 
 pUis nous ferions de mÃªme avec4 et enfin nous pourrions évaluer PLUS 3 4
 
-Mais grÃ¢ce auxordinaux nous pouvons offrir une définition plus performante
+Mais grÃ¢ce aux ordinaux nous pouvons offrir une définition plus performante
 des nombres :
 
 number...
@@ -320,3 +320,35 @@ presque
 succ : !n f x.f(n f x)
 
 succ : !n f x.f^ord"{n}" x 
+
+On va poser deux règles sur les génératrices :
+ - Les expressions régulières ne sont possible que du coté de l'alias
+ - Les concaténation de chaine ne sont possible qu'avec l'opérateur de composition et donc indirectement l'utilisation de {}
+
+Dans l'expression {} seul les opérateurs arithmétiques suivant sont
+autorisés : + - * / (division entière) et % (modulo)
+
+l'opérateur {} dans une chaine de caractère provoque : 
+ - le remplacement de "alias" par l'alias courant de la définition
+ - le remplacement d'un alias représentant un paramêtre par sa valeur effectif
+
+on peut donc avoir {n-1} avec n = 2 {2-1} = {1} = 1
+ou bien on peut aussi utiliser la forme ordinal et avoir {ord2 - ord1} = ord1
+
+La concaténation de chaine se fait simplement entre une suite de lettre et un résultat de calcul traduit en chaine par "". Notons qu'on
+peut aussi utiliser des caractère dans "" sans pour autant qu'il soit dans un calcul. De fait, ce sont des bout qui seront concaténé tel
+quel.
+
+
+Pour l'instant nous allons garder la forme
+<generatrice_name>...
+(
+	<generatrice_aliasing>
+)
+
+Cela permet d'isoler les génératrices dans le code source.
+
+
+
+
+
