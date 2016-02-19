@@ -289,11 +289,11 @@ Donc si nous devions évaluer l'expression
 Nous rechercherions si 3 peut existe parmi les alias, puis parmis les génératrices.
 Pour cela, nous observons laquel lui correspond (la correspondance doit être unique).
 
-Une fois trouvé, nous générons l'abstractioderrière l'alias. 
+Une fois trouvé, nous générons l'abstracn tioderrière l'alias. 
 
-pUis nous ferions de même avec4 et enfin nous pourrions évalue PLUS 3 4
+pUis nous ferions de même avec4 et enfin nous pourrions �valuer PLUS 3 4
 
-Mais grâce auxordinaux nous pouvons offrir une définition plus performante
+Mais grâce auxordinaux nous pouvons offrir une d�finition plus performante
 des nombres :
 
 number...
@@ -302,4 +302,21 @@ number...
 }
 
 
-A réflechir: est ce que number... est nécéssaire.
+A r�flechir: est ce que number... est n�c�ssaire.
+
+
+plus : !m n f x. m f(n f x)
+plus : !m n f x. f^{ord"m"+ord"n"} x
+plus 3 4 = !fx.f^ord7 x
+
+
+Quand on analyse la derniere ligne, on se dit, 
+qu'on aimerait retrouver l'alias 7 plutot que 
+la formule compliqu�. En bref, nous y sommes 
+presque
+
+
+
+succ : !n f x.f(n f x)
+
+succ : !n f x.f^ord"{n}" x 
