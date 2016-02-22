@@ -15,12 +15,11 @@
 //using namespace std;
 using namespace meta;
 
-
-
 /// Main function for
-/// C++ compiler.
+/// TODO: // C++ compiler.
 int main()
 {
+
   std::cout << "Brain System Program" << std::endl;
   return 0;
 }
