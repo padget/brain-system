@@ -135,12 +135,31 @@ Exemple :
 Nous avons donc maintenant un opérateur permettant de condenser
 des écritures qui pourraient être vite très lourdes.
 
-Remarquons aussi l'écriture peut naturel des ordinaux : ord<n>
-avec n étant l'entier habituel symbol de quantité. Le préfixe
-'ord' symbolise la nature ordinal du nombre et permet de ne pas
+Remarquons aussi l'écriture peu naturelle des ordinaux : ord<n>
+avec n étant l'entier habituel symbole de quantité. Le préfixe
+'ord' symbolise la nature ordinale du nombre et permet de ne pas
 le confondre avec les alias d'entiers naturel (0, 1, 2, ...) qui
-sont utilisé en lambda calcul.
+sont utilisés en lambda calcul.
 
+L'opérateur {...} permet d'effectuer des calculs simple avec
+les ordinaux. Cet opérateur est utilisable dans tous les endroits
+où un ordinale peut être utilisé.
+
+Exemple :
+	!f x. f^{ord1+ord3} x
+
+Les seules opération arithmétiques autorisées sur les ordinaux sont :
+ - addition : +
+ - soustraction : -
+ - division entière : /
+ - multiplication : *
+ - modulo : %
+
+De plus la priorisation des calculs dans {...} par des parenthèses
+est aussi autorisée.
+
+Exemple :
+	!f x.f^{(ord1 + ord3) % ord2} x <=> !f x.f^ord0 x <=> !f x.x
 
 /// /////////// ///
 /// Conversions ///
@@ -179,26 +198,154 @@ une alpha-conversion pour modifier le nom d'une variable liée
 afin de conserver la sémantique de l'expression. (... explications ...)
 
 
-L'ETA REDUCTION nest un l'abstraction d'un aliapar simple glissement
-de variable autour de l'alias.
+L'ETA REDUCTION permet d'éliminer une abstraction superflue à condition
+que les variables liées de l'abstraction n'apparaissent pas dans le reste
+de la lambda expression.
+Ou bien dans l'autre sens, s'il y a besoins d'une évaluation retardée
+il peut s'agir de rajouter une abstraction autour d'un lambda terme.
 
 Exemple :
 		(!x.f x) <=> (f)
 
-...
-...
 
-
-/// /////////////////////// ///
+/// //////////////////////// ///
 /// Les Génératrices d'alias ///
-/// /////////////////////// ///
+/// //////////////////////// ///
 
 
 Une GENERATRICE est un mécanisme permettant de mettre en place
 au moyens d'un système de macro sophistiqué, un dictionnaire d'
-alias qui seront disponible pour une utilisation ultérieure.
+alias qui sera disponible pour une utilisation ultérieure.
 
+Exemple :
+	number... : "[0-9]+" : !f x. f^ord"alias" x
+
+
+Une génératrice se décompose en trois parties :
+ - l'identifiant ellipsé
+ - le patron d'alias (expression régulière)
+ - la lambda expression
+
+L'IDENTIFIANT ELLIPSE est simplement un identifiant de groupement
+des alias qui seront créés par la génératrice. Utile principalement
+pour la maintenance et la lisibilité du code. Cet identifiant n'est
+pas une mécanique de catégorie (présentée plus loin).
+
+
+Le PATRON D'ALIAS est la définition par expression régulière
+de ce que les alias qui seront créés pourront être. Quand l'
+interpréteur rencontrera un alias non connu directement, il
+explorera la liste des génératrices (des patrons d'alias) et
+identifiera l'unique occurence à laquelle l'alias rencontré
+matchera. Si plusieurs matching sont obtenus, une alerte doit
+être soulevée et l'alias est donc ambigue et non utilisable.
+
+
+La LAMBDA EXPRESSION est simplement une expression lambda quelconque
+qui permet de spécifier l'alias. Il y a cependant des subtilités
+supplémentaires autorisées :
+ - mot clé "alias" (cf. Mot clé "alias")
+ - concaténation de chaine (cf. Chaines d'alias)
+ - calcul d'ordinals (cf. Ordinaux et compisition)
+ 
+
+/// /////////////// ///
+/// Mot clé "alias" ///
+/// /////////////// ///
+
+
+Dans une définition d'alias, le mot clé 'alias' permet de faire
+référence à l'alias lui même. Il s'agit simplement d'une macro qui
+remplacé le plus tot possible par l'interpréteur par la valeur de
+l'alias en cours de définition.
+
+Exemple :
+	foo : !f x. f alias x <=> !f x.f foo x (peu d'intérêt !)
+
+	dans le cas d'une génératrice :
+	     number... : "[0-9]+" : !f x. f^ord"alias" x
+	'alias' sera replacé par l'alias qui matchera avec
+	le patron d'alias de la génératrice.
+
+
+/// /////////////// ///
+/// Chaines d'alias ///
+/// /////////////// ///
+
+Une CHAINE D'ALIAS a pour vocation de permettre la concaténation
+de chaines de caractère et d'alias pour composer des alias plus
+complexes ou calculés (à l'aide des calculs sur ordinaux).
+
+la concaténation se fait par l'opérateur "". On peut concatener :
+ - un alias et une chaine
+ - une chaine et un alias
+ - une chaine et une autre chaine
+
+Exemple :
+	!f x.f^ord"{ord12-ord6}" x <=> !f x.f^ord6 x 
+	!f x.f^"ord"2 x <=> !f x.f^ord2 x
+	!f x.f^"ord""2" x <=> !f x.f^ord2 x
+	!f x.f^ord"{ord1+ord1}"0 x <=> !f x.f^ord20 x
+
+Dans une chaine d'alias, le mot clé 'alias' est transformé en sa
+valeur avant l'évaluation de la chaine.
+
+
+/// //////////////// ///
+/// Mot clé 'native' ///
+/// //////////////// ///
+
+Le mot clé 'native' qualifie une définition d'alias.
+
+Exemple :
+	native 1 : !f x.f x
+
+Il permet de signifier à l'interpréteur que l'alias (ou génératrice)
+en cours de définition sera à voir comme un élément natif du lambda
+calcul.
+
+L'utilisation de ce mot clé sur un alias enverra donc celui dans une
+liste d'alias spécifique qui permettra à l'interpréteur de passer d'une
+abstraction vers son alias. 
 ...
 
+Exemple :
+	native number... : "[0-9]+" : !f x.f^ord"alias" x
 
-/// //////////
+
+
+/// ///////////////// ///
+/// Métaprogrammation ///
+/// ///////////////// ///
+
+La métaprogrammation couplé au lambda calcul est le fondement même
+de ce langage. Sans ça, on pourrait tout à fait se rebattre sur
+Haskell, Lisp ou autres... La métaprogrammation est faite par
+template d'alias (patron). Syntaxiquement proche de ce que propose
+le C++14 en la matière.
+
+Un template commencera toujours par le mot clé 'template' et par
+une liste de métaparamêtre entre '<...>' et séparé par des virgules.
+
+Exemple :
+	template<alias F, alias G>
+	...
+
+S'en suit, la définition de l'alias qui sera paramêtrée par les
+metaparamêtres du template.
+
+Exemple :
+	template <alias F, alias G>
+	compose : !F G x.F (G (x))
+
+/// /// //////////////////////// ///
+/// /// Types des métaparamêtres ///
+/// /// //////////////////////// ///
+
+Un métaparamêtre peut être d'un des types suivants :
+ - alias
+ - category
+ - native
+ - ordinal
+ - ? template ?
+

@@ -316,6 +316,11 @@ la formule compliqué. En bref, nous y sommes
 presque
 
 
+native number... : 
+       "[0-9]+" : !f x.f^<ord"alias"> x
+
+native foo... :
+       "foo(.)*" : !f x y z.f x <alias> y z 
 
 succ : !n f x.f(n f x)
 
