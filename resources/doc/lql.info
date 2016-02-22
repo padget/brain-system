@@ -142,9 +142,9 @@ le confondre avec les alias d'entiers naturel (0, 1, 2, ...) qui
 sont utilisé en lambda calcul.
 
 
-/// ////////// ///
-/// Réductions ///
-/// ////////// ///
+/// /////////// ///
+/// Conversions ///
+/// /////////// ///
 
 L'ALPHA CONVERSION est simplement la possibilité de remplacer une
 variable liée dans une abstraction par une autre sans que cela n'
@@ -179,7 +179,13 @@ une alpha-conversion pour modifier le nom d'une variable liée
 afin de conserver la sémantique de l'expression. (... explications ...)
 
 
-L'éta conversion ...
+L'ETA REDUCTION nest un l'abstraction d'un aliapar simple glissement
+de variable autour de l'alias.
+
+Exemple :
+		(!x.f x) <=> (f)
+
+...
 ...
 
 
