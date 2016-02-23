@@ -347,5 +347,38 @@ Un métaparamêtre peut être d'un des types suivants :
  - category
  - native
  - ordinal
+ - type
+ - generator
  - ? template ?
 
+Le type ALIAS permet d'indiquer qu'à cet endroit il est voulu
+un simple alias. Sachant qu'un native est aussi un alias.
+
+Le type CATEGORY permet d'indiquer qu'une catégorie est attendue
+comme paramêtre du template. Les catégorie sont expliquées plus
+loin dans le document.
+
+Le type NATIVE est un type particulier d'alias. Lorsqu'un native
+est attendu, seuls les alias taggués 'native' sont elligibles.
+
+Le type ORDINAL signifie que seuls les ordinaux sont permis à cet
+endroit du template.
+
+Exemple :
+        template<alias g>
+        a_name : !f x.f g x x
+
+        a_name<minus> x => !f x.f minux x x
+
+        template<category cat, alias f>
+        a_name : !x.cat::f x cat::plus
+
+        template<category cat, ordinal n>
+        a_name : !x.cat::plus^n x 
+
+
+/// //////////////////// ///
+/// Définition d'un type ///
+/// //////////////////// ///
+
+En lambda calcul on peut définir des types
